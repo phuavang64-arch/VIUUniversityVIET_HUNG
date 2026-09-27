@@ -1,0 +1,84 @@
+@model PagedResult<News>
+@{
+    ViewData["Title"] = "Tin tức & Hoạt động - Đại học Công nghiệp Việt - Hung";
+}
+
+<!-- Header -->
+<div class="py-5 text-white" style="background: linear-gradient(135deg, var(--viu-navy-dark) 0%, var(--viu-navy) 60%, #173f6b 100%); border-bottom: 4px solid var(--viu-gold);">
+    <div class="container py-4">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb mb-2">
+                <li class="breadcrumb-item"><a href="/" class="text-white-50 text-decoration-none">Trang chủ</a></li>
+                <li class="breadcrumb-item active text-white" aria-current="page">Tin tức</li>
+            </ol>
+        </nav>
+        <span class="badge bg-warning text-dark fw-bold px-3 py-2 text-uppercase mb-2">Bản tin học đường VIU</span>
+        <h1 class="display-5 fw-bold mb-3">Tin tức & Sự kiện Nổi bật</h1>
+        <p class="lead text-white-75 mb-0" style="max-width: 750px;">
+            Cập nhật thường xuyên các hoạt động đào tạo, nghiên cứu khoa học, hợp tác quốc tế và phong trào đoàn hội sôi nổi của sinh viên.
+        </p>
+    </div>
+</div>
+
+<div class="container py-5">
+    <div class="row align-items-center justify-content-between mb-4 g-3">
+        <div class="col-md-6">
+            <h4 class="fw-bold text-dark mb-0"><i class="fa-solid fa-newspaper text-warning me-2"></i>Tất cả bài viết (@Model.TotalCount)</h4>
+        </div>
+        <div class="col-md-5 col-lg-4">
+            <form method="get" class="d-flex gap-2">
+                <input type="text" name="keyword" value="@ViewBag.Keyword" class="form-control rounded-pill shadow-none" placeholder="Tìm kiếm tin tức..." />
+                <button class="btn btn-warning text-dark fw-bold rounded-pill px-3"><i class="fa-solid fa-magnifying-glass"></i></button>
+            </form>
+        </div>
+    </div>
+
+    <div class="row g-4">
+        @foreach (var news in Model.Items)
+        {
+            <div class="col-md-6 col-lg-4">
+                <div class="viu-card h-100 bg-white">
+                    <img src="@(string.IsNullOrEmpty(news.Thumbnail) ? "https://images.unsplash.com/photo-1523240795612-9a054b0db644?auto=format&fit=crop&w=800&q=80" : news.Thumbnail)" alt="@news.Title" />
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <span class="badge-cat">@(news.Category?.Name ?? "Hoạt động")</span>
+                            <span class="small text-muted"><i class="fa-regular fa-clock me-1"></i>@news.PublishedAt?.ToString("dd/MM/yyyy")</span>
+                        </div>
+                        <h5 class="card-title mb-2">
+                            <a asp-action="Details" asp-route-slug="@news.Slug">@news.Title</a>
+                        </h5>
+                        <p class="text-secondary small mb-3">@news.Summary</p>
+                        <div class="mt-auto pt-2 border-top d-flex justify-content-between text-muted small">
+                            <span><i class="fa-regular fa-eye me-1"></i>@news.ViewCount lượt xem</span>
+                            <a asp-action="Details" asp-route-slug="@news.Slug" class="text-primary text-decoration-none fw-semibold">
+                                Đọc tiếp <i class="fa-solid fa-arrow-right ms-1"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+        @if (!Model.Items.Any())
+        {
+            <div class="col-12 text-center py-5">
+                <i class="fa-regular fa-folder-open fa-3x text-muted mb-3"></i>
+                <h5 class="text-muted">Không tìm thấy bài viết nào phù hợp với từ khóa tìm kiếm.</h5>
+                <a asp-action="Index" class="btn btn-outline-primary btn-sm rounded-pill mt-2">Xem tất cả bài viết</a>
+            </div>
+        }
+    </div>
+
+    @if (Model.TotalPages > 1)
+    {
+        <nav class="mt-5">
+            <ul class="pagination justify-content-center">
+                @for (int i = 1; i <= Model.TotalPages; i++)
+                {
+                    <li class="page-item @(i == Model.PageNumber ? "active" : "")">
+                        <a class="page-link" href="?page=@i&keyword=@ViewBag.Keyword">@i</a>
+                    </li>
+                }
+            </ul>
+        </nav>
+    }
+</div>

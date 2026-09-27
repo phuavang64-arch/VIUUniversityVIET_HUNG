@@ -1,0 +1,111 @@
+@model List<VIUUniversity.Models.Lecturer>
+@{
+    ViewData["Title"] = "Đội ngũ Cán bộ & Giảng viên";
+    var departments = ViewBag.Departments as List<VIUUniversity.Models.Department> ?? new();
+    var selectedDeptId = ViewBag.SelectedDepartmentId as int?;
+}
+
+<!-- Header -->
+<div class="py-5 text-white" style="background: linear-gradient(135deg, var(--viu-navy-dark) 0%, var(--viu-navy) 60%, #173f6b 100%); border-bottom: 4px solid var(--viu-gold);">
+    <div class="container py-4">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb mb-2">
+                <li class="breadcrumb-item"><a href="/" class="text-white-50 text-decoration-none">Trang chủ</a></li>
+                <li class="breadcrumb-item"><a href="/dao-tao" class="text-white-50 text-decoration-none">Đào tạo</a></li>
+                <li class="breadcrumb-item active text-white" aria-current="page">Đội ngũ Giảng viên</li>
+            </ol>
+        </nav>
+        <span class="badge bg-warning text-dark fw-bold px-3 py-2 text-uppercase mb-2">Đội ngũ sư phạm chất lượng cao</span>
+        <h1 class="display-5 fw-bold mb-3">Đội ngũ Cán bộ & Giảng viên</h1>
+        <p class="lead text-white-75 mb-0" style="max-width: 800px;">
+            Hơn 90% giảng viên đạt trình độ Thạc sĩ, Tiến sĩ và Phó Giáo sư tốt nghiệp từ các trường đại học uy tín trong nước và quốc tế (Hungary, Đức, Nga, Nhật Bản...).
+        </p>
+    </div>
+</div>
+
+<div class="container py-5">
+    <!-- Filter by Department -->
+    <div class="card border-0 shadow-sm rounded-4 p-4 mb-5 bg-white">
+        <div class="row align-items-center g-3">
+            <div class="col-md-3">
+                <h6 class="fw-bold mb-0 text-dark"><i class="fa-solid fa-filter text-warning me-2"></i>Lọc theo đơn vị:</h6>
+            </div>
+            <div class="col-md-9">
+                <div class="d-flex flex-wrap gap-2">
+                    <a href="/dao-tao/giang-vien" class="btn btn-sm rounded-pill @(selectedDeptId == null ? "btn-primary px-3 fw-bold" : "btn-light border")">
+                        Tất cả giảng viên (@Model.Count)
+                    </a>
+                    @foreach (var dept in departments)
+                    {
+                        <a href="/dao-tao/giang-vien?departmentId=@dept.Id" class="btn btn-sm rounded-pill @(selectedDeptId == dept.Id ? "btn-primary px-3 fw-bold" : "btn-light border")">
+                            @dept.Name
+                        </a>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Lecturers Grid -->
+    <div class="row g-4">
+        @foreach (var lec in Model)
+        {
+            <div class="col-lg-4 col-md-6">
+                <div class="card border-0 shadow-sm rounded-4 h-100 p-4 bg-white viu-card-hover d-flex flex-column justify-content-between">
+                    <div>
+                        <div class="d-flex align-items-center gap-3 mb-3">
+                            <div class="rounded-circle text-white d-flex align-items-center justify-content-center fw-bold fs-4 shadow-sm" style="width: 64px; height: 64px; flex-shrink: 0; background: linear-gradient(135deg, var(--viu-navy), var(--viu-navy-light)); border: 2px solid var(--viu-gold);">
+                                @(string.IsNullOrEmpty(lec.FullName) ? "GV" : lec.FullName.Substring(lec.FullName.LastIndexOf(' ') + 1, 1))
+                            </div>
+                            <div>
+                                <h5 class="fw-bold mb-1 text-dark">@lec.FullName</h5>
+                                <span class="badge bg-warning text-dark fw-bold" style="font-size: 11px;">@(lec.AcademicTitle ?? "Giảng viên")</span>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <span class="small text-muted d-block mb-1">
+                                <i class="fa-solid fa-building-columns text-primary me-2"></i>@(lec.Department?.Name ?? "Trường ĐH Công nghiệp Việt - Hung")
+                            </span>
+                            @if (!string.IsNullOrWhiteSpace(lec.Email))
+                            {
+                                <span class="small text-muted d-block mb-1">
+                                    <i class="fa-regular fa-envelope text-primary me-2"></i><a href="mailto:@lec.Email" class="text-decoration-none text-muted">@lec.Email</a>
+                                </span>
+                            }
+                            @if (!string.IsNullOrWhiteSpace(lec.Phone))
+                            {
+                                <span class="small text-muted d-block">
+                                    <i class="fa-solid fa-phone text-success me-2"></i>@lec.Phone
+                                </span>
+                            }
+                        </div>
+
+                        <p class="small text-secondary mb-0 leading-relaxed">
+                            @(lec.Biography ?? "Cán bộ giảng viên giàu kinh nghiệm thực tế, tâm huyết và luôn đồng hành cùng sinh viên trong nghiên cứu và học tập.")
+                        </p>
+                    </div>
+
+                    <div class="pt-3 mt-3 border-top d-flex justify-content-between align-items-center">
+                        <span class="small text-muted" style="font-size: 11px;">Mã định danh GV: VIU-@lec.Id</span>
+                        @if (lec.Department != null)
+                        {
+                            <a href="/dao-tao/khoa/@lec.Department.Slug" class="small text-primary text-decoration-none fw-semibold">
+                                Khoa @lec.Department.Code <i class="fa-solid fa-arrow-right ms-1"></i>
+                            </a>
+                        }
+                    </div>
+                </div>
+            </div>
+        }
+
+        @if (!Model.Any())
+        {
+            <div class="col-12 text-center py-5">
+                <i class="fa-solid fa-user-graduate fa-3x text-muted mb-3"></i>
+                <h5 class="text-muted">Không tìm thấy thông tin giảng viên cho tiêu chí đã chọn.</h5>
+                <a href="/dao-tao/giang-vien" class="btn btn-outline-primary btn-sm rounded-pill mt-2">Xem tất cả giảng viên</a>
+            </div>
+        }
+    </div>
+</div>

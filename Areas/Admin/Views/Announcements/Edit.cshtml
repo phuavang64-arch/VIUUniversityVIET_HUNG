@@ -1,0 +1,39 @@
+@model Announcement
+@using Microsoft.AspNetCore.Mvc.Rendering
+@{
+    ViewData["Title"] = "Chỉnh sửa thông báo";
+}
+
+<div class="admin-card" style="max-width:800px;">
+    <form asp-action="Edit" asp-route-id="@Model.Id" method="post">
+        <input type="hidden" asp-for="Id" />
+        <input type="hidden" asp-for="CreatedAt" />
+        <div asp-validation-summary="All" class="alert alert-danger d-none-empty"></div>
+        <div class="mb-3">
+            <label class="form-label fw-semibold">Tiêu đề</label>
+            <input asp-for="Title" class="form-control" required />
+        </div>
+        <div class="mb-3">
+            <label class="form-label fw-semibold">Chuyên mục</label>
+            <select asp-for="CategoryId" class="form-select" asp-items="@(new SelectList(ViewBag.Categories, "Id", "Name", Model.CategoryId))"></select>
+        </div>
+        <div class="mb-3">
+            <label class="form-label fw-semibold">Nội dung</label>
+            <textarea asp-for="Content" class="form-control" rows="8" required></textarea>
+        </div>
+        <div class="mb-3">
+            <label class="form-label fw-semibold">File đính kèm (URL PDF)</label>
+            <input asp-for="AttachmentUrl" class="form-control" />
+        </div>
+        <div class="form-check mb-2">
+            <input asp-for="IsImportant" class="form-check-input" />
+            <label asp-for="IsImportant" class="form-check-label">Đánh dấu quan trọng</label>
+        </div>
+        <div class="form-check mb-4">
+            <input asp-for="IsPublished" class="form-check-input" />
+            <label asp-for="IsPublished" class="form-check-label">Đã đăng</label>
+        </div>
+        <button type="submit" class="btn btn-viu-gold"><i class="fa-solid fa-check me-2"></i>Cập nhật</button>
+        <a asp-action="Index" class="btn btn-outline-secondary">Hủy</a>
+    </form>
+</div>

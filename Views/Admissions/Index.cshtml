@@ -1,0 +1,223 @@
+@model VIUUniversity.ViewModels.AdmissionIndexViewModel
+@{
+    ViewData["Title"] = "Cổng thông tin Tuyển sinh 2026";
+}
+
+<!-- Hero header -->
+<div class="py-5 text-white position-relative" style="background: linear-gradient(135deg, var(--viu-navy) 0%, #1e3a8a 100%);">
+    <div class="container py-4">
+        <div class="row align-items-center g-4">
+            <div class="col-lg-7">
+                <nav aria-label="breadcrumb">
+                    <ol class="breadcrumb mb-2">
+                        <li class="breadcrumb-item"><a href="/" class="text-white-50 text-decoration-none"><i class="fa-solid fa-house me-1"></i>Trang chủ</a></li>
+                        <li class="breadcrumb-item active text-white" aria-current="page">Tuyển sinh</li>
+                    </ol>
+                </nav>
+                <span class="badge bg-warning text-dark px-3 py-2 fw-bold text-uppercase mb-2">Khóa tuyển sinh 2026</span>
+                <h1 class="display-5 fw-bold mb-3">Tuyển sinh Đại học Chính quy 2026</h1>
+                <p class="lead text-white-75 mb-4">Mở rộng cánh cửa tương lai cùng Trường Đại học Công nghiệp Việt - Hung với đa dạng ngành nghề công nghệ, kỹ thuật và quản trị hiện đại.</p>
+                <div class="d-flex flex-wrap gap-3">
+                    <a href="#form-dang-ky" class="btn btn-warning text-dark fw-bold px-4 py-2 rounded-pill shadow-sm">
+                        <i class="fa-solid fa-pen-to-square me-2"></i>Đăng ký xét tuyển trực tuyến
+                    </a>
+                    <a asp-action="Scores" class="btn btn-outline-light px-4 py-2 rounded-pill">
+                        <i class="fa-solid fa-chart-line me-2"></i>Tra cứu điểm chuẩn các năm
+                    </a>
+                </div>
+            </div>
+            <div class="col-lg-5 d-none d-lg-block text-center">
+                <div class="bg-white bg-opacity-10 p-4 rounded-4 backdrop-blur border border-white border-opacity-25">
+                    <div class="h3 fw-bold text-warning mb-1">MÃ TRƯỜNG: VHD</div>
+                    <div class="small text-white-50 mb-3">ĐẠI HỌC CÔNG NGHIỆP VIỆT - HUNG</div>
+                    <div class="row g-2 text-start">
+                        <div class="col-6">
+                            <div class="p-2 rounded bg-black bg-opacity-25">
+                                <div class="text-warning fw-bold fs-5">2.500+</div>
+                                <div class="small text-white-50">Tổng chỉ tiêu 2026</div>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="p-2 rounded bg-black bg-opacity-25">
+                                <div class="text-warning fw-bold fs-5">04</div>
+                                <div class="small text-white-50">Phương thức xét tuyển</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="container py-5">
+    @if (TempData["Success"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show mb-4 shadow-sm" role="alert">
+            <i class="fa-solid fa-circle-check me-2"></i>@TempData["Success"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+
+    <!-- 1. Phương thức xét tuyển -->
+    <section class="mb-5">
+        <div class="text-center mb-5">
+            <div class="viu-eyebrow">Hình thức tuyển sinh</div>
+            <h2 class="viu-section-title">Các phương thức xét tuyển 2026</h2>
+        </div>
+
+        <div class="row g-4">
+            @foreach (var method in Model.Methods)
+            {
+                <div class="col-md-6 col-lg-3">
+                    <div class="card h-100 border-0 shadow-sm rounded-4 p-4 hover-lift">
+                        <div class="badge bg-primary bg-opacity-10 text-primary mb-3 align-self-start fw-bold">
+                            Mã PT: @method.MethodCode
+                        </div>
+                        <h5 class="fw-bold mb-3" style="color: var(--viu-navy);">@method.Name</h5>
+                        <p class="text-secondary small mb-3">@method.Description</p>
+                        @if (!string.IsNullOrEmpty(method.Requirements))
+                        {
+                            <div class="mt-auto pt-3 border-top small text-muted">
+                                <strong>Điều kiện:</strong> @method.Requirements
+                            </div>
+                        }
+                    </div>
+                </div>
+            }
+        </div>
+    </section>
+
+    <!-- 2. Danh mục ngành tuyển sinh và chỉ tiêu -->
+    <section class="mb-5">
+        <div class="d-flex flex-wrap justify-content-between align-items-end mb-4">
+            <div>
+                <div class="viu-eyebrow">Ngành đào tạo</div>
+                <h2 class="viu-section-title mb-0">Chỉ tiêu & Tổ hợp môn xét tuyển</h2>
+            </div>
+            <a asp-action="Scores" class="btn btn-outline-primary rounded-pill btn-sm">
+                Tra cứu điểm chuẩn đầy đủ <i class="fa-solid fa-arrow-right ms-1"></i>
+            </a>
+        </div>
+
+        <div class="card border-0 shadow-sm rounded-4 overflow-hidden">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th class="py-3 px-4">Mã ngành</th>
+                            <th class="py-3">Tên ngành xét tuyển</th>
+                            <th class="py-3 text-center">Chỉ tiêu</th>
+                            <th class="py-3">Tổ hợp môn xét tuyển</th>
+                            <th class="py-3 text-center">Điểm chuẩn 2025</th>
+                            <th class="py-3 text-end px-4">Hành động</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model.Majors)
+                        {
+                            <tr>
+                                <td class="px-4 fw-bold text-primary">@item.MajorCode</td>
+                                <td>
+                                    <strong>@item.MajorName</strong>
+                                    <div class="small text-muted">@item.DegreeLevel</div>
+                                </td>
+                                <td class="text-center fw-semibold">@(item.Quota?.ToString() ?? "—")</td>
+                                <td>
+                                    @foreach (var combo in item.SubjectCombinations.Split(','))
+                                    {
+                                        <span class="badge bg-light text-dark border me-1">@combo.Trim()</span>
+                                    }
+                                </td>
+                                <td class="text-center">
+                                    <span class="badge bg-success bg-opacity-10 text-success fw-bold px-2 py-1">
+                                        @(item.Score2025.HasValue ? item.Score2025.Value.ToString("0.00") : "Đang cập nhật")
+                                    </span>
+                                </td>
+                                <td class="text-end px-4">
+                                    <a href="/dao-tao/@VIUUniversity.Services.SlugHelper.GenerateSlug(item.MajorName)" class="btn btn-outline-secondary btn-sm rounded-pill">
+                                        Chi tiết ngành
+                                    </a>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </section>
+
+    <!-- 3. Form đăng ký xét tuyển trực tuyến -->
+    <section id="form-dang-ky" class="py-4">
+        <div class="row justify-content-center">
+            <div class="col-lg-10">
+                <div class="card border-0 shadow-sm rounded-4 p-4 p-md-5" style="border-top: 5px solid var(--viu-gold) !important;">
+                    <div class="text-center mb-4">
+                        <div class="viu-eyebrow">Cổng nộp hồ sơ</div>
+                        <h2 class="viu-section-title">Đăng ký tư vấn & Xét tuyển trực tuyến</h2>
+                        <p class="text-secondary small">Điền thông tin bên dưới để nhận hướng dẫn hồ sơ và tư vấn học bổng trực tiếp từ Phòng Tuyển sinh VIU.</p>
+                    </div>
+
+                    <form asp-action="SubmitLead" method="post">
+                        @Html.AntiForgeryToken()
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label class="form-label small fw-semibold">Họ và tên thí sinh <span class="text-danger">*</span></label>
+                                <input asp-for="NewLead.FullName" class="form-control" placeholder="Nguyễn Văn A" required />
+                                <span asp-validation-for="NewLead.FullName" class="text-danger small"></span>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label small fw-semibold">Số điện thoại / Zalo <span class="text-danger">*</span></label>
+                                <input asp-for="NewLead.PhoneNumber" class="form-control" placeholder="09xxxxxxxx" required />
+                                <span asp-validation-for="NewLead.PhoneNumber" class="text-danger small"></span>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label small fw-semibold">Địa chỉ Email</label>
+                                <input asp-for="NewLead.Email" type="email" class="form-control" placeholder="thi-sinh@gmail.com" />
+                                <span asp-validation-for="NewLead.Email" class="text-danger small"></span>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label small fw-semibold">Tỉnh / Thành phố đang sinh sống</label>
+                                <input asp-for="NewLead.Province" class="form-control" placeholder="Hà Nội, Vĩnh Phúc, Phú Thọ..." />
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label small fw-semibold">Trường THPT đã / đang học</label>
+                                <input asp-for="NewLead.HighSchool" class="form-control" placeholder="THPT..." />
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label small fw-semibold">Ngành quan tâm xét tuyển <span class="text-danger">*</span></label>
+                                <select asp-for="NewLead.DesiredMajor" class="form-select" required>
+                                    <option value="">-- Chọn ngành học --</option>
+                                    @foreach (var m in Model.Majors)
+                                    {
+                                        <option value="@m.MajorName">@m.MajorName (@m.MajorCode)</option>
+                                    }
+                                </select>
+                            </div>
+                            <div class="col-12">
+                                <label class="form-label small fw-semibold">Phương thức xét tuyển dự kiến</label>
+                                <select asp-for="NewLead.PreferredMethod" class="form-select">
+                                    <option value="">-- Chọn phương thức --</option>
+                                    @foreach (var p in Model.Methods)
+                                    {
+                                        <option value="@p.Name">@p.Name</option>
+                                    }
+                                </select>
+                            </div>
+                            <div class="col-12">
+                                <label class="form-label small fw-semibold">Câu hỏi hoặc ghi chú cho ban tư vấn</label>
+                                <textarea asp-for="NewLead.Message" rows="3" class="form-control" placeholder="Ví dụ: Em muốn hỏi về học phí, ký túc xá và học bổng tuyển sinh..."></textarea>
+                            </div>
+                            <div class="col-12 text-center mt-4">
+                                <button type="submit" class="btn btn-warning fw-bold text-dark px-5 py-3 rounded-pill shadow-sm">
+                                    <i class="fa-solid fa-paper-plane me-2"></i>Gửi hồ sơ đăng ký ngay
+                                </button>
+                                <div class="small text-muted mt-2">Thông tin của bạn được bảo mật tuyệt đối theo quy định của nhà trường.</div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </section>
+</div>

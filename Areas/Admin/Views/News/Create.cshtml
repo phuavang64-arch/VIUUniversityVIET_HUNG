@@ -1,0 +1,46 @@
+@model News
+@using Microsoft.AspNetCore.Mvc.Rendering
+@{
+    ViewData["Title"] = "Thêm tin tức";
+}
+
+<div class="admin-card" style="max-width:800px;">
+    <form asp-action="Create" method="post">
+        <div asp-validation-summary="All" class="alert alert-danger d-none-empty"></div>
+
+        <div class="mb-3">
+            <label class="form-label fw-semibold">Tiêu đề</label>
+            <input asp-for="Title" class="form-control" required />
+        </div>
+        <div class="mb-3">
+            <label class="form-label fw-semibold">Đường dẫn (slug) <span class="text-muted small">- để trống sẽ tự sinh</span></label>
+            <input asp-for="Slug" class="form-control" />
+        </div>
+        <div class="mb-3">
+            <label class="form-label fw-semibold">Chuyên mục</label>
+            <select asp-for="CategoryId" class="form-select" asp-items="@(new SelectList(ViewBag.Categories, "Id", "Name"))">
+                <option value="">-- Chọn chuyên mục --</option>
+            </select>
+        </div>
+        <div class="mb-3">
+            <label class="form-label fw-semibold">Tóm tắt</label>
+            <textarea asp-for="Summary" class="form-control" rows="2"></textarea>
+        </div>
+        <div class="mb-3">
+            <label class="form-label fw-semibold">Ảnh đại diện (URL)</label>
+            <input asp-for="Thumbnail" class="form-control" placeholder="/uploads/news/anh.jpg" />
+        </div>
+        <div class="mb-3">
+            <label class="form-label fw-semibold">Nội dung</label>
+            <textarea asp-for="Content" class="form-control" rows="10" required></textarea>
+            <div class="form-text">Hỗ trợ HTML cơ bản. Có thể tích hợp trình soạn thảo (CKEditor/TinyMCE) sau.</div>
+        </div>
+        <div class="form-check mb-4">
+            <input asp-for="IsPublished" class="form-check-input" />
+            <label asp-for="IsPublished" class="form-check-label">Đăng ngay</label>
+        </div>
+
+        <button type="submit" class="btn btn-viu-gold"><i class="fa-solid fa-check me-2"></i>Lưu tin tức</button>
+        <a asp-action="Index" class="btn btn-outline-secondary">Hủy</a>
+    </form>
+</div>

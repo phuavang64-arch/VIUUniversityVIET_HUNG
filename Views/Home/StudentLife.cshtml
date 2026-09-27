@@ -1,0 +1,190 @@
+@{
+    ViewData["Title"] = "Cổng Tiện ích Sinh viên & Đời sống Học đường";
+}
+
+<!-- Hero header -->
+<div class="py-5 text-white position-relative" style="background: linear-gradient(135deg, var(--viu-navy-dark) 0%, var(--viu-navy) 60%, #173f6b 100%); border-bottom: 4px solid var(--viu-gold);">
+    <div class="container py-4">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb mb-2">
+                <li class="breadcrumb-item"><a href="/" class="text-white-50 text-decoration-none">Trang chủ</a></li>
+                <li class="breadcrumb-item active text-white" aria-current="page">Sinh viên</li>
+            </ol>
+        </nav>
+        <div class="d-inline-flex align-items-center gap-2 px-3 py-1 rounded-pill mb-3" style="background: rgba(242, 183, 5, 0.15); border: 1px solid rgba(242, 183, 5, 0.4); color: var(--viu-gold);">
+            <i class="fa-solid fa-user-graduate"></i>
+            <span class="small fw-semibold text-uppercase">Cổng dịch vụ một cửa điện tử</span>
+        </div>
+        <h1 class="display-5 fw-bold mb-3">Cổng Tiện ích Sinh viên & Đời sống Học đường</h1>
+        <p class="lead text-white-75 mb-0" style="max-width: 800px;">
+            Hệ sinh thái tiện ích trực tuyến phục vụ học tập, rèn luyện, tra cứu kết quả và tham gia các hoạt động phong trào sôi nổi tại VIU.
+        </p>
+    </div>
+</div>
+
+<div class="container py-5">
+    <!-- Quick Portal Tools -->
+    <div class="mb-5">
+        <div class="text-center mb-5">
+            <span class="viu-eyebrow">Dịch vụ học vụ trực tuyến</span>
+            <h2 class="viu-section-title">Tiện ích Tra cứu Nhanh</h2>
+            <p class="text-muted mx-auto" style="max-width: 600px;">
+                Sinh viên có thể sử dụng mã sinh viên để tra cứu thông tin học tập mọi lúc mọi nơi trên điện thoại hoặc máy tính.
+            </p>
+        </div>
+
+        <div class="row g-4">
+            <div class="col-md-6 col-lg-3">
+                <div class="card border-0 shadow-sm rounded-4 p-4 text-center h-100 bg-white viu-card-hover">
+                    <div class="p-3 mb-3 bg-primary bg-opacity-10 text-primary rounded-circle d-inline-flex align-items-center justify-content-center mx-auto" style="width: 64px; height: 64px;">
+                        <i class="fa-solid fa-calendar-days fs-3"></i>
+                    </div>
+                    <h5 class="fw-bold text-dark mb-2">Thời khóa biểu & Lịch thi</h5>
+                    <p class="small text-muted mb-3">Xem lịch học chi tiết từng tuần, phòng học, giảng viên phụ trách và ca thi học kỳ.</p>
+                    <button class="btn btn-outline-primary btn-sm rounded-pill px-4 mt-auto" onclick="showStudentPrompt('Thời khóa biểu')">
+                        Tra cứu <i class="fa-solid fa-arrow-right ms-1"></i>
+                    </button>
+                </div>
+            </div>
+
+            <div class="col-md-6 col-lg-3">
+                <div class="card border-0 shadow-sm rounded-4 p-4 text-center h-100 bg-white viu-card-hover">
+                    <div class="p-3 mb-3 bg-warning bg-opacity-15 text-warning rounded-circle d-inline-flex align-items-center justify-content-center mx-auto" style="width: 64px; height: 64px;">
+                        <i class="fa-solid fa-chart-line fs-3"></i>
+                    </div>
+                    <h5 class="fw-bold text-dark mb-2">Bảng điểm & Rèn luyện</h5>
+                    <p class="small text-muted mb-3">Theo dõi điểm tích lũy GPA, số tín chỉ đã hoàn thành và điểm rèn luyện từng kỳ.</p>
+                    <button class="btn btn-outline-warning text-dark btn-sm rounded-pill px-4 mt-auto" onclick="showStudentPrompt('Bảng điểm')">
+                        Xem điểm <i class="fa-solid fa-arrow-right ms-1"></i>
+                    </button>
+                </div>
+            </div>
+
+            <div class="col-md-6 col-lg-3">
+                <div class="card border-0 shadow-sm rounded-4 p-4 text-center h-100 bg-white viu-card-hover">
+                    <div class="p-3 mb-3 bg-success bg-opacity-10 text-success rounded-circle d-inline-flex align-items-center justify-content-center mx-auto" style="width: 64px; height: 64px;">
+                        <i class="fa-solid fa-credit-card fs-3"></i>
+                    </div>
+                    <h5 class="fw-bold text-dark mb-2">Học phí & Hóa đơn điện tử</h5>
+                    <p class="small text-muted mb-3">Tra cứu công nợ học phí, thanh toán trực tuyến qua VNPAY, Momo và lấy hóa đơn VAT.</p>
+                    <button class="btn btn-outline-success btn-sm rounded-pill px-4 mt-auto" onclick="showStudentPrompt('Học phí')">
+                        Học phí <i class="fa-solid fa-arrow-right ms-1"></i>
+                    </button>
+                </div>
+            </div>
+
+            <div class="col-md-6 col-lg-3">
+                <div class="card border-0 shadow-sm rounded-4 p-4 text-center h-100 bg-white viu-card-hover">
+                    <div class="p-3 mb-3 bg-danger bg-opacity-10 text-danger rounded-circle d-inline-flex align-items-center justify-content-center mx-auto" style="width: 64px; height: 64px;">
+                        <i class="fa-solid fa-book-open-reader fs-3"></i>
+                    </div>
+                    <h5 class="fw-bold text-dark mb-2">Thư viện điện tử VIU</h5>
+                    <p class="small text-muted mb-3">Truy cập hơn 50.000 đầu sách giáo trình điện tử, tài liệu tham khảo và tạp chí khoa học.</p>
+                    <a href="/thong-bao" class="btn btn-outline-danger btn-sm rounded-pill px-4 mt-auto">
+                        Vào thư viện <i class="fa-solid fa-arrow-right ms-1"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Đời sống học đường & Ký túc xá -->
+    <div class="row g-5 mb-5">
+        <div class="col-lg-6">
+            <div class="card border-0 shadow-sm rounded-4 p-4 p-md-5 h-100 bg-white">
+                <span class="viu-eyebrow">Nơi ở & Sinh hoạt</span>
+                <h3 class="fw-bold mb-3" style="color: var(--viu-navy);"><i class="fa-solid fa-bed text-warning me-2"></i>Ký túc xá Sinh viên hiện đại</h3>
+                <p class="text-secondary leading-relaxed mb-4">
+                    Hệ thống ký túc xá khang trang tại Cơ sở Tùng Thiện và Tây Phương có sức chứa hơn 2.000 chỗ ở, trang bị đầy đủ điều hòa, bình nóng lạnh, wifi tốc độ cao và khu thể thao phức hợp (sân bóng đá nhân tạo, bóng rổ, cầu lông).
+                </p>
+                <div class="row g-3">
+                    <div class="col-sm-6">
+                        <div class="p-3 rounded-3 bg-light border">
+                            <div class="fw-bold text-dark">Chi phí ưu đãi:</div>
+                            <div class="small text-muted">Chỉ từ 250.000 - 450.000 đ/tháng/sinh viên.</div>
+                        </div>
+                    </div>
+                    <div class="col-sm-6">
+                        <div class="p-3 rounded-3 bg-light border">
+                            <div class="fw-bold text-dark">An ninh 24/7:</div>
+                            <div class="small text-muted">Bảo vệ kiểm soát thẻ từ và hệ thống camera an ninh.</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-6">
+            <div class="card border-0 shadow-sm rounded-4 p-4 p-md-5 h-100 bg-white">
+                <span class="viu-eyebrow">Hoạt động ngoại khóa</span>
+                <h3 class="fw-bold mb-3" style="color: var(--viu-navy);"><i class="fa-solid fa-users text-primary me-2"></i>Câu lạc bộ & Đội nhóm</h3>
+                <p class="text-secondary leading-relaxed mb-4">
+                    Hơn 20 câu lạc bộ học thuật, kỹ năng và nghệ thuật trực thuộc Đoàn trường, tạo môi trường năng động để sinh viên phát triển toàn diện bản thân.
+                </p>
+                <div class="d-flex flex-wrap gap-2">
+                    <span class="badge bg-light text-dark border p-2"><i class="fa-solid fa-code text-primary me-1"></i>CLB Lập trình VIU Tech</span>
+                    <span class="badge bg-light text-dark border p-2"><i class="fa-solid fa-comments text-success me-1"></i>CLB Tiếng Anh VIU English</span>
+                    <span class="badge bg-light text-dark border p-2"><i class="fa-solid fa-guitar text-danger me-1"></i>CLB Âm nhạc & Guitar</span>
+                    <span class="badge bg-light text-dark border p-2"><i class="fa-solid fa-hand-holding-heart text-warning me-1"></i>Đội Thanh niên Tình nguyện</span>
+                    <span class="badge bg-light text-dark border p-2"><i class="fa-solid fa-futbol text-info me-1"></i>CLB Thể thao & Bóng đá</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Dịch vụ một cửa - Biểu mẫu trực tuyến -->
+    <div class="card border-0 shadow-sm rounded-4 p-4 p-md-5 bg-white">
+        <div class="d-flex flex-wrap justify-content-between align-items-center mb-4">
+            <div>
+                <span class="viu-eyebrow">Dịch vụ một cửa</span>
+                <h3 class="fw-bold mb-0" style="color: var(--viu-navy);">Thủ tục hành chính & Biểu mẫu trực tuyến</h3>
+            </div>
+            <a href="/lien-he" class="btn btn-outline-primary btn-sm rounded-pill px-3 mt-2 mt-md-0">
+                Gửi câu hỏi hỗ trợ <i class="fa-solid fa-arrow-right ms-1"></i>
+            </a>
+        </div>
+
+        <div class="row g-3">
+            <div class="col-md-4">
+                <div class="p-3 rounded-3 bg-light border d-flex justify-content-between align-items-center">
+                    <div>
+                        <div class="fw-bold text-dark small">Giấy xác nhận sinh viên</div>
+                        <span class="text-muted" style="font-size: 11px;">Để làm vé xe buýt, hoãn nghĩa vụ QS</span>
+                    </div>
+                    <button class="btn btn-sm btn-primary rounded-pill px-3" onclick="showStudentPrompt('Giấy xác nhận sinh viên')">Tải mẫu</button>
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="p-3 rounded-3 bg-light border d-flex justify-content-between align-items-center">
+                    <div>
+                        <div class="fw-bold text-dark small">Đơn cấp bảng điểm học tập</div>
+                        <span class="text-muted" style="font-size: 11px;">Tiếng Việt hoặc song ngữ Anh - Việt</span>
+                    </div>
+                    <button class="btn btn-sm btn-primary rounded-pill px-3" onclick="showStudentPrompt('Bảng điểm học tập')">Tải mẫu</button>
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="p-3 rounded-3 bg-light border d-flex justify-content-between align-items-center">
+                    <div>
+                        <div class="fw-bold text-dark small">Đơn xin xét miễn giảm học phí</div>
+                        <span class="text-muted" style="font-size: 11px;">Dành cho đối tượng chính sách ưu đãi</span>
+                    </div>
+                    <button class="btn btn-sm btn-primary rounded-pill px-3" onclick="showStudentPrompt('Miễn giảm học phí')">Tải mẫu</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+<script>
+    function showStudentPrompt(feature) {
+        const studentId = prompt(`Vui lòng nhập Mã số sinh viên của bạn để truy cập tính năng "${feature}":`, "SV2026-");
+        if (studentId) {
+            alert(`Hệ thống đang kết nối dữ liệu máy chủ học vụ cho sinh viên: ${studentId}. Vui lòng đăng nhập tài khoản portal trường cấp khi vào phòng thi.`);
+        }
+    }
+</script>
+}

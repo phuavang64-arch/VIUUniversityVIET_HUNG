@@ -1,0 +1,36 @@
+@model PagedResult<Event>
+@{
+    ViewData["Title"] = "Quản lý sự kiện";
+}
+
+<div class="admin-card">
+    <div class="d-flex justify-content-end mb-3">
+        <a asp-action="Create" class="btn btn-viu-gold btn-sm"><i class="fa-solid fa-plus me-2"></i>Thêm sự kiện</a>
+    </div>
+    <div class="table-responsive">
+        <table class="table table-admin align-middle">
+            <thead><tr><th>Tên sự kiện</th><th>Địa điểm</th><th>Thời gian</th><th>Trạng thái</th><th class="text-end">Thao tác</th></tr></thead>
+            <tbody>
+                @foreach (var e in Model.Items)
+                {
+                    <tr>
+                        <td class="fw-semibold">@e.Title</td>
+                        <td>@e.Location</td>
+                        <td>@e.StartAt.ToString("dd/MM/yyyy HH:mm")</td>
+                        <td><span class="badge @(e.IsPublished ? "bg-success" : "bg-secondary")">@(e.IsPublished ? "Đã đăng" : "Nháp")</span></td>
+                        <td class="text-end">
+                            <a asp-action="Edit" asp-route-id="@e.Id" class="btn btn-sm btn-outline-primary"><i class="fa-solid fa-pen"></i></a>
+                            <form asp-action="Delete" asp-route-id="@e.Id" method="post" class="d-inline" onsubmit="return confirm('Xóa sự kiện này?');">
+                                <button type="submit" class="btn btn-sm btn-outline-danger"><i class="fa-solid fa-trash"></i></button>
+                            </form>
+                        </td>
+                    </tr>
+                }
+                @if (!Model.Items.Any())
+                {
+                    <tr><td colspan="5" class="text-center text-muted py-4">Chưa có sự kiện nào.</td></tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

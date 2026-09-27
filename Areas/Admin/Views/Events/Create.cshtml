@@ -1,0 +1,46 @@
+@model Event
+@{
+    ViewData["Title"] = "Thêm sự kiện";
+}
+
+<div class="admin-card" style="max-width:800px;">
+    <form asp-action="Create" method="post">
+        <div asp-validation-summary="All" class="alert alert-danger d-none-empty"></div>
+        <div class="mb-3">
+            <label class="form-label fw-semibold">Tên sự kiện</label>
+            <input asp-for="Title" class="form-control" required />
+        </div>
+        <div class="mb-3">
+            <label class="form-label fw-semibold">Đường dẫn (slug)</label>
+            <input asp-for="Slug" class="form-control" />
+        </div>
+        <div class="row">
+            <div class="col-md-6 mb-3">
+                <label class="form-label fw-semibold">Thời gian bắt đầu</label>
+                <input asp-for="StartAt" type="datetime-local" class="form-control" required />
+            </div>
+            <div class="col-md-6 mb-3">
+                <label class="form-label fw-semibold">Thời gian kết thúc</label>
+                <input asp-for="EndAt" type="datetime-local" class="form-control" />
+            </div>
+        </div>
+        <div class="mb-3">
+            <label class="form-label fw-semibold">Địa điểm</label>
+            <input asp-for="Location" class="form-control" />
+        </div>
+        <div class="mb-3">
+            <label class="form-label fw-semibold">Ảnh minh họa (URL)</label>
+            <input asp-for="ImageUrl" class="form-control" />
+        </div>
+        <div class="mb-3">
+            <label class="form-label fw-semibold">Mô tả</label>
+            <textarea asp-for="Description" class="form-control" rows="6"></textarea>
+        </div>
+        <div class="form-check mb-4">
+            <input asp-for="IsPublished" class="form-check-input" />
+            <label asp-for="IsPublished" class="form-check-label">Đăng ngay</label>
+        </div>
+        <button type="submit" class="btn btn-viu-gold"><i class="fa-solid fa-check me-2"></i>Lưu</button>
+        <a asp-action="Index" class="btn btn-outline-secondary">Hủy</a>
+    </form>
+</div>

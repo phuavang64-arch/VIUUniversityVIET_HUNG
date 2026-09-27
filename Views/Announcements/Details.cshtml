@@ -1,0 +1,29 @@
+@model Announcement
+@{
+    ViewData["Title"] = Model.Title;
+}
+
+<section class="viu-section">
+    <div class="container" style="max-width:800px;">
+        <div class="d-flex gap-2 mb-3">
+            @if (Model.IsImportant)
+            {
+                <span class="badge badge-important">QUAN TRỌNG</span>
+            }
+            <span class="badge-cat">@Model.Category?.Name</span>
+        </div>
+        <h1 class="fw-bold mb-3" style="color:var(--viu-navy)">@Model.Title</h1>
+        <p class="text-muted mb-4"><i class="fa-regular fa-calendar me-1"></i>@Model.PublishedAt?.ToString("dd/MM/yyyy")</p>
+
+        <div class="fs-5" style="line-height:1.8;">@Html.Raw(Model.Content)</div>
+
+        @if (!string.IsNullOrEmpty(Model.AttachmentUrl))
+        {
+            <a href="@Model.AttachmentUrl" class="btn btn-viu-gold mt-4" target="_blank"><i class="fa-solid fa-file-arrow-down me-2"></i>Tải văn bản đính kèm</a>
+        }
+
+        <div class="mt-5">
+            <a asp-action="Index" class="btn btn-viu-outline" style="border-color:var(--viu-navy); color:var(--viu-navy);"><i class="fa-solid fa-arrow-left me-2"></i>Quay lại danh sách</a>
+        </div>
+    </div>
+</section>

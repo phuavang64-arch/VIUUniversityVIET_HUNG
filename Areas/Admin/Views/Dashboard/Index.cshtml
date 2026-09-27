@@ -1,0 +1,81 @@
+@model DashboardViewModel
+@{
+    ViewData["Title"] = "Tổng quan hệ thống";
+}
+
+<div class="row g-4 mb-4">
+    <div class="col-md-4 col-lg-2">
+        <div class="admin-stat-card">
+            <div class="num">@Model.TotalDepartments</div>
+            <div class="label">Khoa</div>
+        </div>
+    </div>
+    <div class="col-md-4 col-lg-2">
+        <div class="admin-stat-card">
+            <div class="num">@Model.TotalMajors</div>
+            <div class="label">Ngành đào tạo</div>
+        </div>
+    </div>
+    <div class="col-md-4 col-lg-2">
+        <div class="admin-stat-card">
+            <div class="num">@Model.TotalLecturers</div>
+            <div class="label">Giảng viên</div>
+        </div>
+    </div>
+    <div class="col-md-4 col-lg-2">
+        <div class="admin-stat-card">
+            <div class="num">@Model.TotalNews</div>
+            <div class="label">Tin tức</div>
+        </div>
+    </div>
+    <div class="col-md-4 col-lg-2">
+        <div class="admin-stat-card">
+            <div class="num">@Model.TotalAnnouncements</div>
+            <div class="label">Thông báo</div>
+        </div>
+    </div>
+    <div class="col-md-4 col-lg-2">
+        <div class="admin-stat-card">
+            <div class="num">@Model.TotalEvents</div>
+            <div class="label">Sự kiện</div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-4">
+    <div class="col-lg-8">
+        <div class="admin-card">
+            <h6 class="fw-bold mb-4" style="color:var(--viu-navy)">Tin tức đăng theo tháng</h6>
+            @if (Model.NewsByMonth.Any())
+            {
+                var max = Model.NewsByMonth.Max(x => x.Count);
+                <div class="d-flex align-items-end gap-3" style="height:200px;">
+                    @foreach (var m in Model.NewsByMonth)
+                    {
+                        var heightPct = max == 0 ? 0 : (m.Count * 100 / max);
+                        <div class="d-flex flex-column align-items-center justify-content-end" style="flex:1; height:100%;">
+                            <div class="fw-bold small mb-1">@m.Count</div>
+                            <div style="width:100%; background:var(--viu-gold); border-radius:6px 6px 0 0; height:@(heightPct)%;"></div>
+                            <div class="small text-muted mt-2">@m.Label</div>
+                        </div>
+                    }
+                </div>
+            }
+            else
+            {
+                <p class="text-muted mb-0">Chưa có đủ dữ liệu để hiển thị biểu đồ.</p>
+            }
+        </div>
+    </div>
+    <div class="col-lg-4">
+        <div class="admin-card h-100">
+            <h6 class="fw-bold mb-3" style="color:var(--viu-navy)">Lối tắt</h6>
+            <div class="d-grid gap-2">
+                <a asp-controller="News" asp-action="Create" class="btn btn-viu-gold"><i class="fa-solid fa-plus me-2"></i>Thêm tin tức</a>
+                <a asp-controller="Announcements" asp-action="Create" class="btn btn-outline-secondary"><i class="fa-solid fa-plus me-2"></i>Thêm thông báo</a>
+                <a asp-controller="Events" asp-action="Create" class="btn btn-outline-secondary"><i class="fa-solid fa-plus me-2"></i>Thêm sự kiện</a>
+                <a asp-controller="Banners" asp-action="Create" class="btn btn-outline-secondary"><i class="fa-solid fa-plus me-2"></i>Thêm banner</a>
+            </div>
+        </div>
+    </div>
+</div>

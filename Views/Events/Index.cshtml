@@ -1,0 +1,78 @@
+@model PagedResult<Event>
+@{
+    ViewData["Title"] = "Lịch Sự kiện & Hội thảo - Đại học Công nghiệp Việt - Hung";
+}
+
+<!-- Header -->
+<div class="py-5 text-white" style="background: linear-gradient(135deg, var(--viu-navy-dark) 0%, var(--viu-navy) 60%, #173f6b 100%); border-bottom: 4px solid var(--viu-gold);">
+    <div class="container py-4">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb mb-2">
+                <li class="breadcrumb-item"><a href="/" class="text-white-50 text-decoration-none">Trang chủ</a></li>
+                <li class="breadcrumb-item active text-white" aria-current="page">Sự kiện</li>
+            </ol>
+        </nav>
+        <span class="badge bg-warning text-dark fw-bold px-3 py-2 text-uppercase mb-2">Lịch trình học thuật & Phong trào</span>
+        <h1 class="display-5 fw-bold mb-3">Sự kiện & Hoạt động Học đường</h1>
+        <p class="lead text-white-75 mb-0" style="max-width: 750px;">
+            Tham gia các hội thảo công nghệ, ngày hội việc làm, cuộc thi học thuật và chương trình giao lưu văn hóa sinh viên quốc tế tại VIU.
+        </p>
+    </div>
+</div>
+
+<div class="container py-5">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h4 class="fw-bold text-dark mb-0"><i class="fa-regular fa-calendar-check text-warning me-2"></i>Sự kiện sắp diễn ra (@Model.TotalCount)</h4>
+        <span class="badge bg-light text-dark border">Cập nhật liên tục</span>
+    </div>
+
+    <div class="row g-4">
+        @foreach (var ev in Model.Items)
+        {
+            <div class="col-md-6 col-lg-4">
+                <div class="viu-card bg-white h-100">
+                    <img src="@(string.IsNullOrEmpty(ev.ImageUrl) ? "https://images.unsplash.com/photo-1511578314322-379afb476865?auto=format&fit=crop&w=800&q=80" : ev.ImageUrl)" alt="@ev.Title" />
+                    <div class="card-body">
+                        <div class="small text-danger fw-bold mb-2">
+                            <i class="fa-regular fa-calendar-days me-1"></i>@ev.StartAt.ToString("dd/MM/yyyy HH:mm")
+                        </div>
+                        <h5 class="card-title mb-2">
+                            <a asp-action="Details" asp-route-slug="@ev.Slug">@ev.Title</a>
+                        </h5>
+                        <p class="text-secondary small mb-3">
+                            @(ev.Description ?? "Chương trình sự kiện nổi bật thu hút đông đảo sinh viên và doanh nghiệp tham gia.")
+                        </p>
+                        <div class="mt-auto pt-2 border-top d-flex justify-content-between align-items-center small">
+                            <span class="text-muted"><i class="fa-solid fa-location-dot me-1 text-warning"></i>@(ev.Location ?? "Cơ sở Tùng Thiện")</span>
+                            <a asp-action="Details" asp-route-slug="@ev.Slug" class="btn btn-sm btn-outline-primary rounded-pill px-3">
+                                Chi tiết
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+
+        @if (!Model.Items.Any())
+        {
+            <div class="col-12 text-center py-5 text-muted">
+                <i class="fa-regular fa-calendar-xmark fa-3x mb-3"></i>
+                <h5>Hiện chưa có sự kiện nào sắp diễn ra.</h5>
+            </div>
+        }
+    </div>
+
+    @if (Model.TotalPages > 1)
+    {
+        <nav class="mt-5">
+            <ul class="pagination justify-content-center">
+                @for (int i = 1; i <= Model.TotalPages; i++)
+                {
+                    <li class="page-item @(i == Model.PageNumber ? "active" : "")">
+                        <a class="page-link" href="?page=@i">@i</a>
+                    </li>
+                }
+            </ul>
+        </nav>
+    }
+</div>

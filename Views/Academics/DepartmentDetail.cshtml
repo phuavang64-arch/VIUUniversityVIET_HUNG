@@ -1,0 +1,160 @@
+@model VIUUniversity.Models.Department
+@{
+    ViewData["Title"] = Model.Name;
+}
+
+<!-- Department Header -->
+<div class="py-5 text-white" style="background: linear-gradient(135deg, var(--viu-navy-dark) 0%, var(--viu-navy) 100%); border-bottom: 4px solid var(--viu-gold);">
+    <div class="container py-4">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb mb-2">
+                <li class="breadcrumb-item"><a href="/" class="text-white-50 text-decoration-none">Trang chủ</a></li>
+                <li class="breadcrumb-item"><a href="/dao-tao" class="text-white-50 text-decoration-none">Đào tạo</a></li>
+                <li class="breadcrumb-item active text-white" aria-current="page">@Model.Name</li>
+            </ol>
+        </nav>
+        <div class="d-flex align-items-center gap-3 mb-3">
+            <span class="badge bg-warning text-dark fw-bold px-3 py-2 text-uppercase">MÃ KHOA: @Model.Code</span>
+            <span class="text-white-50 small"><i class="fa-solid fa-graduation-cap me-1"></i>Khoa Chuyên môn VIU</span>
+        </div>
+        <h1 class="display-5 fw-bold mb-3">@Model.Name</h1>
+        <p class="lead text-white-75 mb-0" style="max-width: 800px;">
+            @(Model.Description ?? "Khoa đào tạo mũi nhọn tại Trường Đại học Công nghiệp Việt - Hung với truyền thống xuất sắc và gắn kết doanh nghiệp.")
+        </p>
+    </div>
+</div>
+
+<div class="container py-5">
+    <div class="row g-5">
+        <!-- Main Info -->
+        <div class="col-lg-8">
+            <!-- Giới thiệu chung -->
+            <div class="card border-0 shadow-sm rounded-4 p-4 p-md-5 mb-5">
+                <span class="viu-eyebrow">Tổng quan</span>
+                <h3 class="fw-bold mb-4" style="color: var(--viu-navy);">Giới thiệu về @Model.Name</h3>
+                <p class="text-secondary leading-relaxed mb-4">
+                    @(Model.Description ?? "Khoa là đơn vị quản lý chuyên môn trực thuộc nhà trường, chịu trách nhiệm xây dựng và phát triển các chương trình đào tạo, tổ chức nghiên cứu khoa học, chuyển giao công nghệ và hợp tác doanh nghiệp nhằm nâng cao chất lượng đầu ra cho sinh viên.")
+                </p>
+                <div class="row g-3">
+                    <div class="col-sm-6">
+                        <div class="p-3 rounded-3 bg-light border-start border-4 border-primary">
+                            <div class="fw-bold text-dark mb-1">Mục tiêu đào tạo</div>
+                            <div class="small text-muted">Trang bị kiến thức chuyên sâu, năng lực thực hành và tư duy phản biện đáp ứng yêu cầu công nghiệp 4.0.</div>
+                        </div>
+                    </div>
+                    <div class="col-sm-6">
+                        <div class="p-3 rounded-3 bg-light border-start border-4 border-warning">
+                            <div class="fw-bold text-dark mb-1">Cam kết đầu ra</div>
+                            <div class="small text-muted">100% sinh viên được hỗ trợ thực tập doanh nghiệp và giới thiệu cơ hội việc làm đúng chuyên ngành.</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Các ngành trực thuộc -->
+            <div class="mb-5">
+                <span class="viu-eyebrow">Chương trình</span>
+                <h3 class="fw-bold mb-4" style="color: var(--viu-navy);">Các Ngành Đào Tạo Trực Thuộc Khoa</h3>
+                <div class="row g-4">
+                    @if (Model.Majors != null && Model.Majors.Any())
+                    {
+                        foreach (var m in Model.Majors)
+                        {
+                            <div class="col-md-6">
+                                <div class="card border-0 shadow-sm rounded-4 p-4 h-100 bg-white">
+                                    <span class="badge bg-primary bg-opacity-10 text-primary fw-bold px-2 py-1 align-self-start mb-2">Mã: @m.Code</span>
+                                    <h5 class="fw-bold mb-2">
+                                        <a href="/dao-tao/nganh/@m.Slug" class="text-decoration-none text-dark hover-primary">@m.Name</a>
+                                    </h5>
+                                    <p class="small text-secondary mb-3 flex-grow-1">
+                                        @(m.Description ?? "Chương trình đào tạo đại học chuẩn với thời lượng thực hành chuyên sâu.")
+                                    </p>
+                                    <div class="d-flex justify-content-between align-items-center pt-2 border-top">
+                                        <span class="small text-muted"><i class="fa-regular fa-clock me-1"></i>@(m.DurationYears > 0 ? m.DurationYears : 4) năm</span>
+                                        <a href="/dao-tao/nganh/@m.Slug" class="btn btn-outline-primary btn-sm rounded-pill px-3">
+                                            Xem chi tiết <i class="fa-solid fa-arrow-right ms-1"></i>
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                    }
+                    else
+                    {
+                        <div class="col-12">
+                            <div class="alert alert-light border text-muted">Đang cập nhật danh mục ngành của khoa.</div>
+                        </div>
+                    }
+                </div>
+            </div>
+
+            <!-- Đội ngũ cán bộ giảng viên khoa -->
+            <div>
+                <span class="viu-eyebrow">Đội ngũ</span>
+                <h3 class="fw-bold mb-4" style="color: var(--viu-navy);">Cán bộ & Giảng viên của Khoa</h3>
+                <div class="row g-4">
+                    @if (Model.Lecturers != null && Model.Lecturers.Any())
+                    {
+                        foreach (var lec in Model.Lecturers)
+                        {
+                            <div class="col-md-6">
+                                <div class="card border-0 shadow-sm rounded-4 p-3 d-flex flex-row align-items-center gap-3 bg-white">
+                                    <div class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center fw-bold fs-5" style="width: 56px; height: 56px; flex-shrink: 0; background: linear-gradient(135deg, var(--viu-navy), var(--viu-navy-light));">
+                                        @(string.IsNullOrEmpty(lec.FullName) ? "GV" : lec.FullName.Substring(lec.FullName.LastIndexOf(' ') + 1, 1))
+                                    </div>
+                                    <div class="overflow-hidden">
+                                        <h6 class="fw-bold mb-0 text-dark text-truncate">@lec.FullName</h6>
+                                        <span class="small text-warning fw-semibold d-block">@(lec.AcademicTitle ?? "Giảng viên")</span>
+                                        <span class="small text-muted text-truncate d-block"><i class="fa-regular fa-envelope me-1"></i>@(lec.Email ?? "gv@viu.edu.vn")</span>
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                    }
+                    else
+                    {
+                        <div class="col-12">
+                            <div class="alert alert-light border text-muted">Đang cập nhật danh sách giảng viên trực thuộc khoa.</div>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+
+        <!-- Sidebar Contact Info -->
+        <div class="col-lg-4">
+            <div class="card border-0 shadow-sm rounded-4 p-4 sticky-top" style="top: 90px;">
+                <h5 class="fw-bold mb-4" style="color: var(--viu-navy);"><i class="fa-solid fa-address-card text-warning me-2"></i>Thông tin liên hệ Khoa</h5>
+                <ul class="list-unstyled small d-flex flex-column gap-3 mb-4">
+                    <li class="d-flex align-items-start gap-2">
+                        <i class="fa-solid fa-location-dot text-danger mt-1"></i>
+                        <span><strong>Văn phòng khoa:</strong> @(Model.Address ?? "Nhà A, Cơ sở Tùng Thiện - Thị xã Sơn Tây, Hà Nội")</span>
+                    </li>
+                    <li class="d-flex align-items-start gap-2">
+                        <i class="fa-solid fa-phone text-success mt-1"></i>
+                        <span><strong>Điện thoại:</strong> @(Model.Phone ?? "024.3383.8345")</span>
+                    </li>
+                    <li class="d-flex align-items-start gap-2">
+                        <i class="fa-solid fa-envelope text-primary mt-1"></i>
+                        <span><strong>Email:</strong> @(Model.Email ?? $"{Model.Code.ToLower()}@viu.edu.vn")</span>
+                    </li>
+                    <li class="d-flex align-items-start gap-2">
+                        <i class="fa-solid fa-clock text-warning mt-1"></i>
+                        <span><strong>Giờ làm việc:</strong> Thứ 2 - Thứ 6 (08:00 - 17:00)</span>
+                    </li>
+                </ul>
+
+                <hr class="my-3 text-muted">
+
+                <h6 class="fw-bold mb-3 text-dark">Tư vấn tuyển sinh ngành thuộc Khoa</h6>
+                <p class="small text-muted mb-3">Thí sinh muốn tìm hiểu về cơ hội việc làm, học bổng và điểm chuẩn của khoa vui lòng để lại thông tin.</p>
+                <a href="/tuyen-sinh#form-dang-ky" class="btn btn-warning text-dark fw-bold w-100 rounded-pill py-2">
+                    <i class="fa-solid fa-pen-to-square me-1"></i> Đăng ký tư vấn trực tiếp
+                </a>
+                <a href="/dao-tao" class="btn btn-outline-secondary w-100 rounded-pill py-2 mt-2 small">
+                    <i class="fa-solid fa-arrow-left me-1"></i> Xem các khoa khác
+                </a>
+            </div>
+        </div>
+    </div>
+</div>

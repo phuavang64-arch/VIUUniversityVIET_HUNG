@@ -1,0 +1,207 @@
+@model VIUUniversity.ViewModels.AcademicIndexViewModel
+@{
+    ViewData["Title"] = "Chương trình & Khoa Đào tạo";
+}
+
+<!-- Page Header -->
+<div class="py-5 text-white position-relative" style="background: linear-gradient(135deg, var(--viu-navy-dark) 0%, var(--viu-navy) 60%, #173f6b 100%);">
+    <div class="container py-4">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb mb-2">
+                <li class="breadcrumb-item"><a href="/" class="text-white-50 text-decoration-none"><i class="fa-solid fa-house me-1"></i>Trang chủ</a></li>
+                <li class="breadcrumb-item active text-white" aria-current="page">Đào tạo</li>
+            </ol>
+        </nav>
+        <div class="d-inline-flex align-items-center gap-2 px-3 py-1 rounded-pill mb-3" style="background: rgba(242, 183, 5, 0.15); border: 1px solid rgba(242, 183, 5, 0.4); color: var(--viu-gold);">
+            <i class="fa-solid fa-graduation-cap"></i>
+            <span class="small fw-semibold text-uppercase">Hệ thống giáo dục đại học ứng dụng</span>
+        </div>
+        <h1 class="display-5 fw-bold mb-3">Chương trình & Khoa Đào tạo</h1>
+        <p class="lead text-white-75 mb-0" style="max-width: 750px;">
+            VIU cung cấp các chương trình đào tạo đại học chính quy định hướng ứng dụng, gắn kết 70% thực hành tại hệ thống phòng lab hiện đại và thực tập doanh nghiệp.
+        </p>
+    </div>
+</div>
+
+<div class="container py-5">
+    <!-- Quick stats strip -->
+    <div class="row g-4 mb-5">
+        <div class="col-md-3 col-6">
+            <div class="p-4 rounded-4 bg-white shadow-sm border border-light text-center h-100">
+                <div class="h2 fw-bold text-primary mb-1">@Model.Departments.Count</div>
+                <div class="text-muted small fw-medium">Khoa / Viện chuyên môn</div>
+            </div>
+        </div>
+        <div class="col-md-3 col-6">
+            <div class="p-4 rounded-4 bg-white shadow-sm border border-light text-center h-100">
+                <div class="h2 fw-bold text-primary mb-1">@Model.Majors.Count</div>
+                <div class="text-muted small fw-medium">Ngành đào tạo cử nhân & kỹ sư</div>
+            </div>
+        </div>
+        <div class="col-md-3 col-6">
+            <div class="p-4 rounded-4 bg-white shadow-sm border border-light text-center h-100">
+                <div class="h2 fw-bold text-primary mb-1">100%</div>
+                <div class="text-muted small fw-medium">Chương trình cập nhật chuẩn thực tế</div>
+            </div>
+        </div>
+        <div class="col-md-3 col-6">
+            <div class="p-4 rounded-4 bg-white shadow-sm border border-light text-center h-100">
+                <div class="h2 fw-bold text-primary mb-1">4 Năm</div>
+                <div class="text-muted small fw-medium">Thời gian đào tạo tiêu chuẩn</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Section 1: Khoa chuyên môn -->
+    <div class="mb-5">
+        <div class="d-flex flex-wrap justify-content-between align-items-end mb-4">
+            <div>
+                <span class="viu-eyebrow">Cơ cấu tổ chức</span>
+                <h2 class="viu-section-title mb-0">Các Khoa & Viện chuyên môn</h2>
+            </div>
+            <a asp-action="Lecturers" class="btn btn-outline-primary rounded-pill px-4 btn-sm mt-2 mt-md-0">
+                <i class="fa-solid fa-users me-1"></i> Danh bạ Giảng viên
+            </a>
+        </div>
+
+        <div class="row g-4">
+            @foreach (var dept in Model.Departments)
+            {
+                <div class="col-lg-4 col-md-6">
+                    <div class="card h-100 border-0 rounded-4 shadow-sm overflow-hidden d-flex flex-column viu-academic-card">
+                        <div class="p-4 text-white" style="background: linear-gradient(135deg, var(--viu-navy) 0%, var(--viu-navy-light) 100%);">
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                <span class="badge bg-warning text-dark fw-bold px-2 py-1">@dept.Code</span>
+                                <span class="small text-white-50"><i class="fa-solid fa-book-open me-1"></i>@(dept.Majors?.Count ?? 0) ngành</span>
+                            </div>
+                            <h4 class="fw-bold mb-1">@dept.Name</h4>
+                            <p class="small text-white-75 mb-0"><i class="fa-regular fa-envelope me-1"></i>@(dept.Email ?? "info@viu.edu.vn")</p>
+                        </div>
+                        <div class="card-body p-4 d-flex flex-column justify-content-between">
+                            <p class="text-secondary small mb-4">
+                                @(string.IsNullOrWhiteSpace(dept.Description) ? "Khoa chuyên môn trực thuộc VIU, phụ trách quản lý đào tạo và nghiên cứu khoa học chuyên sâu." : dept.Description)
+                            </p>
+                            <div>
+                                <h6 class="fw-bold text-dark small text-uppercase mb-2"><i class="fa-solid fa-list-check text-warning me-2"></i>Ngành trực thuộc:</h6>
+                                <ul class="list-unstyled mb-4 small">
+                                    @if (dept.Majors != null && dept.Majors.Any())
+                                    {
+                                        foreach (var m in dept.Majors.Take(4))
+                                        {
+                                            <li class="mb-1">
+                                                <a href="/dao-tao/nganh/@m.Slug" class="text-decoration-none text-secondary d-flex align-items-center gap-1 hover-primary">
+                                                    <i class="fa-solid fa-chevron-right text-warning" style="font-size: 10px;"></i>
+                                                    <span>@m.Name</span>
+                                                </a>
+                                            </li>
+                                        }
+                                    }
+                                    else
+                                    {
+                                        <li class="text-muted fst-italic">Đang cập nhật danh mục ngành...</li>
+                                    }
+                                </ul>
+                                <a href="/dao-tao/khoa/@dept.Slug" class="btn btn-light w-100 rounded-pill fw-semibold text-primary border">
+                                    Chi tiết Khoa <i class="fa-solid fa-arrow-right ms-1"></i>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+
+    <!-- Section 2: Ngành đào tạo đại học chính quy -->
+    <div class="pt-4">
+        <div class="text-center mb-5">
+            <span class="viu-eyebrow">Đại học chính quy</span>
+            <h2 class="viu-section-title">Danh mục Ngành đào tạo năm 2026</h2>
+            <p class="text-muted mx-auto" style="max-width: 650px;">
+                Mỗi chương trình được thiết kế bám sát nhu cầu tuyển dụng thực tế của các tập đoàn công nghệ, nhà máy công nghiệp và doanh nghiệp tài chính.
+            </p>
+        </div>
+
+        <div class="row g-4">
+            @foreach (var major in Model.Majors)
+            {
+                <div class="col-lg-6">
+                    <div class="card border-0 rounded-4 shadow-sm p-4 h-100 bg-white viu-card-hover">
+                        <div class="d-flex align-items-start justify-content-between gap-3 mb-3">
+                            <div>
+                                <span class="badge bg-primary bg-opacity-10 text-primary fw-bold px-3 py-1 mb-2">Mã ngành: @major.Code</span>
+                                <h4 class="fw-bold mb-1" style="color: var(--viu-navy);">
+                                    <a href="/dao-tao/nganh/@major.Slug" class="text-decoration-none text-dark">@major.Name</a>
+                                </h4>
+                                <span class="text-muted small"><i class="fa-solid fa-building-columns me-1 text-warning"></i>@(major.Department?.Name ?? "Khoa chuyên môn")</span>
+                            </div>
+                            <div class="p-3 rounded-circle text-warning d-flex align-items-center justify-content-center" style="background: rgba(242, 183, 5, 0.15); width: 54px; height: 54px; flex-shrink: 0;">
+                                <i class="fa-solid fa-laptop-code fs-4"></i>
+                            </div>
+                        </div>
+
+                        <p class="text-secondary small mb-3">
+                            @(major.Description ?? "Chương trình đào tạo kỹ sư/cử nhân toàn diện với kiến thức nền tảng vững chắc và kỹ năng thực chiến.")
+                        </p>
+
+                        <div class="row g-2 mb-4 text-center">
+                            <div class="col-4">
+                                <div class="p-2 rounded-3 bg-light">
+                                    <div class="fw-bold text-dark small">@(major.DurationYears > 0 ? major.DurationYears : 4) Năm</div>
+                                    <div class="text-muted" style="font-size: 11px;">Thời gian</div>
+                                </div>
+                            </div>
+                            <div class="col-4">
+                                <div class="p-2 rounded-3 bg-light">
+                                    <div class="fw-bold text-dark small">@(major.DegreeLevel ?? "Đại học")</div>
+                                    <div class="text-muted" style="font-size: 11px;">Hệ đào tạo</div>
+                                </div>
+                            </div>
+                            <div class="col-4">
+                                <div class="p-2 rounded-3 bg-light">
+                                    <div class="fw-bold text-dark small">@(major.Tuition > 0 ? major.Tuition.ToString("N0") + " đ" : "Ưu đãi")</div>
+                                    <div class="text-muted" style="font-size: 11px;">Học phí/năm</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        @if (!string.IsNullOrWhiteSpace(major.CareerDescription))
+                        {
+                            <div class="mb-4">
+                                <span class="small fw-bold text-dark d-block mb-1"><i class="fa-solid fa-briefcase text-primary me-1"></i> Cơ hội việc làm:</span>
+                                <span class="small text-muted">@major.CareerDescription</span>
+                            </div>
+                        }
+
+                        <div class="d-flex gap-2 mt-auto">
+                            <a href="/dao-tao/nganh/@major.Slug" class="btn btn-outline-primary rounded-pill px-4 btn-sm fw-semibold flex-grow-1">
+                                Khung chương trình & Môn học
+                            </a>
+                            <a href="/tuyen-sinh#form-dang-ky" class="btn btn-warning text-dark rounded-pill px-3 btn-sm fw-bold">
+                                Đăng ký tư vấn
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+<!-- CTA Banner -->
+<div class="py-5 text-white text-center" style="background: linear-gradient(135deg, var(--viu-navy) 0%, var(--viu-navy-dark) 100%); border-top: 3px solid var(--viu-gold);">
+    <div class="container py-3">
+        <h2 class="fw-bold mb-3">Bạn chưa biết chọn ngành nào phù hợp với năng lực?</h2>
+        <p class="text-white-75 mb-4 mx-auto" style="max-width: 600px;">
+            Sử dụng ngay công cụ tính điểm xét tuyển thông minh hoặc kết nối với đội ngũ cố vấn học tập của VIU để được định hướng nghề nghiệp miễn phí.
+        </p>
+        <div class="d-flex justify-content-center gap-3 flex-wrap">
+            <a href="/tuyen-sinh/tinh-diem" class="btn btn-warning text-dark fw-bold px-4 py-2 rounded-pill shadow">
+                <i class="fa-solid fa-calculator me-2"></i>Công cụ tính điểm & Chọn ngành
+            </a>
+            <a href="/lien-he" class="btn btn-outline-light px-4 py-2 rounded-pill">
+                <i class="fa-solid fa-phone me-2"></i>Liên hệ tư vấn viên
+            </a>
+        </div>
+    </div>
+</div>

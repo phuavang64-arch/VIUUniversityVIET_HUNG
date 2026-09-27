@@ -1,0 +1,39 @@
+@model PagedResult<Announcement>
+@{
+    ViewData["Title"] = "Quản lý thông báo";
+}
+
+<div class="admin-card">
+    <div class="d-flex justify-content-end mb-3">
+        <a asp-action="Create" class="btn btn-viu-gold btn-sm"><i class="fa-solid fa-plus me-2"></i>Thêm thông báo</a>
+    </div>
+    <div class="table-responsive">
+        <table class="table table-admin align-middle">
+            <thead>
+                <tr><th>Tiêu đề</th><th>Chuyên mục</th><th>Ngày đăng</th><th>Quan trọng</th><th>Trạng thái</th><th class="text-end">Thao tác</th></tr>
+            </thead>
+            <tbody>
+                @foreach (var a in Model.Items)
+                {
+                    <tr>
+                        <td class="fw-semibold">@a.Title</td>
+                        <td>@a.Category?.Name</td>
+                        <td>@a.PublishedAt?.ToString("dd/MM/yyyy")</td>
+                        <td>@(a.IsImportant ? "Có" : "-")</td>
+                        <td><span class="badge @(a.IsPublished ? "bg-success" : "bg-secondary")">@(a.IsPublished ? "Đã đăng" : "Nháp")</span></td>
+                        <td class="text-end">
+                            <a asp-action="Edit" asp-route-id="@a.Id" class="btn btn-sm btn-outline-primary"><i class="fa-solid fa-pen"></i></a>
+                            <form asp-action="Delete" asp-route-id="@a.Id" method="post" class="d-inline" onsubmit="return confirm('Xóa thông báo này?');">
+                                <button type="submit" class="btn btn-sm btn-outline-danger"><i class="fa-solid fa-trash"></i></button>
+                            </form>
+                        </td>
+                    </tr>
+                }
+                @if (!Model.Items.Any())
+                {
+                    <tr><td colspan="6" class="text-center text-muted py-4">Chưa có thông báo nào.</td></tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

@@ -1,0 +1,454 @@
+@model HomeViewModel
+@{
+    ViewData["Title"] = "Trang chủ - Trường Đại học Công nghiệp Việt - Hung";
+    var banner = Model.Banners.FirstOrDefault();
+}
+
+<!-- 1. HERO SECTION -->
+<section class="viu-hero" style="background-image: url('@(banner?.ImageUrl ?? "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSV94Ee4YLS7-w_bCItrj1tVP_1kQmCl6s8gJyr0BzYFAlZPP-cuNXf6Zc&s=10")');">
+    <div class="container">
+        <div class="viu-hero-content">
+            <div class="viu-hero-eyebrow">
+                <i class="fa-solid fa-graduation-cap"></i> Tuyển sinh Đại học Chính quy 2026 &middot; Mã trường: VHD
+            </div>
+            <h1>@(banner?.Title ?? "TRƯỜNG ĐẠI HỌC CÔNG NGHIỆP VIỆT - HUNG")</h1>
+            <p class="fs-5 text-white-75 mb-4 leading-relaxed">
+                @(banner?.Description ?? "Kiến tạo tri thức công nghệ - Đào tạo thực chiến 70% thực hành - Đồng hành cùng sinh viên khởi nghiệp và việc làm toàn cầu.")
+            </p>
+            <div class="d-flex gap-3 flex-wrap align-items-center">
+                <a href="/tuyen-sinh#form-dang-ky" class="btn btn-viu-gold">
+                    <i class="fa-solid fa-paper-plane me-2"></i>Đăng ký xét tuyển ngay
+                </a>
+                <a href="/tuyen-sinh/tinh-diem" class="btn btn-viu-outline">
+                    <i class="fa-solid fa-calculator me-2"></i>Tính điểm trúng tuyển
+                </a>
+                <a href="/dao-tao" class="btn btn-link text-white text-decoration-none fw-semibold">
+                    Xem ngành học <i class="fa-solid fa-arrow-right ms-1"></i>
+                </a>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- 2. QUICK ACTION CARDS (HERO OVERLAP) -->
+<div class="container viu-quick-actions">
+    <div class="row g-3">
+        <div class="col-lg-3 col-sm-6">
+            <a href="/tuyen-sinh/tra-cuu-diem-chuan" class="viu-action-card">
+                <div class="viu-action-icon">
+                    <i class="fa-solid fa-chart-line"></i>
+                </div>
+                <div>
+                    <h6 class="fw-bold mb-1">Điểm chuẩn các năm</h6>
+                    <span class="small text-muted">Tra cứu điểm chuẩn trúng tuyển</span>
+                </div>
+            </a>
+        </div>
+
+        <div class="col-lg-3 col-sm-6">
+            <a href="/tuyen-sinh/tinh-diem" class="viu-action-card">
+                <div class="viu-action-icon">
+                    <i class="fa-solid fa-wand-magic-sparkles"></i>
+                </div>
+                <div>
+                    <h6 class="fw-bold mb-1">Tính điểm xét tuyển</h6>
+                    <span class="small text-muted">Gợi ý ngành học theo tổ hợp</span>
+                </div>
+            </a>
+        </div>
+
+        <div class="col-lg-3 col-sm-6">
+            <a href="/dao-tao" class="viu-action-card">
+                <div class="viu-action-icon">
+                    <i class="fa-solid fa-laptop-code"></i>
+                </div>
+                <div>
+                    <h6 class="fw-bold mb-1">Chương trình đào tạo</h6>
+                    <span class="small text-muted">Các khoa & ngành mũi nhọn</span>
+                </div>
+            </a>
+        </div>
+
+        <div class="col-lg-3 col-sm-6">
+            <a href="/sinh-vien" class="viu-action-card">
+                <div class="viu-action-icon">
+                    <i class="fa-solid fa-user-graduate"></i>
+                </div>
+                <div>
+                    <h6 class="fw-bold mb-1">Cổng dịch vụ sinh viên</h6>
+                    <span class="small text-muted">Lịch học, học phí, ký túc xá</span>
+                </div>
+            </a>
+        </div>
+    </div>
+</div>
+
+<!-- 3. STATS STRIP -->
+<section class="py-5 mt-4">
+    <div class="container">
+        <div class="viu-stats p-4 p-md-5">
+            <div class="row text-center g-4">
+                <div class="col-6 col-md-3">
+                    <div class="stat-number">48+</div>
+                    <div class="stat-label">Năm truyền thống (Từ 1977)</div>
+                </div>
+                <div class="col-6 col-md-3">
+                    <div class="stat-number">25.000+</div>
+                    <div class="stat-label">Kỹ sư & Cử nhân tốt nghiệp</div>
+                </div>
+                <div class="col-6 col-md-3">
+                    <div class="stat-number">96.8%</div>
+                    <div class="stat-label">Tỷ lệ sinh viên có việc làm</div>
+                </div>
+                <div class="col-6 col-md-3">
+                    <div class="stat-number">3</div>
+                    <div class="stat-label">Cơ sở đào tạo tại Hà Nội</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- 4. WHY CHOOSE VIU (TẠI SAO CHỌN VIU?) -->
+<section class="viu-section viu-section-alt">
+    <div class="container">
+        <div class="text-center mb-5">
+            <span class="viu-eyebrow">Thế mạnh vượt trội</span>
+            <h2 class="viu-section-title">Tại sao nên chọn Đại học Công nghiệp Việt - Hung?</h2>
+            <p class="text-muted mx-auto" style="max-width: 680px;">
+                Môi trường giáo dục hiện đại, chi phí học tập hợp lý, cam kết chất lượng đầu ra và cơ hội nghề nghiệp rộng mở.
+            </p>
+        </div>
+
+        <div class="row g-4">
+            <div class="col-lg-3 col-md-6">
+                <div class="card border-0 shadow-sm rounded-4 p-4 h-100 bg-white viu-card-hover">
+                    <div class="p-3 rounded-circle text-primary bg-primary bg-opacity-10 d-inline-flex mb-3" style="width: 56px; height: 56px; align-items: center; justify-content: center;">
+                        <i class="fa-solid fa-handshake fs-4"></i>
+                    </div>
+                    <h5 class="fw-bold text-dark mb-2">Hợp tác Quốc tế Việt - Hung</h5>
+                    <p class="small text-muted mb-0">Học bổng chính phủ Stipendium Hungaricum và chương trình trao đổi sinh viên với các đại học lớn tại Hungary, Châu Âu.</p>
+                </div>
+            </div>
+
+            <div class="col-lg-3 col-md-6">
+                <div class="card border-0 shadow-sm rounded-4 p-4 h-100 bg-white viu-card-hover">
+                    <div class="p-3 rounded-circle text-warning bg-warning bg-opacity-15 d-inline-flex mb-3" style="width: 56px; height: 56px; align-items: center; justify-content: center;">
+                        <i class="fa-solid fa-screwdriver-wrench fs-4"></i>
+                    </div>
+                    <h5 class="fw-bold text-dark mb-2">70% Thời lượng thực hành</h5>
+                    <p class="small text-muted mb-0">Hệ thống phòng lab chuyên dụng, xưởng thực hành công nghệ cao giúp sinh viên thành thạo kỹ năng nghề ngay trên ghế giảng đường.</p>
+                </div>
+            </div>
+
+            <div class="col-lg-3 col-md-6">
+                <div class="card border-0 shadow-sm rounded-4 p-4 h-100 bg-white viu-card-hover">
+                    <div class="p-3 rounded-circle text-success bg-success bg-opacity-10 d-inline-flex mb-3" style="width: 56px; height: 56px; align-items: center; justify-content: center;">
+                        <i class="fa-solid fa-coins fs-4"></i>
+                    </div>
+                    <h5 class="fw-bold text-dark mb-2">Học phí công lập ưu đãi</h5>
+                    <p class="small text-muted mb-0">Học phí trường công lập thuộc Bộ Công Thương, nhiều gói học bổng khuyến học và hỗ trợ miễn giảm học phí cho sinh viên khó khăn.</p>
+                </div>
+            </div>
+
+            <div class="col-lg-3 col-md-6">
+                <div class="card border-0 shadow-sm rounded-4 p-4 h-100 bg-white viu-card-hover">
+                    <div class="p-3 rounded-circle text-danger bg-danger bg-opacity-10 d-inline-flex mb-3" style="width: 56px; height: 56px; align-items: center; justify-content: center;">
+                        <i class="fa-solid fa-briefcase fs-4"></i>
+                    </div>
+                    <h5 class="fw-bold text-dark mb-2">Cam kết kết nối việc làm</h5>
+                    <p class="small text-muted mb-0">Liên kết chặt chẽ với hơn 100 đối tác lớn: Samsung, FPT, Viettel, LG, cùng các chương trình kỹ sư làm việc tại Nhật Bản, CHLB Đức.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- 5. FEATURED MAJORS -->
+<section class="viu-section">
+    <div class="container">
+        <div class="d-flex flex-wrap justify-content-between align-items-end mb-5">
+            <div>
+                <span class="viu-eyebrow">Chương trình đào tạo</span>
+                <h2 class="viu-section-title mb-0">Ngành đào tạo nổi bật năm 2026</h2>
+            </div>
+            <a href="/dao-tao" class="btn btn-outline-primary rounded-pill px-4 btn-sm fw-semibold mt-3 mt-md-0">
+                Xem tất cả các ngành <i class="fa-solid fa-arrow-right ms-1"></i>
+            </a>
+        </div>
+
+        <div class="row g-4">
+            @foreach (var major in Model.FeaturedMajors)
+            {
+                <div class="col-md-6 col-lg-3">
+                    <div class="card border-0 shadow-sm rounded-4 p-4 h-100 bg-white border-top border-4 border-warning viu-card-hover d-flex flex-column justify-content-between">
+                        <div>
+                            <span class="badge bg-light text-dark border small fw-bold mb-2">MÃ: @major.Code</span>
+                            <h5 class="fw-bold mb-2" style="color: var(--viu-navy);">
+                                <a href="/dao-tao/nganh/@major.Slug" class="text-decoration-none text-dark">@major.Name</a>
+                            </h5>
+                            <p class="small text-muted mb-3">
+                                <i class="fa-regular fa-clock me-1 text-warning"></i>@(major.DurationYears > 0 ? major.DurationYears : 4) năm &middot; @(major.DegreeLevel ?? "Đại học")
+                            </p>
+                            <p class="small text-secondary mb-4 leading-relaxed">
+                                @(major.Description ?? "Chương trình đào tạo kỹ sư công nghệ thực chiến, ứng dụng cao.")
+                            </p>
+                        </div>
+                        <div class="pt-3 border-top d-flex justify-content-between align-items-center">
+                            <a href="/dao-tao/nganh/@major.Slug" class="small fw-bold text-primary text-decoration-none">
+                                Chi tiết <i class="fa-solid fa-chevron-right ms-1" style="font-size: 10px;"></i>
+                            </a>
+                            <a href="/tuyen-sinh/tinh-diem" class="btn btn-sm btn-outline-warning text-dark rounded-pill px-2" style="font-size: 11px;">
+                                Tính điểm
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+</section>
+
+<!-- 6. MAGAZINE NEWS & ANNOUNCEMENT BOARD -->
+<section class="viu-section viu-section-alt">
+    <div class="container">
+        <div class="row g-5">
+            <!-- News Column -->
+            <div class="col-lg-8">
+                <div class="d-flex justify-content-between align-items-end mb-4">
+                    <div>
+                        <span class="viu-eyebrow">Bản tin học đường</span>
+                        <h2 class="viu-section-title mb-0">Tin tức & Hoạt động</h2>
+                    </div>
+                    <a asp-controller="News" asp-action="Index" class="fw-semibold text-primary text-decoration-none small">
+                        Xem tất cả tin tức <i class="fa-solid fa-arrow-right ms-1"></i>
+                    </a>
+                </div>
+
+                <div class="row g-4">
+                    @foreach (var news in Model.LatestNews)
+                    {
+                        <div class="col-md-6">
+                            <div class="viu-card">
+                                <img src="@(string.IsNullOrEmpty(news.Thumbnail) ? "https://images.unsplash.com/photo-1523240795612-9a054b0db644?auto=format&fit=crop&w=800&q=80" : news.Thumbnail)" alt="@news.Title" />
+                                <div class="card-body">
+                                    <div class="d-flex justify-content-between align-items-center mb-2">
+                                        <span class="badge-cat">@(news.Category?.Name ?? "Tin tức")</span>
+                                        <span class="small text-muted"><i class="fa-regular fa-clock me-1"></i>@news.PublishedAt?.ToString("dd/MM/yyyy")</span>
+                                    </div>
+                                    <h6 class="card-title mb-2">
+                                        <a asp-controller="News" asp-action="Details" asp-route-slug="@news.Slug">@news.Title</a>
+                                    </h6>
+                                    <p class="small text-secondary mb-3">@(news.Summary ?? "Cập nhật các hoạt động giảng dạy, nghiên cứu và phong trào sinh viên.")</p>
+                                    <div class="mt-auto small text-muted">
+                                        <i class="fa-regular fa-eye me-1"></i>@news.ViewCount lượt xem
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                    @if (!Model.LatestNews.Any())
+                    {
+                        <div class="col-12">
+                            <div class="alert alert-light border text-muted">Đang cập nhật tin tức mới nhất từ ban biên tập.</div>
+                        </div>
+                    }
+                </div>
+            </div>
+
+            <!-- Announcement Board Column -->
+            <div class="col-lg-4">
+                <div class="d-flex justify-content-between align-items-end mb-4">
+                    <div>
+                        <span class="viu-eyebrow">Văn bản & Học vụ</span>
+                        <h2 class="viu-section-title mb-0" style="font-size: 1.6rem;">Thông báo</h2>
+                    </div>
+                    <a asp-controller="Announcements" asp-action="Index" class="fw-semibold text-primary text-decoration-none small">
+                        Xem tất cả
+                    </a>
+                </div>
+
+                <div class="viu-notice-board">
+                    @foreach (var a in Model.LatestAnnouncements)
+                    {
+                        <div class="viu-announce-item">
+                            <div class="viu-announce-date">
+                                <div class="day">@a.PublishedAt?.ToString("dd")</div>
+                                <div class="month">Tháng @a.PublishedAt?.ToString("MM")</div>
+                            </div>
+                            <div class="flex-grow-1">
+                                @if (a.IsImportant)
+                                {
+                                    <span class="badge badge-important mb-1"><i class="fa-solid fa-triangle-exclamation me-1"></i>QUAN TRỌNG</span>
+                                }
+                                <div>
+                                    <a asp-controller="Announcements" asp-action="Details" asp-route-id="@a.Id" class="fw-semibold text-decoration-none small text-dark hover-primary d-block">
+                                        @a.Title
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                    @if (!Model.LatestAnnouncements.Any())
+                    {
+                        <p class="text-muted small mb-0 py-3 text-center">Chưa có thông báo nào được công bố.</p>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- 7. UPCOMING EVENTS -->
+@if (Model.UpcomingEvents.Any())
+{
+    <section class="viu-section">
+        <div class="container">
+            <div class="d-flex flex-wrap justify-content-between align-items-end mb-5">
+                <div>
+                    <span class="viu-eyebrow">Lịch trình sôi nổi</span>
+                    <h2 class="viu-section-title mb-0">Sự kiện & Hội thảo sắp tới</h2>
+                </div>
+                <a asp-controller="Events" asp-action="Index" class="btn btn-outline-primary rounded-pill px-4 btn-sm fw-semibold mt-3 mt-md-0">
+                    Xem tất cả sự kiện <i class="fa-solid fa-arrow-right ms-1"></i>
+                </a>
+            </div>
+
+            <div class="row g-4">
+                @foreach (var ev in Model.UpcomingEvents)
+                {
+                    <div class="col-md-6 col-lg-3">
+                        <div class="viu-card">
+                            <img src="@(string.IsNullOrEmpty(ev.ImageUrl) ? "https://images.unsplash.com/photo-1511578314322-379afb476865?auto=format&fit=crop&w=800&q=80" : ev.ImageUrl)" alt="@ev.Title" />
+                            <div class="card-body">
+                                <div class="small text-danger fw-bold mb-1">
+                                    <i class="fa-regular fa-calendar-days me-1"></i>@ev.StartAt.ToString("dd/MM/yyyy HH:mm")
+                                </div>
+                                <h6 class="card-title mb-2">
+                                    <a asp-controller="Events" asp-action="Details" asp-route-slug="@ev.Slug">@ev.Title</a>
+                                </h6>
+                                <p class="small text-muted mb-0"><i class="fa-solid fa-location-dot me-1 text-warning"></i>@(ev.Location ?? "Cơ sở Tùng Thiện")</p>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+    </section>
+}
+
+<!-- 8. CAMPUSES SHOWCASE -->
+<section class="viu-section viu-section-alt">
+    <div class="container">
+        <div class="text-center mb-5">
+            <span class="viu-eyebrow">Hạ tầng đào tạo</span>
+            <h2 class="viu-section-title">Hệ thống 3 Cơ sở tại Hà Nội</h2>
+            <p class="text-muted mx-auto" style="max-width: 650px;">
+                Cơ sở vật chất hiện đại, phòng thí nghiệm chuyên dụng, khu phức hợp thể thao và ký túc xá khang trang đáp ứng quy mô hơn 10.000 người học.
+            </p>
+        </div>
+
+        <div class="row g-4">
+            <div class="col-lg-4 col-md-6">
+                <div class="card border-0 shadow-sm rounded-4 overflow-hidden h-100 bg-white viu-card-hover">
+                    <img src="https://images.unsplash.com/photo-1562774053-701939374585?auto=format&fit=crop&w=800&q=80" style="height: 200px; object-fit: cover;" alt="Cơ sở Tùng Thiện" />
+                    <div class="p-4">
+                        <span class="badge bg-primary text-white mb-2">Trụ sở chính</span>
+                        <h5 class="fw-bold mb-2 text-dark">Cơ sở Tùng Thiện (Sơn Tây)</h5>
+                        <p class="small text-muted mb-3"><i class="fa-solid fa-location-dot text-danger me-2"></i>Số 16 phố Hữu Nghị, P. Xuân Khanh, TX. Sơn Tây, Hà Nội</p>
+                        <p class="small text-secondary mb-0">Khuôn viên rộng lớn với hệ thống giảng đường đa năng, trung tâm thư viện, xưởng cơ khí - điện tử và ký túc xá hơn 1.500 chỗ.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-4 col-md-6">
+                <div class="card border-0 shadow-sm rounded-4 overflow-hidden h-100 bg-white viu-card-hover">
+                    <img src="https://images.unsplash.com/photo-1541829070764-84a7d30dd3f3?auto=format&fit=crop&w=800&q=80" style="height: 200px; object-fit: cover;" alt="Cơ sở Tây Phương" />
+                    <div class="p-4">
+                        <span class="badge bg-warning text-dark fw-bold mb-2">Khu công nghệ cao</span>
+                        <h5 class="fw-bold mb-2 text-dark">Cơ sở Tây Phương (Thạch Thất)</h5>
+                        <p class="small text-muted mb-3"><i class="fa-solid fa-location-dot text-danger me-2"></i>Xã Thạch Hòa, H. Thạch Thất, Hà Nội (Gần KCNC Hòa Lạc)</p>
+                        <p class="small text-secondary mb-0">Tiếp giáp trung tâm nghiên cứu và các tập đoàn công nghệ lớn, phục vụ đào tạo thực nghiệm chuyên sâu ngành CNTT và Tự động hóa.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-4 col-md-6">
+                <div class="card border-0 shadow-sm rounded-4 overflow-hidden h-100 bg-white viu-card-hover">
+                    <img src="https://images.unsplash.com/photo-1523050854058-8df90110c9f1?auto=format&fit=crop&w=800&q=80" style="height: 200px; object-fit: cover;" alt="Cơ sở Thanh Xuân" />
+                    <div class="p-4">
+                        <span class="badge bg-success text-white mb-2">Trung tâm nội đô</span>
+                        <h5 class="fw-bold mb-2 text-dark">Cơ sở Thanh Xuân (Hà Nội)</h5>
+                        <p class="small text-muted mb-3"><i class="fa-solid fa-location-dot text-danger me-2"></i>Đường Khuất Duy Tiến, Q. Thanh Xuân, Hà Nội</p>
+                        <p class="small text-secondary mb-0">Địa điểm đào tạo ngoại ngữ, bồi dưỡng kỹ năng doanh nghiệp, tư vấn tuyển sinh và kết nối việc làm ngay tại trung tâm thủ đô.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- 9. CORPORATE & GLOBAL PARTNERS -->
+<section class="viu-section">
+    <div class="container">
+        <div class="text-center mb-5">
+            <span class="viu-eyebrow">Hợp tác & Tuyển dụng</span>
+            <h2 class="viu-section-title">Đối tác Chiến lược & Doanh nghiệp</h2>
+            <p class="text-muted mx-auto" style="max-width: 600px;">
+                Đồng hành cùng VIU trong xây dựng chuẩn chương trình đào tạo, tài trợ trang thiết bị thí nghiệm và tiếp nhận sinh viên thực tập.
+            </p>
+        </div>
+
+        <div class="row g-3 justify-content-center">
+            <div class="col-6 col-md-3 col-lg-2">
+                <div class="viu-partner-item text-center">
+                    <span class="fw-bold fs-5" style="color: #1428a0;">SAMSUNG</span>
+                </div>
+            </div>
+            <div class="col-6 col-md-3 col-lg-2">
+                <div class="viu-partner-item text-center">
+                    <span class="fw-bold fs-5 text-warning">FPT Software</span>
+                </div>
+            </div>
+            <div class="col-6 col-md-3 col-lg-2">
+                <div class="viu-partner-item text-center">
+                    <span class="fw-bold fs-5 text-danger">VIETTEL</span>
+                </div>
+            </div>
+            <div class="col-6 col-md-3 col-lg-2">
+                <div class="viu-partner-item text-center">
+                    <span class="fw-bold fs-5" style="color: #a50034;">LG Corp</span>
+                </div>
+            </div>
+            <div class="col-6 col-md-3 col-lg-2">
+                <div class="viu-partner-item text-center">
+                    <span class="fw-bold fs-5 text-dark">FOXCONN</span>
+                </div>
+            </div>
+            <div class="col-6 col-md-3 col-lg-2">
+                <div class="viu-partner-item text-center">
+                    <span class="fw-bold fs-5 text-primary">VNPT</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- 10. ADMISSION CTA BANNER -->
+<section class="py-5 text-white position-relative" style="background: linear-gradient(135deg, var(--viu-navy-dark) 0%, var(--viu-navy) 100%); border-top: 4px solid var(--viu-gold);">
+    <div class="container py-4 text-center">
+        <span class="badge bg-warning text-dark fw-bold px-3 py-2 text-uppercase mb-3">Đợt tuyển sinh 2026 đang mở</span>
+        <h2 class="display-6 fw-bold mb-3">Sẵn sàng khởi đầu tương lai vững chắc tại VIU?</h2>
+        <p class="text-white-75 mb-4 mx-auto lead" style="max-width: 650px;">
+            Đăng ký xét tuyển sớm để nhận học bổng khuyến khích tài năng và giữ chỉ tiêu vào ngành học mơ ước của bạn.
+        </p>
+        <div class="d-flex justify-content-center gap-3 flex-wrap">
+            <a href="/tuyen-sinh#form-dang-ky" class="btn btn-warning text-dark fw-bold px-4 py-3 rounded-pill shadow-lg">
+                <i class="fa-solid fa-file-signature me-2"></i>Đăng ký xét tuyển trực tuyến
+            </a>
+            <a href="/tuyen-sinh/tinh-diem" class="btn btn-outline-light px-4 py-3 rounded-pill fw-semibold">
+                <i class="fa-solid fa-calculator me-2"></i>Kiểm tra điểm xét tuyển
+            </a>
+        </div>
+    </div>
+</section>

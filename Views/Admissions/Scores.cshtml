@@ -1,0 +1,122 @@
+@model VIUUniversity.ViewModels.ScoreSearchViewModel
+@{
+    ViewData["Title"] = "Tra cứu điểm chuẩn trúng tuyển";
+}
+
+<!-- Hero header -->
+<div class="py-5 text-white" style="background: linear-gradient(135deg, var(--viu-navy) 0%, #1e3a8a 100%);">
+    <div class="container py-3">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb mb-2">
+                <li class="breadcrumb-item"><a href="/" class="text-white-50 text-decoration-none"><i class="fa-solid fa-house me-1"></i>Trang chủ</a></li>
+                <li class="breadcrumb-item"><a asp-action="Index" class="text-white-50 text-decoration-none">Tuyển sinh</a></li>
+                <li class="breadcrumb-item active text-white" aria-current="page">Tra cứu điểm chuẩn</li>
+            </ol>
+        </nav>
+        <h1 class="display-6 fw-bold mb-2">Tra cứu điểm chuẩn trúng tuyển các năm</h1>
+        <p class="lead mb-0 text-white-50">Dữ liệu điểm chuẩn các ngành đào tạo Đại học Công nghiệp Việt - Hung qua các kỳ tuyển sinh gần nhất.</p>
+    </div>
+</div>
+
+<div class="container py-5">
+    <!-- Search / Filter Card -->
+    <div class="card border-0 shadow-sm rounded-4 p-4 mb-4">
+        <form method="get" asp-action="Scores">
+            <div class="row g-3 align-items-center">
+                <div class="col-md-7">
+                    <label class="form-label small fw-semibold">Tìm kiếm theo tên ngành, mã ngành hoặc khối thi:</label>
+                    <div class="input-group">
+                        <span class="input-group-text bg-white"><i class="fa-solid fa-magnifying-glass text-muted"></i></span>
+                        <input type="text" name="keyword" value="@Model.Keyword" class="form-control border-start-0" placeholder="Ví dụ: Công nghệ thông tin, 7480201, A00..." />
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label small fw-semibold">Năm tuyển sinh:</label>
+                    <select name="year" class="form-select">
+                        <option value="2025" selected="@(Model.Year == 2025)">Năm 2025</option>
+                        <option value="2024" selected="@(Model.Year == 2024)">Năm 2024</option>
+                        <option value="2023" selected="@(Model.Year == 2023)">Năm 2023</option>
+                    </select>
+                </div>
+                <div class="col-md-2 d-flex align-items-end">
+                    <button type="submit" class="btn btn-warning fw-semibold text-dark w-100 rounded-pill py-2">
+                        Tra cứu
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
+
+    <!-- Scores Table -->
+    <div class="card border-0 shadow-sm rounded-4 overflow-hidden">
+        <div class="card-header bg-white py-3 px-4 d-flex justify-content-between align-items-center border-bottom">
+            <h5 class="fw-bold mb-0" style="color: var(--viu-navy);">
+                <i class="fa-solid fa-table me-2 text-warning"></i>Bảng điểm chuẩn các ngành (@Model.Majors.Count ngành)
+            </h5>
+            <span class="badge bg-light text-dark border">Thang điểm 30</span>
+        </div>
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th class="py-3 px-4">STT</th>
+                        <th class="py-3">Mã ngành</th>
+                        <th class="py-3">Tên ngành đào tạo</th>
+                        <th class="py-3">Tổ hợp môn</th>
+                        <th class="py-3 text-center">Năm 2023</th>
+                        <th class="py-3 text-center">Năm 2024</th>
+                        <th class="py-3 text-center">Năm 2025</th>
+                        <th class="py-3 text-end px-4">Đăng ký</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @{
+                        int index = 1;
+                    }
+                    @foreach (var m in Model.Majors)
+                    {
+                        <tr>
+                            <td class="px-4 text-muted">@(index++)</td>
+                            <td class="fw-bold text-primary">@m.MajorCode</td>
+                            <td>
+                                <strong class="text-dark">@m.MajorName</strong>
+                                <div class="small text-muted">Chỉ tiêu: @(m.Quota?.ToString() ?? "—") SV</div>
+                            </td>
+                            <td>
+                                @foreach (var combo in m.SubjectCombinations.Split(','))
+                                {
+                                    <span class="badge bg-light text-dark border me-1">@combo.Trim()</span>
+                                }
+                            </td>
+                            <td class="text-center fw-semibold text-secondary">
+                                @(m.Score2023.HasValue ? m.Score2023.Value.ToString("0.00") : "—")
+                            </td>
+                            <td class="text-center fw-semibold text-secondary">
+                                @(m.Score2024.HasValue ? m.Score2024.Value.ToString("0.00") : "—")
+                            </td>
+                            <td class="text-center">
+                                <span class="badge bg-success bg-opacity-10 text-success fw-bold px-2 py-1 fs-6">
+                                    @(m.Score2025.HasValue ? m.Score2025.Value.ToString("0.00") : "Đang cập nhật")
+                                </span>
+                            </td>
+                            <td class="text-end px-4">
+                                <a href="/tuyen-sinh#form-dang-ky" class="btn btn-sm btn-outline-warning text-dark rounded-pill fw-semibold">
+                                    Xét tuyển
+                                </a>
+                            </td>
+                        </tr>
+                    }
+                    @if (!Model.Majors.Any())
+                    {
+                        <tr>
+                            <td colspan="8" class="text-center py-5 text-muted">
+                                <i class="fa-solid fa-circle-exclamation fa-2x mb-2 text-warning"></i>
+                                <p class="mb-0">Không tìm thấy ngành đào tạo nào phù hợp với từ khóa của bạn.</p>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

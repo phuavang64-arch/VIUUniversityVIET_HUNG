@@ -1,0 +1,27 @@
+@model Event
+@{
+    ViewData["Title"] = Model.Title;
+}
+
+<section class="viu-section">
+    <div class="container" style="max-width:800px;">
+        @if (!string.IsNullOrEmpty(Model.ImageUrl))
+        {
+            <img src="@Model.ImageUrl" class="img-fluid rounded mb-4" alt="@Model.Title" />
+        }
+        <h1 class="fw-bold mb-3" style="color:var(--viu-navy)">@Model.Title</h1>
+        <p class="text-muted mb-4">
+            <i class="fa-regular fa-calendar me-1"></i>@Model.StartAt.ToString("dd/MM/yyyy HH:mm")
+            @if (Model.EndAt.HasValue)
+            {
+                <text> - @Model.EndAt.Value.ToString("dd/MM/yyyy HH:mm")</text>
+            }
+            &middot; <i class="fa-solid fa-location-dot me-1"></i>@Model.Location
+        </p>
+        <div class="fs-5" style="line-height:1.8;">@Html.Raw(Model.Description)</div>
+
+        <div class="mt-5">
+            <a asp-action="Index" class="btn btn-viu-outline" style="border-color:var(--viu-navy); color:var(--viu-navy);"><i class="fa-solid fa-arrow-left me-2"></i>Quay lại danh sách sự kiện</a>
+        </div>
+    </div>
+</section>
