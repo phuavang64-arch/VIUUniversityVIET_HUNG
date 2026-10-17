@@ -1,9 +1,11 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using VIUUniversity.Services.Interfaces;
 
 namespace VIUUniversity.Controllers
 {
     [Route("tin-tuc")]
+    [AllowAnonymous]
     public class NewsController : Controller
     {
         private readonly INewsService _newsService;
@@ -30,6 +32,10 @@ namespace VIUUniversity.Controllers
         {
             var news = await _newsService.GetBySlugAsync(slug);
             if (news == null) return NotFound();
+
+            ViewBag.RelatedNews = await _newsService.GetRelatedAsync(news.Id, news.CategoryId, 3);
+            ViewData["Title"] = news.Title;
+            ViewData["Description"] = news.Summary;
             return View(news);
         }
     }

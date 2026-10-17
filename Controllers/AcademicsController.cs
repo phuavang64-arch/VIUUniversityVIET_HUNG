@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using VIUUniversity.Services.Interfaces;
 using VIUUniversity.ViewModels;
@@ -5,13 +6,16 @@ using VIUUniversity.ViewModels;
 namespace VIUUniversity.Controllers
 {
     [Route("dao-tao")]
+    [AllowAnonymous]
     public class AcademicsController : Controller
     {
         private readonly IAcademicService _academicService;
+        private readonly IGalleryService _galleryService;
 
-        public AcademicsController(IAcademicService academicService)
+        public AcademicsController(IAcademicService academicService, IGalleryService galleryService)
         {
             _academicService = academicService;
+            _galleryService = galleryService;
         }
 
         // GET: /dao-tao
@@ -41,6 +45,17 @@ namespace VIUUniversity.Controllers
             {
                 return NotFound();
             }
+
+            // Ảnh minh hoạ cho khoa: ảnh được gắn nhãn theo tên khoa trong thư viện.
+            var imageKeywords = new[] { "cong-nghe-thong-tin", "dien-dien-tu", "kinhte", "kinh-te" };
+            var allImages = await _galleryService.GetImagesAsync();
+
+            ViewBag.DepartmentGallery = allImages
+                .Where(g => imageKeywords.Any(k =>
+                    g.ImageUrl.Contains(k, StringComparison.OrdinalIgnoreCase)
+                    || (g.Caption ?? string.Empty).Contains(k, StringComparison.OrdinalIgnoreCase)))
+                .Take(3)
+                .ToList();
 
             ViewData["Title"] = department.Name;
             ViewData["Description"] = department.Description ?? $"Thông tin Khoa {department.Name} tại VIU.";

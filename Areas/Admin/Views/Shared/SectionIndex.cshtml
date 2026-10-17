@@ -1,0 +1,152 @@
+@model PagedResult<News>
+@{
+    // Dùng chung cho Tin tức, Nghiên cứu KH, Hợp tác, Học phí.
+    // Controller cụ thể đặt: ViewBag.SectionLabel, ViewBag.PublicUrl, ViewBag.ShowTuitionFields.
+    var label = ViewBag.SectionLabel as string ?? ContentSection.Label(Model.Items.FirstOrDefault()?.Section);
+    var kw = ViewBag.Keyword as string;
+    var publicUrl = ViewBag.PublicUrl as string;
+    var isTuition = ViewBag.ShowTuitionFields == true;
+    int totalPages = (int)Math.Ceiling(Model.TotalCount / (double)Model.PageSize);
+}
+
+<div class="admin-panel">
+    @if (TempData["Success"] != null)
+    {
+        <div class="alert alert-success m-3">@TempData["Success"]</div>
+    }
+
+    <div class="admin-toolbar">
+        <form method="get" class="d-flex gap-2 admin-toolbar__search">
+            <label class="visually-hidden" for="kw">Tìm theo tiêu đề</label>
+            <input class="form-control" id="kw" name="keyword" value="@kw" placeholder="Tìm theo tiêu đề..." />
+            <button type="submit" class="btn-viu btn-viu-outline">Tìm</button>
+            @if (!string.IsNullOrWhiteSpace(kw))
+            {
+                <a class="btn-viu btn-viu-ghost" asp-action="Index">Xoá</a>
+            }
+        </form>
+        <div class="ms-auto d-flex gap-2">
+            @if (!string.IsNullOrWhiteSpace(publicUrl))
+            {
+                <a href="@publicUrl" target="_blank" rel="noopener" class="btn-viu btn-viu-ghost btn-viu-sm">
+                    <i class="fa-solid fa-eye" aria-hidden="true"></i> Xem trang
+                </a>
+            }
+            <a asp-action="Create" class="btn-viu btn-viu-primary btn-viu-sm">
+                <i class="fa-solid fa-plus" aria-hidden="true"></i> Thêm mới
+            </a>
+        </div>
+    </div>
+
+    @if (Model.Items.Any())
+    {
+        <div class="table-scroll">
+            <table class="table-viu">
+                <thead>
+                    <tr>
+                        <th style="width:72px;">Ảnh</th>
+                        <th>Tiêu đề</th>
+                        @if (isTuition)
+                        {
+                            <th style="width:150px;">Số ký hiệu</th>
+                            <th style="width:110px;">Năm học</th>
+                        }
+                        <th style="width:110px;">Ngày đăng</th>
+                        <th style="width:100px;">Trạng thái</th>
+                        <th class="text-end" style="width:230px;">Thao tác</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var n in Model.Items)
+                    {
+                        <tr>
+                            <td>
+                                @if (!string.IsNullOrEmpty(n.Thumbnail))
+                                {
+                                    <img src="@n.Thumbnail" alt="" loading="lazy"
+                                         style="width:56px;height:40px;object-fit:cover;border-radius:3px;border:1px solid var(--line);" />
+                                }
+                            </td>
+                            <td>
+                                <a asp-action="Edit" asp-route-id="@n.Id"
+                                   style="font-weight:600;color:var(--ink);">@n.Title</a>
+                                <div class="small text-muted">
+                                    /@n.Slug
+                                    @if (!string.IsNullOrWhiteSpace(n.AttachmentUrl))
+                                    {
+                                        <span class="badge-viu ms-1">PDF</span>
+                                    }
+                                </div>
+                            </td>
+                            @if (isTuition)
+                            {
+                                <td class="text-muted">@(string.IsNullOrWhiteSpace(n.DocumentNumber) ? "—" : n.DocumentNumber)</td>
+                                <td class="text-muted">@(string.IsNullOrWhiteSpace(n.AcademicYear) ? "—" : n.AcademicYear)</td>
+                            }
+                            <td class="text-muted">@n.PublishedAt?.ToString("dd/MM/yyyy")</td>
+                            <td>
+                                <span class="admin-status @(n.IsPublished ? "admin-status--on" : "admin-status--off")">
+                                    @(n.IsPublished ? "Đang xuất bản" : "Nháp")
+                                </span>
+                            </td>
+                            <td>
+                                <div class="admin-actions justify-content-end">
+                                    <a asp-action="Edit" asp-route-id="@n.Id" class="btn-viu btn-viu-ghost btn-viu-sm">Sửa</a>
+                                    <a asp-action="Preview" asp-route-id="@n.Id" target="_blank" rel="noopener"
+                                       class="btn-viu btn-viu-ghost btn-viu-sm"
+                                       title="Xem như người đọc sẽ thấy">
+                                        <i class="fa-solid fa-eye" aria-hidden="true"></i>
+                                    </a>
+                                    <form method="post" asp-action="TogglePublish" asp-route-id="@n.Id" class="d-inline">
+                                        <button type="submit" class="btn-viu btn-viu-outline btn-viu-sm">
+                                            @(n.IsPublished ? "Ẩn" : "Duyệt")
+                                        </button>
+                                    </form>
+                                    <form method="post" asp-action="Delete" asp-route-id="@n.Id" class="d-inline"
+                                          onsubmit="return confirm('Xoá &quot;@n.Title&quot;? Thao tác này không thể hoàn tác.');">
+                                        <button type="submit" class="btn-viu btn-viu-ghost btn-viu-sm">Xoá</button>
+                                    </form>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+
+        <div class="p-3 d-flex justify-content-between align-items-center flex-wrap gap-2"
+             style="border-top:1px solid var(--line);">
+            <span class="small text-muted">@Model.TotalCount bài · Trang @Model.PageNumber/@Math.Max(totalPages, 1)</span>
+            @if (totalPages > 1)
+            {
+                <ul class="pagination">
+                    <li class="page-item @(Model.PageNumber <= 1 ? "disabled" : "")">
+                        <a class="page-link" asp-action="Index" asp-route-page="@(Model.PageNumber - 1)" asp-route-keyword="@kw">Trước</a>
+                    </li>
+                    @for (var i = 1; i <= totalPages; i++)
+                    {
+                        var p = i;
+                        <li class="page-item @(p == Model.PageNumber ? "active" : "")">
+                            <a class="page-link" asp-action="Index" asp-route-page="@p" asp-route-keyword="@kw">@p</a>
+                        </li>
+                    }
+                    <li class="page-item @(Model.PageNumber >= totalPages ? "disabled" : "")">
+                        <a class="page-link" asp-action="Index" asp-route-page="@(Model.PageNumber + 1)" asp-route-keyword="@kw">Sau</a>
+                    </li>
+                </ul>
+            }
+        </div>
+    }
+    else
+    {
+        <div class="p-4">
+            <div class="empty-state">
+                <strong>@(string.IsNullOrWhiteSpace(kw) ? $"Chưa có {label.ToLower()}" : "Không tìm thấy")</strong>
+                @if (string.IsNullOrWhiteSpace(kw))
+                {
+                    <a asp-action="Create">Thêm bài đầu tiên</a>
+                }
+            </div>
+        </div>
+    }
+</div>

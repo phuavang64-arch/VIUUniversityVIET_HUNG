@@ -4,7 +4,7 @@
     ViewData["Title"] = "Thêm thông báo";
 }
 
-<div class="admin-card" style="max-width:800px;">
+<div class="admin-panel" style="max-width:800px;">
     <form asp-action="Create" method="post">
         <div asp-validation-summary="All" class="alert alert-danger d-none-empty"></div>
         <div class="mb-3">
@@ -33,7 +33,7 @@
             <input asp-for="IsPublished" class="form-check-input" />
             <label asp-for="IsPublished" class="form-check-label">Đăng ngay</label>
         </div>
-        <button type="submit" class="btn btn-viu-gold"><i class="fa-solid fa-check me-2"></i>Lưu</button>
+        <button type="submit" class="btn btn-viu-primary"><i class="fa-solid fa-check me-2"></i>Lưu</button>
         <a asp-action="Index" class="btn btn-outline-secondary">Hủy</a>
     </form>
 </div>

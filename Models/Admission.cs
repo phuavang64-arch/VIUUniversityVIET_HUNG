@@ -36,9 +36,29 @@ namespace VIUUniversity.Models
         [MaxLength(200)]
         public string SubjectCombinations { get; set; } = string.Empty; // Ví dụ: A00, A01, D01, D07
 
-        public decimal? Score2023 { get; set; }
-        public decimal? Score2024 { get; set; }
-        public decimal? Score2025 { get; set; }
+        /// <summary>
+        /// Slug của ngàng trong bảng Majors, dùng để link tới trang chi tiết ngành.
+        ///
+        /// AdmissionMajor không có khóa ngoại tới Majors (chỉ lưu MajorCode dạng
+        /// chuỗi), nên slug phải được sao chép vào đây. Nếu không, không có cách nào
+        /// dựng được đường dẫn tới /dao-tao/nganh/{slug} mà phải tự sinh từ tên
+        /// ngành — mà tên ngành ở hai bảng có thể lệch nhau.
+        /// </summary>
+        [MaxLength(100)]
+        public string? Slug { get; set; }
+
+        /// <summary>Ảnh đại diện của ngành, sao chép từ bảng Majors.</summary>
+        [MaxLength(300)]
+        public string? ImageUrl { get; set; }
+
+        // double rather than decimal: the EF Core SQLite provider stores decimal as TEXT
+        // and rejects any ORDER BY over it ("SQLite does not support expressions of type
+        // 'decimal' in ORDER BY clauses"), which broke sorting scores and tuition.
+        // Scores carry one decimal place and tuition is a whole number in VND, so a
+        // double represents both exactly within any realistic range.
+        public double? Score2023 { get; set; }
+        public double? Score2024 { get; set; }
+        public double? Score2025 { get; set; }
 
         public string? DegreeLevel { get; set; } = "Đại học chính quy";
         public string? Note { get; set; }

@@ -1,0 +1,52 @@
+@model VIUUniversity.ViewComponents.ChatWidgetModel
+
+@*
+    Trợ lý Tuyển sinh.
+    Toàn bộ nội dung hội thoại được JS đưa vào bằng textContent / DOM API.
+    Nội dung do máy chủ sinh đã qua HtmlSanitizer trước khi tới đây.
+*@
+
+<button class="viu-chat-toggle" id="viuChatToggle" type="button"
+        aria-controls="viuChat" aria-expanded="false" aria-label="Mở trợ lý tuyển sinh">
+    <i class="fa-solid fa-comments" aria-hidden="true"></i>
+</button>
+
+<section class="viu-chat" id="viuChat" role="dialog" aria-modal="false"
+         aria-labelledby="viuChatTitle">
+
+    <header class="viu-chat__head">
+        <span class="viu-chat__avatar" aria-hidden="true">
+            <i class="fa-solid fa-robot"></i>
+        </span>
+        <span>
+            <span class="viu-chat__title" id="viuChatTitle">Trợ lý Việt – Hung</span>
+            <span class="viu-chat__status" id="viuChatStatus"
+                  data-state="@(Model.IsConfigured ? "online" : "offline")">
+                @(Model.IsConfigured ? "Đang kết nối" : "Tra cứu dữ liệu trường")
+            </span>
+        </span>
+        <button class="viu-chat__close" id="viuChatClose" type="button" aria-label="Đóng trợ lý">
+            <i class="fa-solid fa-xmark" aria-hidden="true"></i>
+        </button>
+    </header>
+
+    <div class="viu-chat__log" id="viuChatLog" role="log" aria-live="polite" aria-atomic="false"></div>
+
+    <div class="viu-chat__chips" id="viuChatChips"></div>
+
+    <form class="viu-chat__foot" id="viuChatForm">
+        <label class="visually-hidden" for="viuChatInput">Nhập câu hỏi của bạn</label>
+        <input class="viu-chat__input" id="viuChatInput" type="text" autocomplete="off"
+               maxlength="300" placeholder="Nhập câu hỏi của bạn..." />
+        <button class="viu-chat__send" id="viuChatSend" type="submit" aria-label="Gửi câu hỏi">
+            <i class="fa-solid fa-paper-plane" aria-hidden="true"></i>
+        </button>
+    </form>
+</section>
+
+<script>
+    window.VIU_CHAT = {
+        endpoint: '@Model.Endpoint',
+        configured: @((Model.IsConfigured ? "true" : "false"))
+    };
+</script>

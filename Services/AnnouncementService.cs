@@ -9,7 +9,13 @@ namespace VIUUniversity.Services
     public class AnnouncementService : IAnnouncementService
     {
         private readonly ApplicationDbContext _db;
-        public AnnouncementService(ApplicationDbContext db) => _db = db;
+        private readonly IContentSanitizer _sanitizer;
+
+        public AnnouncementService(ApplicationDbContext db, IContentSanitizer sanitizer)
+        {
+            _db = db;
+            _sanitizer = sanitizer;
+        }
 
         public async Task<PagedResult<Announcement>> GetPublishedAsync(int page, int pageSize)
         {
@@ -45,6 +51,8 @@ namespace VIUUniversity.Services
 
         public async Task<Announcement> CreateAsync(Announcement item)
         {
+            SanitizeForStorage(item);
+
             item.CreatedAt = DateTime.UtcNow;
             _db.Announcements.Add(item);
             await _db.SaveChangesAsync();
@@ -53,8 +61,21 @@ namespace VIUUniversity.Services
 
         public async Task UpdateAsync(Announcement item)
         {
-            item.UpdatedAt = DateTime.UtcNow;
-            _db.Announcements.Update(item);
+            SanitizeForStorage(item);
+
+            var existing = await _db.Announcements.FirstOrDefaultAsync(a => a.Id == item.Id);
+            if (existing == null)
+                return;
+
+            existing.Title = item.Title;
+            existing.Content = item.Content;
+            existing.CategoryId = item.CategoryId;
+            existing.AttachmentUrl = item.AttachmentUrl;
+            existing.PublishedAt = item.PublishedAt;
+            existing.IsImportant = item.IsImportant;
+            existing.IsPublished = item.IsPublished;
+            existing.UpdatedAt = DateTime.UtcNow;
+
             await _db.SaveChangesAsync();
         }
 
@@ -65,6 +86,13 @@ namespace VIUUniversity.Services
             entity.IsDeleted = true;
             entity.UpdatedAt = DateTime.UtcNow;
             await _db.SaveChangesAsync();
+        }
+
+        /// <summary>Content is rendered with @Html.Raw, so sanitize it before storage.</summary>
+        private void SanitizeForStorage(Announcement item)
+        {
+            item.Content = _sanitizer.SanitizeHtml(item.Content);
+            item.Title = _sanitizer.ToPlainText(item.Title, 250);
         }
     }
 }

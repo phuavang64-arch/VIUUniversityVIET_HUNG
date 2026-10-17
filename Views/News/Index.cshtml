@@ -1,84 +1,188 @@
-@model PagedResult<News>
+@model VIUUniversity.ViewModels.PagedResult<VIUUniversity.Models.News>
 @{
-    ViewData["Title"] = "Tin tức & Hoạt động - Đại học Công nghiệp Việt - Hung";
+    ViewData["Title"] = "Tin tức";
+    ViewData["Description"] = "Tin tức, thông báo và hoạt động của Trường Đại học Công nghiệp Việt - Hung, kèm video và hình ảnh.";
+    int totalPages = (int)Math.Ceiling(Model.TotalCount / (double)Model.PageSize);
+    string kw = Context.Request.Query["keyword"].ToString();
+
+    // Trang chỉ có 1–2 bài thì lưới 3 cột bỏ trống phần lớn chiều ngang, nhìn như
+    // lỗi cắt trang. Chọn số cột khớp đúng số bài thay vì để ô trống.
+    var itemCols = Model.Items.Count switch
+    {
+        <= 1 => "col-12",
+        2 => "col-md-6",
+        _ => "col-md-6 col-lg-4",
+    };
 }
 
-<!-- Header -->
-<div class="py-5 text-white" style="background: linear-gradient(135deg, var(--viu-navy-dark) 0%, var(--viu-navy) 60%, #173f6b 100%); border-bottom: 4px solid var(--viu-gold);">
-    <div class="container py-4">
+<div class="viu-pagehead viu-pagehead--media"
+     style="--pagehead-photo: url('/images/viu/viu-cntt.jpg');">
+    <div class="wrap">
         <nav aria-label="breadcrumb">
-            <ol class="breadcrumb mb-2">
-                <li class="breadcrumb-item"><a href="/" class="text-white-50 text-decoration-none">Trang chủ</a></li>
-                <li class="breadcrumb-item active text-white" aria-current="page">Tin tức</li>
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="/">Trang chủ</a></li>
+                <li class="breadcrumb-item active" aria-current="page">Tin tức</li>
             </ol>
         </nav>
-        <span class="badge bg-warning text-dark fw-bold px-3 py-2 text-uppercase mb-2">Bản tin học đường VIU</span>
-        <h1 class="display-5 fw-bold mb-3">Tin tức & Sự kiện Nổi bật</h1>
-        <p class="lead text-white-75 mb-0" style="max-width: 750px;">
-            Cập nhật thường xuyên các hoạt động đào tạo, nghiên cứu khoa học, hợp tác quốc tế và phong trào đoàn hội sôi nổi của sinh viên.
-        </p>
+        <h1>Tin tức</h1>
+        <p>Tin tức, thông báo và hoạt động của Trường Đại học Công nghiệp Việt - Hung.</p>
     </div>
 </div>
 
-<div class="container py-5">
-    <div class="row align-items-center justify-content-between mb-4 g-3">
-        <div class="col-md-6">
-            <h4 class="fw-bold text-dark mb-0"><i class="fa-solid fa-newspaper text-warning me-2"></i>Tất cả bài viết (@Model.TotalCount)</h4>
+@* Khối giới thiệu + đề án tuyển sinh: người đọc vào trang Tin tức thường đang tìm
+   thông tin tuyển sinh, nên đặt ngay phần này thay vì bắt họ tự tìm trong menu. *@
+<section class="section section--tight">
+    <div class="wrap">
+        <div class="viu-cols-3">
+            <a class="viu-feature-card" href="/gioi-thieu">
+                <span class="viu-feature-card__media">
+                    <img src="/images/viu/viu-plaza.jpg" alt="Quảng trường Trường Đại học Công nghiệp Việt - Hung"
+                         loading="lazy" />
+                </span>
+                <span class="viu-feature-card__body">
+                    <span class="eyebrow">Giới thiệu</span>
+                    <span class="viu-feature-card__title">Nhà trường</span>
+                    <span class="viu-feature-card__text">
+                        Trường công lập trực thuộc Bộ Công Thương, đào tạo theo hợp tác
+                        Việt Nam - Hungary với hướng ứng dụng thực hành.
+                    </span>
+                </span>
+            </a>
+            <a class="viu-feature-card" href="/tuyen-sinh">
+                <span class="viu-feature-card__media">
+                    <img src="/images/viu/viu-opening.jpg" alt="Lễ khai giảng năm học tại nhà trường"
+                         loading="lazy" />
+                </span>
+                <span class="viu-feature-card__body">
+                    <span class="eyebrow">Tuyển sinh</span>
+                    <span class="viu-feature-card__title">Đề án tuyển sinh</span>
+                    <span class="viu-feature-card__text">
+                        Phương thức xét tuyển, 21 ngành đại học chính quy, chỉ tiêu
+                        và lịch tuyển sinh từng năm.
+                    </span>
+                </span>
+            </a>
+            <a class="viu-feature-card" href="/dao-tao">
+                <span class="viu-feature-card__media">
+                    <img src="/images/viu/viu-khoa-cntt.jpg" alt="Sinh viên thực hành tại Khoa Công nghệ thông tin"
+                         loading="lazy" />
+                </span>
+                <span class="viu-feature-card__body">
+                    <span class="eyebrow">Đào tạo</span>
+                    <span class="viu-feature-card__title">21 ngành đào tạo</span>
+                    <span class="viu-feature-card__text">
+                        Các ngành đại học chính quy khóa 50 với ảnh giới thiệu và chương
+                        trình đào tạo chi tiết từng ngành.
+                    </span>
+                </span>
+            </a>
         </div>
-        <div class="col-md-5 col-lg-4">
-            <form method="get" class="d-flex gap-2">
-                <input type="text" name="keyword" value="@ViewBag.Keyword" class="form-control rounded-pill shadow-none" placeholder="Tìm kiếm tin tức..." />
-                <button class="btn btn-warning text-dark fw-bold rounded-pill px-3"><i class="fa-solid fa-magnifying-glass"></i></button>
+    </div>
+</section>
+
+<section class="section section--alt">
+    <div class="wrap">
+        <div class="d-flex flex-wrap justify-content-between align-items-end gap-3 mb-4">
+            <div class="sec-head sec-head--plain">
+                <span class="eyebrow">Danh sách</span>
+                <h2 class="sec-head__title">Tin tức nhà trường</h2>
+            </div>
+
+            <form method="get" asp-controller="News" asp-action="Index" class="d-flex gap-2">
+                <label class="visually-hidden" for="kw">Tìm theo tiêu đề</label>
+                <input class="form-control" id="kw" name="keyword" value="@kw" placeholder="Tìm theo tiêu đề..."
+                       style="width:240px;" />
+                <button type="submit" class="btn-viu btn-viu-outline">Tìm</button>
+                @if (!string.IsNullOrWhiteSpace(kw))
+                {
+                    <a class="btn-viu btn-viu-ghost" href="/tin-tuc">Xoá</a>
+                }
             </form>
         </div>
-    </div>
 
-    <div class="row g-4">
-        @foreach (var news in Model.Items)
+        @if (Model.Items.Any())
         {
-            <div class="col-md-6 col-lg-4">
-                <div class="viu-card h-100 bg-white">
-                    <img src="@(string.IsNullOrEmpty(news.Thumbnail) ? "https://images.unsplash.com/photo-1523240795612-9a054b0db644?auto=format&fit=crop&w=800&q=80" : news.Thumbnail)" alt="@news.Title" />
-                    <div class="card-body">
-                        <div class="d-flex justify-content-between align-items-center mb-2">
-                            <span class="badge-cat">@(news.Category?.Name ?? "Hoạt động")</span>
-                            <span class="small text-muted"><i class="fa-regular fa-clock me-1"></i>@news.PublishedAt?.ToString("dd/MM/yyyy")</span>
-                        </div>
-                        <h5 class="card-title mb-2">
-                            <a asp-action="Details" asp-route-slug="@news.Slug">@news.Title</a>
-                        </h5>
-                        <p class="text-secondary small mb-3">@news.Summary</p>
-                        <div class="mt-auto pt-2 border-top d-flex justify-content-between text-muted small">
-                            <span><i class="fa-regular fa-eye me-1"></i>@news.ViewCount lượt xem</span>
-                            <a asp-action="Details" asp-route-slug="@news.Slug" class="text-primary text-decoration-none fw-semibold">
-                                Đọc tiếp <i class="fa-solid fa-arrow-right ms-1"></i>
-                            </a>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        }
-        @if (!Model.Items.Any())
-        {
-            <div class="col-12 text-center py-5">
-                <i class="fa-regular fa-folder-open fa-3x text-muted mb-3"></i>
-                <h5 class="text-muted">Không tìm thấy bài viết nào phù hợp với từ khóa tìm kiếm.</h5>
-                <a asp-action="Index" class="btn btn-outline-primary btn-sm rounded-pill mt-2">Xem tất cả bài viết</a>
-            </div>
-        }
-    </div>
-
-    @if (Model.TotalPages > 1)
-    {
-        <nav class="mt-5">
-            <ul class="pagination justify-content-center">
-                @for (int i = 1; i <= Model.TotalPages; i++)
+            <div class="row g-4">
+                @foreach (var n in Model.Items)
                 {
-                    <li class="page-item @(i == Model.PageNumber ? "active" : "")">
-                        <a class="page-link" href="?page=@i&keyword=@ViewBag.Keyword">@i</a>
-                    </li>
+                    <div class="@itemCols">
+                        <article class="tile">
+                            @* Video hoặc ảnh đại diện. Cả hai cùng khung 16:9 nên lưới
+                               không bị lệch dòng khi một bài có video, bài kia có ảnh. *@
+                            @if (VIUUniversity.Html.VideoExtensions.IsVideo(n.VideoUrl))
+                            {
+                                <div class="tile__media">
+                                    @Html.Embed(n.VideoUrl, n.Title)
+                                </div>
+                            }
+                            else if (!string.IsNullOrWhiteSpace(n.Thumbnail))
+                            {
+                                @* Ảnh trang trí (alt="") — chỉ tiêu đề bên dưới mới là link. *@
+                                <div class="tile__media">
+                                    @Html.Img(n.Thumbnail, "", sizes: "(max-width: 767px) 100vw, 50vw")
+                                </div>
+                            }
+                            <div class="tile__body">
+                                <div class="tile__meta" style="padding-top:0;">
+                                    @if (n.Category != null)
+                                    {
+                                        <span class="badge-viu">@n.Category.Name</span>
+                                    }
+                                    <span class="text-faint ms-2">@n.PublishedAt?.ToString("dd/MM/yyyy")</span>
+                                </div>
+                                <h3 class="tile__title mt-2">
+                                    <a class="tile__link" href="/tin-tuc/@n.Slug">@n.Title</a>
+                                </h3>
+                                @if (!string.IsNullOrWhiteSpace(n.Summary))
+                                {
+                                    <p class="tile__excerpt">@n.Summary</p>
+                                }
+                                <div class="tile__meta">
+                                    @if (VIUUniversity.Html.VideoExtensions.IsVideo(n.VideoUrl))
+                                    {
+                                        <span class="badge-viu">Video</span>
+                                    }
+                                </div>
+                            </div>
+                        </article>
+                    </div>
                 }
-            </ul>
-        </nav>
-    }
-</div>
+            </div>
+
+            @if (totalPages > 1)
+            {
+                <nav class="mt-4" aria-label="Phân trang">
+                    <ul class="pagination">
+                        <li class="page-item @(Model.PageNumber <= 1 ? "disabled" : "")">
+                            <a class="page-link" href="@(Model.PageNumber <= 1 ? "#" : $"/tin-tuc?page={Model.PageNumber - 1}&keyword={kw}")">Trước</a>
+                        </li>
+                        @for (var i = 1; i <= totalPages; i++)
+                        {
+                            var p = i;
+                            <li class="page-item @(p == Model.PageNumber ? "active" : "")">
+                                <a class="page-link" href="/tin-tuc?page=@p&keyword=@kw">@p</a>
+                            </li>
+                        }
+                        <li class="page-item @(Model.PageNumber >= totalPages ? "disabled" : "")">
+                            <a class="page-link" href="@(Model.PageNumber >= totalPages ? "#" : $"/tin-tuc?page={Model.PageNumber + 1}&keyword={kw}")">Sau</a>
+                        </li>
+                    </ul>
+                </nav>
+            }
+        }
+        else
+        {
+            <div class="empty-state">
+                <strong>Không có bài viết</strong>
+                @if (!string.IsNullOrWhiteSpace(kw))
+                {
+                    <span>Không tìm thấy tin tức với từ khoá “@kw”.</span>
+                }
+                else
+                {
+                    <span>Trang hiện chưa có tin tức nào.</span>
+                }
+            </div>
+        }
+    </div>
+</section>

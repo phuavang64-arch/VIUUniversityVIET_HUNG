@@ -1,0 +1,149 @@
+@model News
+@{
+    // Trang chi tiết dùng chung cho mọi chuyên mục bài viết. Controller đặt:
+    //   ViewBag.BasePath        — "/nghien-cuu", "/hop-tac", "/hoc-phi", "/tin-tuc"
+    //   ViewBag.Related         — List<News>
+    //   ViewBag.ShowTuitionFields
+    //   ViewBag.PreviewMode     — true khi Admin bấm "Xem trước"
+    string basePath = (ViewBag.BasePath as string ?? "/tin-tuc").TrimEnd('/');
+    bool isTuition = ViewBag.ShowTuitionFields == true;
+    bool preview = ViewBag.PreviewMode == true;
+    var related = ViewBag.Related as List<News> ?? new();
+}
+
+@if (preview)
+{
+    <div class="alert alert-warning d-flex justify-content-between align-items-center flex-wrap gap-2 mb-0 rounded-0 border-0">
+        <span><i class="fa-solid fa-eye me-1"></i><strong>Xem trước</strong> — trang này đang ở chế độ nháp.</span>
+        <a class="btn btn-sm btn-viu-outline" href="/admin">Về trang quản trị</a>
+    </div>
+}
+
+<div class="viu-pagehead @(preview ? "viu-pagehead--media" : "")"
+     @if (preview)
+     {
+         <text>style="--pagehead-photo: url('/images/viu/viu-garden.jpg');"</text>
+     }>
+    <div class="wrap">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="/">Trang chủ</a></li>
+                <li class="breadcrumb-item"><a href="@basePath">@ViewData["SectionLabel"]</a></li>
+                <li class="breadcrumb-item active" aria-current="page">@Model.Title</li>
+            </ol>
+        </nav>
+        <h1>@Model.Title</h1>
+        <p>
+            @if (Model.Category != null)
+            {
+                <span>@Model.Category.Name · </span>
+            }
+            <span>@Model.PublishedAt?.ToString("dd/MM/yyyy")</span>
+            @if (Model.Author != null)
+            {
+                <span> · @Model.Author.FullName</span>
+            }
+        </p>
+    </div>
+</div>
+
+<section class="section">
+    <div class="wrap wrap-narrow">
+        @if (isTuition)
+        {
+            @* Hộp thông tin văn bản: chỉ hiện những ô quản trị đã nhập, không tự điền. *@
+            <dl class="viu-deflist mb-4">
+                @if (!string.IsNullOrWhiteSpace(Model.DocumentNumber))
+                {
+                    <dt>Số ký hiệu</dt><dd>@Model.DocumentNumber</dd>
+                }
+                @if (Model.IssuedDate.HasValue)
+                {
+                    <dt>Ngày ban hành</dt><dd>@Model.IssuedDate.Value.ToString("dd/MM/yyyy")</dd>
+                }
+                @if (!string.IsNullOrWhiteSpace(Model.AcademicYear))
+                {
+                    <dt>Năm học áp dụng</dt><dd>@Model.AcademicYear</dd>
+                }
+            </dl>
+        }
+
+        @if (!string.IsNullOrWhiteSpace(Model.Thumbnail))
+        {
+            <figure style="margin:0 0 1.75rem;">
+                @Html.Img(Model.Thumbnail, "",
+                    style: "width:100%;border-radius:var(--r);border:1px solid var(--line);",
+                    sizes: "(max-width: 991px) 100vw, 75vw")
+            </figure>
+        }
+        else if (VIUUniversity.Html.VideoExtensions.IsVideo(Model.VideoUrl))
+        {
+            @* Video đứng đầu bài, trước cả nội dung chữ. *@
+            <div style="margin:0 0 1.75rem;">
+                @Html.Embed(Model.VideoUrl, Model.Title)
+            </div>
+        }
+
+        @* Content đã qua HtmlSanitizer ở tầng service trước khi lưu. *@
+        <div class="viu-prose">
+            @Html.Raw(Model.Content)
+        </div>
+
+        @if (!string.IsNullOrWhiteSpace(Model.AttachmentUrl))
+        {
+            <div class="panel mt-4">
+                <div class="panel__body d-flex justify-content-between align-items-center flex-wrap gap-3">
+                    <div>
+                        <strong>Tệp đính kèm</strong>
+                        <div class="small text-muted">
+                            @(string.IsNullOrWhiteSpace(Model.AttachmentName) ? "Văn bản PDF" : Model.AttachmentName)
+                        </div>
+                    </div>
+                    @* target=_blank để trình duyệt tải/mở bằng ứng dụng PDF thay vì
+                       điều hướng mất trang. rel=noopener chặn window.opener. *@
+                    <a class="btn-viu btn-viu-primary" href="@Model.AttachmentUrl"
+                       target="_blank" rel="noopener">
+                        <i class="fa-solid fa-file-pdf me-1" aria-hidden="true"></i>
+                        Mở tệp PDF
+                    </a>
+                </div>
+            </div>
+        }
+
+        <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mt-5 pt-4"
+             style="border-top:1px solid var(--line);">
+            <span class="small text-muted">@Model.ViewCount lượt đọc</span>
+            <a class="btn-viu btn-viu-ghost" href="@basePath">Về danh sách</a>
+        </div>
+    </div>
+</section>
+
+@if (related.Any())
+{
+    <section class="section section--alt">
+        <div class="wrap">
+            <h2 class="section-title">Bài viết liên quan</h2>
+            <div class="row g-4">
+                @foreach (var r in related)
+                {
+                    <div class="col-md-4">
+                        <article class="tile">
+                            @if (!string.IsNullOrWhiteSpace(r.Thumbnail))
+                            {
+                                <div class="tile__media">
+                                    @Html.Img(r.Thumbnail, "", sizes: "(max-width: 767px) 100vw, 33vw")
+                                </div>
+                            }
+                            <div class="tile__body">
+                                <h3 class="tile__title">
+                                    <a class="tile__link" href="@basePath/@r.Slug">@r.Title</a>
+                                </h3>
+                                <div class="tile__meta">@r.PublishedAt?.ToString("dd/MM/yyyy")</div>
+                            </div>
+                        </article>
+                    </div>
+                }
+            </div>
+        </div>
+    </section>
+}

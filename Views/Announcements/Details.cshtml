@@ -1,29 +1,37 @@
-@model Announcement
+@model VIUUniversity.Models.Announcement
 @{
     ViewData["Title"] = Model.Title;
 }
 
-<section class="viu-section">
-    <div class="container" style="max-width:800px;">
-        <div class="d-flex gap-2 mb-3">
-            @if (Model.IsImportant)
+<div class="viu-pagehead">
+    <div class="wrap">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="/">Trang chủ</a></li>
+                <li class="breadcrumb-item"><a href="/thong-bao">Thông báo</a></li>
+                <li class="breadcrumb-item active" aria-current="page">@Model.Title</li>
+            </ol>
+        </nav>
+        <h1>@Model.Title</h1>
+        <p>
+            @if (Model.Category != null)
             {
-                <span class="badge badge-important">QUAN TRỌNG</span>
+                <span>@Model.Category.Name · </span>
             }
-            <span class="badge-cat">@Model.Category?.Name</span>
+            <span>@Model.PublishedAt?.ToString("dd/MM/yyyy")</span>
+        </p>
+    </div>
+</div>
+
+<section class="section">
+    <div class="wrap wrap-narrow">
+        <div class="viu-prose">
+            @* Nội dung đã được sanitize ở tầng service trước khi lưu. *@
+            @Html.Raw(Model.Content)
         </div>
-        <h1 class="fw-bold mb-3" style="color:var(--viu-navy)">@Model.Title</h1>
-        <p class="text-muted mb-4"><i class="fa-regular fa-calendar me-1"></i>@Model.PublishedAt?.ToString("dd/MM/yyyy")</p>
 
-        <div class="fs-5" style="line-height:1.8;">@Html.Raw(Model.Content)</div>
-
-        @if (!string.IsNullOrEmpty(Model.AttachmentUrl))
-        {
-            <a href="@Model.AttachmentUrl" class="btn btn-viu-gold mt-4" target="_blank"><i class="fa-solid fa-file-arrow-down me-2"></i>Tải văn bản đính kèm</a>
-        }
-
-        <div class="mt-5">
-            <a asp-action="Index" class="btn btn-viu-outline" style="border-color:var(--viu-navy); color:var(--viu-navy);"><i class="fa-solid fa-arrow-left me-2"></i>Quay lại danh sách</a>
+        <div class="mt-5 pt-4" style="border-top:1px solid var(--line);">
+            <a class="btn-viu btn-viu-ghost" href="/thong-bao">Về danh sách thông báo</a>
         </div>
     </div>
 </section>

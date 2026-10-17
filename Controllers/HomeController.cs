@@ -1,30 +1,33 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using VIUUniversity.Data;
+using Microsoft.AspNetCore.RateLimiting;
 using VIUUniversity.Models;
-using VIUUniversity.Services;
 using VIUUniversity.Services.Interfaces;
 using VIUUniversity.ViewModels;
 
 namespace VIUUniversity.Controllers
 {
+    [AllowAnonymous]
     public class HomeController : Controller
     {
         private readonly IHomeService _homeService;
         private readonly IAcademicService _academicService;
         private readonly IAdmissionService _admissionService;
-        private readonly ApplicationDbContext _db;
+        private readonly IContactService _contactService;
+        private readonly ISearchService _searchService;
 
         public HomeController(
             IHomeService homeService,
             IAcademicService academicService,
             IAdmissionService admissionService,
-            ApplicationDbContext db)
+            IContactService contactService,
+            ISearchService searchService)
         {
             _homeService = homeService;
             _academicService = academicService;
             _admissionService = admissionService;
-            _db = db;
+            _contactService = contactService;
+            _searchService = searchService;
         }
 
         // GET /
@@ -38,8 +41,7 @@ namespace VIUUniversity.Controllers
         [HttpGet("gioi-thieu")]
         public async Task<IActionResult> About()
         {
-            var campuses = await _academicService.GetAllCampusesAsync();
-            ViewBag.Campuses = campuses;
+            ViewBag.Campuses = await _academicService.GetAllCampusesAsync();
             ViewData["Title"] = "Giới thiệu Trường Đại học Công nghiệp Việt - Hung";
             ViewData["Description"] = "Lịch sử hình thành, sứ mạng, tầm nhìn và cơ sở vật chất của Trường Đại học Công nghiệp Việt - Hung (VIU).";
             return View();
@@ -49,10 +51,9 @@ namespace VIUUniversity.Controllers
         [HttpGet("lien-he")]
         public async Task<IActionResult> Contact()
         {
-            var campuses = await _academicService.GetAllCampusesAsync();
             var vm = new ContactViewModel
             {
-                Campuses = campuses,
+                Campuses = await _contactService.GetCampusesAsync(),
                 Message = new ContactMessage()
             };
 
@@ -64,39 +65,25 @@ namespace VIUUniversity.Controllers
         // POST /lien-he
         [HttpPost("lien-he")]
         [ValidateAntiForgeryToken]
+        [EnableRateLimiting(RateLimitPolicies.PublicForms)]
         public async Task<IActionResult> SubmitContact(ContactViewModel vm)
         {
             if (ModelState.IsValid)
             {
-                await _admissionService.SubmitContactMessageAsync(vm.Message);
+                await _contactService.SubmitContactMessageAsync(vm.Message);
                 TempData["Success"] = "Cảm ơn bạn đã gửi liên hệ! Nhà trường đã tiếp nhận và sẽ phản hồi sớm nhất qua email/SĐT.";
                 return RedirectToAction(nameof(Contact));
             }
 
-            vm.Campuses = await _academicService.GetAllCampusesAsync();
+            vm.Campuses = await _contactService.GetCampusesAsync();
             TempData["Error"] = "Vui lòng điền đầy đủ các thông tin bắt buộc.";
             return View(nameof(Contact), vm);
         }
 
-        // GET /nghien-cuu
-        [HttpGet("nghien-cuu")]
-        public IActionResult Research()
-        {
-            ViewData["Title"] = "Nghiên cứu khoa học & Chuyển giao công nghệ";
-            ViewData["Description"] = "Hoạt động nghiên cứu khoa học, chuyển giao công nghệ và các đề tài ứng dụng tại Trường Đại học Công nghiệp Việt - Hung.";
-            return View();
-        }
-
-        // GET /hop-tac
-        [HttpGet("hop-tac")]
-        public async Task<IActionResult> International()
-        {
-            var partners = await _db.Partners.Where(p => !p.IsDeleted && p.IsActive).OrderBy(p => p.DisplayOrder).ToListAsync();
-            ViewBag.Partners = partners;
-            ViewData["Title"] = "Hợp tác Quốc tế & Doanh nghiệp";
-            ViewData["Description"] = "Mạng lưới đối tác quốc tế, đặc biệt hợp tác truyền thống Việt Nam - Hungary và liên kết doanh nghiệp đào tạo của VIU.";
-            return View();
-        }
+        // GET /nghien-cuu và /hop-tac đã chuyển sang ResearchController và
+        // CooperationsController: hai đường dẫn này nay là chuyên mục bài viết quản
+        // lý được trong /admin, đúng như Tin tức. Nội dung giới thiệu vốn có của hai
+        // trang được chuyển vào LeadSections của controller mới nên không mất gì.
 
         // GET /sinh-vien
         [HttpGet("sinh-vien")]
@@ -107,40 +94,57 @@ namespace VIUUniversity.Controllers
             return View();
         }
 
-        // GET /api/search?q=
-        [HttpGet("api/search")]
-        public async Task<IActionResult> Search([FromQuery] string? q)
+        // GET /tim-kiem?q=
+        [HttpGet("tim-kiem")]
+        public async Task<IActionResult> SearchPage([FromQuery] string? q)
         {
-            if (string.IsNullOrWhiteSpace(q))
-            {
-                return Json(new { news = new List<object>(), announcements = new List<object>(), majors = new List<object>() });
-            }
-
-            var keyword = q.Trim().ToLower();
-
-            var newsList = await _db.News
-                .Where(n => !n.IsDeleted && n.IsPublished && (n.Title.ToLower().Contains(keyword) || (n.Summary != null && n.Summary.ToLower().Contains(keyword))))
-                .Take(5)
-                .Select(n => new { title = n.Title, slug = n.Slug, date = n.PublishedAt != null ? n.PublishedAt.Value.ToString("dd/MM/yyyy") : "", type = "Tin tức", url = "/tin-tuc/" + n.Slug })
-                .ToListAsync();
-
-            var announceList = await _db.Announcements
-                .Where(a => !a.IsDeleted && a.IsPublished && a.Title.ToLower().Contains(keyword))
-                .Take(5)
-                .Select(a => new { title = a.Title, slug = a.Id.ToString(), date = a.PublishedAt != null ? a.PublishedAt.Value.ToString("dd/MM/yyyy") : "", type = "Thông báo", url = "/thong-bao/" + a.Id })
-                .ToListAsync();
-
-            var majorList = await _db.Majors
-                .Where(m => !m.IsDeleted && m.IsActive && (m.Name.ToLower().Contains(keyword) || m.Code.ToLower().Contains(keyword)))
-                .Take(5)
-                .Select(m => new { title = m.Name + " (" + m.Code + ")", slug = m.Slug, date = m.DegreeLevel ?? "Đại học", type = "Ngành học", url = "/dao-tao/nganh/" + m.Slug })
-                .ToListAsync();
-
-            return Json(new { news = newsList, announcements = announceList, majors = majorList });
+            var vm = await _searchService.SearchAsync(q, takePerType: 20);
+            ViewData["Title"] = string.IsNullOrWhiteSpace(q) ? "Tìm kiếm" : $"Kết quả tìm kiếm: {q}";
+            ViewData["Description"] = "Tìm kiếm tin tức, thông báo, sự kiện và ngành đào tạo tại Trường Đại học Công nghiệp Việt - Hung.";
+            return View("Search", vm);
         }
 
+        // GET /api/search?q=
+        [HttpGet("api/search")]
+        [EnableRateLimiting(RateLimitPolicies.Chat)]
+        public async Task<IActionResult> Search([FromQuery] string? q)
+        {
+            return Json(await _searchService.SearchApiAsync(q, takePerType: 5));
+        }
+
+        // Target of app.UseExceptionHandler("/Home/Error") outside Development.
+        [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
         public IActionResult Error()
         {
+            return View();
+        }
+
+        // Target of UseStatusCodePagesWithReExecute("/Home/NotFound") for every 404 -
+        // both the ones controllers return with NotFound() and the URLs that match no
+        // endpoint at all. The response status is set to 404 by the middleware before
+        // the request is re-executed here, so search engines and crawlers get the
+        // correct status code along with the styled page.
+        //
+        // ActionName is required: the method cannot be named NotFound() because
+        // ControllerBase already defines NotFound() returning a NotFoundResult.
+        [ActionName("NotFound")]
+        [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
+        public IActionResult PageNotFound()
+        {
+            ViewData["Title"] = "Không tìm thấy trang";
+            ViewData["Description"] = "Trang bạn yêu cầu không tồn tại hoặc đã được chuyển sang địa chỉ khác.";
+            ViewData["NoIndex"] = true;
+
+            // Echo back the URL that actually failed. UseStatusCodePagesWithReExecute
+            // rewrites Request.Path to /Home/NotFound before this runs, so the original
+            // target has to come from the request feature, which is left untouched.
+            // It is rendered as text, and kept percent-encoded exactly as sent.
+            var attempted = Request.HttpContext.Features
+                .Get<Microsoft.AspNetCore.Http.Features.IHttpRequestFeature>()?.RawTarget;
+            var pathOnly = attempted?.Split('?', 2)[0].Trim();
+
+            ViewBag.AttemptedPath = string.IsNullOrWhiteSpace(pathOnly) ? null : pathOnly;
+
             return View();
         }
     }

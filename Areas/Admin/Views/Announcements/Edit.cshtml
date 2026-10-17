@@ -4,7 +4,7 @@
     ViewData["Title"] = "Chỉnh sửa thông báo";
 }
 
-<div class="admin-card" style="max-width:800px;">
+<div class="admin-panel" style="max-width:800px;">
     <form asp-action="Edit" asp-route-id="@Model.Id" method="post">
         <input type="hidden" asp-for="Id" />
         <input type="hidden" asp-for="CreatedAt" />
@@ -33,7 +33,7 @@
             <input asp-for="IsPublished" class="form-check-input" />
             <label asp-for="IsPublished" class="form-check-label">Đã đăng</label>
         </div>
-        <button type="submit" class="btn btn-viu-gold"><i class="fa-solid fa-check me-2"></i>Cập nhật</button>
+        <button type="submit" class="btn btn-viu-primary"><i class="fa-solid fa-check me-2"></i>Cập nhật</button>
         <a asp-action="Index" class="btn btn-outline-secondary">Hủy</a>
     </form>
 </div>

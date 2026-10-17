@@ -1,160 +1,128 @@
 @{
-    ViewData["Title"] = "Giới thiệu chung";
-    var campuses = ViewBag.Campuses as List<VIUUniversity.Models.Campus> ?? new List<VIUUniversity.Models.Campus>();
+    ViewData["Title"] = "Giới thiệu nhà trường";
+    ViewData["Description"] = "Lịch sử hình thành, sứ mạng, tầm nhìn và hệ thống cơ sở đào tạo của Trường Đại học Công nghiệp Việt - Hung.";
+
+    // Ảnh phủ nền đầu trang + lưới ảnh dưới nội dung.
+    ViewBag.HeroImage = "/images/viu/viu-plaza.jpg";
+    ViewBag.PhotosTitle = "Nhà trường qua hình ảnh";
+
+    ViewBag.Sections = new List<Dictionary<string, object>>
+    {
+        new()
+        {
+            ["eyebrow"] = "Tổng quan",
+            ["title"] = "Trường Đại học Công nghiệp Việt - Hung",
+            ["image"] = "/images/viu/viu-plaza.jpg",
+            ["imageAlt"] = "Quảng trường và toà nhà chính của Trường Đại học Công nghiệp Việt - Hung",
+            ["body"] = "<p>Trường Đại học Công nghiệp Việt - Hung (mã trường <strong>VHD</strong>) là cơ sở " +
+                        "giáo dục đại học công lập trực thuộc <strong>Bộ Công Thương</strong>, hoạt động theo " +
+                        "hợp tác Việt Nam - Hungary.</p>" +
+                        "<p>Hoạt động đào tạo của Trường được tổ chức tại nhiều cơ sở trên địa bàn " +
+                        "Hà Nội, với hệ thống phòng máy tính, xưởng thực hành chuyên ngành, thư viện và " +
+                        "các khu thể thao phục vụ việc học tập, nghiên cứu và sinh hoạt của sinh viên.</p>" +
+                        "<p>Chương trình đào tạo của Trường được xây dựng theo hướng ứng dụng và thực " +
+                        "hành nặng: sinh viên dành phần lớn thời lượng cho bài tập, đồ án và thực tập " +
+                        "tại phòng thí nghiệm, xưởng cũng như tại các doanh nghiệp đối tác.</p>"
+        },
+        new()
+        {
+            ["eyebrow"] = "Sứ mạng",
+            ["title"] = "Sứ mạng và tầm nhìn",
+            ["alt"] = true,
+            ["image"] = "/images/viu/viu-students-open-day.jpg",
+            ["imageAlt"] = "Sinh viên nhà trường trong ngày khai giảng",
+            ["body"] = "<h3>Sứ mạng</h3>" +
+                        "<p>Đào tạo nguồn nhân lực có chất lượng, đáp ứng nhu cầu phát triển kinh tế - xã hội " +
+                        "và hội nhập quốc tế; gắn bồi dưỡng đội ngũ giảng viên có chuyên môn và phương pháp " +
+                        "sư phạm tốt; thực hiện nghiên cứu khoa học và chuyển giao công nghệ phục vụ cộng " +
+                        "đồng và doanh nghiệp.</p>" +
+                        "<h3>Tầm nhìn</h3>" +
+                        "<p>Xây dựng Trường trở thành cơ sở giáo dục đại học hàng đầu về ứng dụng khoa học " +
+                        "và công nghệ trong khối doanh nghiệp, đi trước trong một số ngành kỹ thuật trọng " +
+                        "điểm và là nơi được doanh nghiệp tin tưởng giao thực tập và tuyển dụng.</p>"
+        },
+        new()
+        {
+            ["eyebrow"] = "Tổ chức",
+            ["title"] = "Cơ cấu tổ chức và đào tạo",
+            ["image"] = "/images/viu/viu-khoa-cntt.jpg",
+            ["imageAlt"] = "Sinh viên Khoa Công nghệ thông tin làm việc nhóm trên máy tính",
+            ["body"] = "<p>Trường gồm các khoa chuyên ngành, phòng/ban chức năng và các cơ sở đào tạo. " +
+                        "Cùng với khối quản lý trường, các đơn vị trực tiếp tổ chức quá trình đào tạo " +
+                        "và chăm lo đời sống sinh viên.</p>" +
+                        "<ul>" +
+                        "<li><strong>Khoa Công nghệ thông tin</strong> — các ngành Công nghệ thông tin và " +
+                        "Hệ thống thông tin, An toàn thông tin</li>" +
+                        "<li><strong>Khoa Điện – Điện tử</strong> — các ngành Điện – Điện tử, " +
+                        "Kỹ thuật điện – điện tử tự động hoá</li>" +
+                        "<li><strong>Khoa Kinh tế</strong> — các ngành Kinh tế, Quản trị kinh doanh, " +
+                        "Kế toán – Kiểm toán</li>" +
+                        "</ul>" +
+                        "<p>Học liệu và tài liệu mở phục vụ sinh viên; hoạt động thực hiện được tổ chức " +
+                        "thông qua Đoàn Thanh niên và các câu lạc bộ sinh viên.</p>"
+        },
+        new()
+        {
+            ["eyebrow"] = "Cơ sở vật chất",
+            ["title"] = "Cơ sở vật chất và nơi thực hành",
+            ["alt"] = true,
+            ["image"] = "/images/viu/viu-khoa-dien.jpg",
+            ["imageAlt"] = "Sinh viên Khoa Điện – Điện tử thực hành trên mô hình mạch điện",
+            ["body"] = "<p>Các cơ sở của Trường bố trí đầy đủ phòng học, phòng thực hành, xưởng và khu " +
+                        "sinh hoạt chung:</p>" +
+                        "<ul>" +
+                        "<li>Phòng thực hành máy tính và kỹ thuật phần mềm</li>" +
+                        "<li>Xưởng thực hành điện tử, tự động hoá và cơ khí</li>" +
+                        "<li>Phòng thực hành kinh tế và kế toán</li>" +
+                        "<li>Thư viện, hội trường và khu thể thao</li>" +
+                        "</ul>"
+        },
+        new()
+        {
+            ["eyebrow"] = "Hợp tác",
+            ["title"] = "Hợp tác trong nước và quốc tế",
+            ["image"] = "/images/viu/viu-signing.jpg",
+            ["imageAlt"] = "Lễ ký kết hợp tác toàn diện tại nhà trường",
+            ["body"] = "<p>Bên cạnh hợp tác đào tạo theo mô hình Việt Nam - Hungary, Trường duy trì " +
+                        "quan hệ với các cơ sở trong nước và tăng cường mở rộng liên kết với doanh " +
+                        "nghiệp. Thông qua các thỏa thuận ký kết, doanh nghiệp tham gia đồng kiểm soát " +
+                        "chương trình đào tạo, tiếp nhận sinh viên thực tập và cơ hội việc làm sau " +
+                        "tốt nghiệp.</p>"
+        },
+        new()
+        {
+            ["eyebrow"] = "Sinh viên",
+            ["title"] = "Đời sống sinh viên",
+            ["alt"] = true,
+            ["image"] = "/images/viu/viu-students-cheer.jpg",
+            ["imageAlt"] = "Sinh viên nhà trường cổ vũ sự kiện",
+            ["body"] = "<p>Sinh viên được hỗ trợ về học bổng, ký túc xá và các chế độ cần thiết trong " +
+                        "suốt quá trình học. Hoạt động đoàn thể, phong trào học thuật, thể thao và " +
+                        "tình nguyện được tổ chức thường xuyên tại các cơ sở của Trường.</p>"
+        }
+    };
+
+    ViewBag.Photos = new List<VIUUniversity.ViewModels.PhotoItem>
+    {
+        new() { Src = "/images/viu/viu-main-building.jpg",
+                Alt = "Toà nhà chính của Trường Đại học Công nghiệp Việt - Hung nhìn từ sân trường",
+                Caption = "Toà nhà chính", Wide = true },
+        new() { Src = "/images/viu/viu-hall.jpg",
+                Alt = "Hội trường của nhà trường với các hàng ghế",
+                Caption = "Hội trường", Tall = true },
+        new() { Src = "/images/viu/viu-khoa-cntt.jpg",
+                Alt = "Sinh viên Khoa Công nghệ thông tin làm việc nhóm trên máy tính",
+                Caption = "Học tập và thực hành" },
+        new() { Src = "/images/viu/viu-khoa-dien.jpg",
+                Alt = "Sinh viên Khoa Điện – Điện tử thực hành trên mô hình mạch điện",
+                Caption = "Thực hành chuyên ngành" },
+        new() { Src = "/images/viu/viu-signing.jpg",
+                Alt = "Lễ ký kết hợp tác toàn diện tại nhà trường",
+                Caption = "Hợp tác và ký kết" },
+        new() { Src = "/images/viu/viu-opening.jpg",
+                Alt = "Lễ khai giảng với đông đủ sinh viên trên sân trường",
+                Caption = "Lễ khai giảng" },
+    };
 }
 
-<!-- Hero header -->
-<div class="bg-primary py-5 text-white" style="background: linear-gradient(135deg, var(--viu-navy) 0%, #1e3a8a 100%);">
-    <div class="container py-3">
-        <nav aria-label="breadcrumb">
-            <ol class="breadcrumb mb-2">
-                <li class="breadcrumb-item"><a href="/" class="text-white-50 text-decoration-none"><i class="fa-solid fa-house me-1"></i>Trang chủ</a></li>
-                <li class="breadcrumb-item active text-white" aria-current="page">Giới thiệu</li>
-            </ol>
-        </nav>
-        <h1 class="display-6 fw-bold mb-2">Trường Đại học Công nghiệp Việt - Hung</h1>
-        <p class="lead mb-0 text-white-50">Cơ sở giáo dục đại học công lập trực thuộc Bộ Công Thương - Nơi khởi đầu ước mơ công nghệ và nghề nghiệp vững vàng.</p>
-    </div>
-</div>
-
-<div class="container py-5">
-    <div class="row g-5">
-        <!-- Main content -->
-        <div class="col-lg-8">
-            <!-- Lịch sử hình thành -->
-            <section class="mb-5">
-                <div class="viu-eyebrow">Truyền thống phát triển</div>
-                <h3 class="fw-bold mb-3" style="color: var(--viu-navy);">Lịch sử hình thành và phát triển</h3>
-                <p class="text-secondary leading-relaxed">
-                    Trường Đại học Công nghiệp Việt - Hung (VIU) tiền thân là Trường Công nhân Kỹ thuật Hữu nghị Việt Nam - Hungari, được thành lập theo Quyết định số 135/QĐ-TC ngày 27 tháng 9 năm 1977 của Bộ Cơ khí và Luyện kim. Đây là công trình viện trợ không hoàn lại của Nhà nước và Nhân dân nước Cộng hòa Nhân dân Hungari dành cho Nhà nước và Nhân dân Việt Nam.
-                </p>
-                <p class="text-secondary leading-relaxed">
-                    Trải qua gần 50 năm xây dựng và phát triển, nhà trường đã không ngừng nâng cấp chất lượng đào tạo, đổi mới cơ sở vật chất và hợp tác quốc tế, vươn lên thành một trong những trường đại học đào tạo kỹ thuật, công nghệ và kinh tế có uy tín hàng đầu trong khối các trường thuộc Bộ Công Thương.
-                </p>
-                <div class="p-3 rounded bg-light border-start border-4 border-warning my-4">
-                    <p class="fst-italic text-dark mb-0">
-                        "Kiến tạo tri thức - Đào tạo thực chiến - Kết nối doanh nghiệp - Khởi nghiệp thành công."
-                    </p>
-                </div>
-            </section>
-
-            <!-- Sứ mạng, tầm nhìn, giá trị -->
-            <section class="mb-5">
-                <div class="viu-eyebrow">Định hướng tương lai</div>
-                <h3 class="fw-bold mb-4" style="color: var(--viu-navy);">Sứ mạng, Tầm nhìn & Giá trị cốt lõi</h3>
-                
-                <div class="row g-4">
-                    <div class="col-md-6">
-                        <div class="card h-100 border-0 shadow-sm rounded-4 p-4">
-                            <div class="d-flex align-items-center gap-3 mb-3">
-                                <div class="bg-primary bg-opacity-10 text-primary p-3 rounded-circle fs-4">
-                                    <i class="fa-solid fa-compass"></i>
-                                </div>
-                                <h5 class="fw-bold mb-0">Sứ mạng</h5>
-                            </div>
-                            <p class="text-secondary small mb-0">
-                                Đào tạo nguồn nhân lực chất lượng cao, có năng lực nghiên cứu ứng dụng và kỹ năng nghề nghiệp thành thạo, đáp ứng yêu cầu công nghiệp hóa, hiện đại hóa đất nước và hội nhập kinh tế quốc tế.
-                            </p>
-                        </div>
-                    </div>
-
-                    <div class="col-md-6">
-                        <div class="card h-100 border-0 shadow-sm rounded-4 p-4">
-                            <div class="d-flex align-items-center gap-3 mb-3">
-                                <div class="bg-warning bg-opacity-10 text-warning p-3 rounded-circle fs-4">
-                                    <i class="fa-solid fa-eye"></i>
-                                </div>
-                                <h5 class="fw-bold mb-0">Tầm nhìn</h5>
-                            </div>
-                            <p class="text-secondary small mb-0">
-                                Trở thành trường đại học định hướng ứng dụng và đổi mới sáng tạo đạt chuẩn chất lượng quốc gia và tiếp cận chuẩn khu vực, là địa chỉ tin cậy của người học và nhà tuyển dụng.
-                            </p>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="card border-0 shadow-sm rounded-4 p-4 mt-4 bg-light">
-                    <h5 class="fw-bold mb-3"><i class="fa-solid fa-gem text-warning me-2"></i>Giá trị cốt lõi</h5>
-                    <div class="row g-3">
-                        <div class="col-sm-6 col-md-3">
-                            <div class="fw-bold text-primary"><i class="fa-solid fa-check-circle me-1"></i>Trách nhiệm</div>
-                            <p class="text-muted small mb-0">Tận tâm với người học và xã hội</p>
-                        </div>
-                        <div class="col-sm-6 col-md-3">
-                            <div class="fw-bold text-primary"><i class="fa-solid fa-check-circle me-1"></i>Sáng tạo</div>
-                            <p class="text-muted small mb-0">Đổi mới phương pháp và công nghệ</p>
-                        </div>
-                        <div class="col-sm-6 col-md-3">
-                            <div class="fw-bold text-primary"><i class="fa-solid fa-check-circle me-1"></i>Hợp tác</div>
-                            <p class="text-muted small mb-0">Gắn kết bền chặt với doanh nghiệp</p>
-                        </div>
-                        <div class="col-sm-6 col-md-3">
-                            <div class="fw-bold text-primary"><i class="fa-solid fa-check-circle me-1"></i>Chất lượng</div>
-                            <p class="text-muted small mb-0">Chuẩn mực đào tạo và chuẩn đầu ra</p>
-                        </div>
-                    </div>
-                </div>
-            </section>
-
-            <!-- Hệ thống cơ sở đào tạo -->
-            <section class="mb-5">
-                <div class="viu-eyebrow">Quy mô cơ sở vật chất</div>
-                <h3 class="fw-bold mb-3" style="color: var(--viu-navy);">Hệ thống cơ sở đào tạo</h3>
-                <p class="text-secondary mb-4">VIU sở hữu 3 cơ sở đào tạo khang trang với khuôn viên xanh, hệ thống giảng đường, phòng thí nghiệm hiện đại, ký túc xá và khu phức hợp thể thao đa năng:</p>
-
-                <div class="row g-3">
-                    @foreach (var campus in campuses)
-                    {
-                        <div class="col-md-4">
-                            <div class="card h-100 border-0 shadow-sm rounded-3">
-                                <div class="card-body p-4 text-center">
-                                    <div class="bg-primary text-white rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 50px; height: 50px;">
-                                        <i class="fa-solid fa-building-columns"></i>
-                                    </div>
-                                    <h6 class="fw-bold text-dark">@campus.Name</h6>
-                                    <p class="small text-muted mb-0"><i class="fa-solid fa-location-dot me-1 text-danger"></i>@campus.Address</p>
-                                </div>
-                            </div>
-                        </div>
-                    }
-                </div>
-            </section>
-        </div>
-
-        <!-- Sidebar -->
-        <div class="col-lg-4">
-            <div class="card border-0 shadow-sm rounded-4 p-4 mb-4">
-                <h5 class="fw-bold mb-3" style="color: var(--viu-navy);"><i class="fa-solid fa-bolt text-warning me-2"></i>Thông tin nhanh</h5>
-                <ul class="list-unstyled mb-0 d-flex flex-column gap-3 small text-secondary">
-                    <li class="d-flex align-items-center justify-content-between pb-2 border-bottom">
-                        <span>Năm thành lập</span>
-                        <strong class="text-dark">1977</strong>
-                    </li>
-                    <li class="d-flex align-items-center justify-content-between pb-2 border-bottom">
-                        <span>Cơ quan chủ quản</span>
-                        <strong class="text-dark">Bộ Công Thương</strong>
-                    </li>
-                    <li class="d-flex align-items-center justify-content-between pb-2 border-bottom">
-                        <span>Mã trường</span>
-                        <strong class="text-primary fw-bold">VHD</strong>
-                    </li>
-                    <li class="d-flex align-items-center justify-content-between pb-2 border-bottom">
-                        <span>Số lượng sinh viên</span>
-                        <strong class="text-dark">10.000+</strong>
-                    </li>
-                    <li class="d-flex align-items-center justify-content-between">
-                        <span>Tỷ lệ có việc làm</span>
-                        <strong class="text-success fw-bold">95.8%</strong>
-                    </li>
-                </ul>
-            </div>
-
-            <div class="card border-0 shadow-sm rounded-4 p-4 text-center text-white" style="background: linear-gradient(135deg, #1e3a8a, #0f172a);">
-                <div class="fs-1 text-warning mb-2"><i class="fa-solid fa-graduation-cap"></i></div>
-                <h5 class="fw-bold text-white mb-2">Gia nhập đại gia đình VIU</h5>
-                <p class="small text-white-50 mb-4">Trở thành tân sinh viên VIU khóa mới với nhiều chính sách học bổng hấp dẫn và cơ hội việc làm rộng mở.</p>
-                <a href="/tuyen-sinh" class="btn btn-warning fw-semibold text-dark rounded-pill px-4">Khám phá tuyển sinh 2026</a>
-            </div>
-        </div>
-    </div>
-</div>
+@await Html.PartialAsync("_StaticPage")

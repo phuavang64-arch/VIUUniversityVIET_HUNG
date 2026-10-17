@@ -1,11 +1,23 @@
 @{
     ViewData["Title"] = "Không có quyền truy cập";
 }
-<div class="viu-section text-center">
-    <div class="container">
-        <i class="fa-solid fa-lock fa-3x mb-3" style="color:var(--viu-gold-dark)"></i>
-        <h2 class="viu-section-title">Bạn không có quyền truy cập trang này</h2>
-        <p class="text-muted">Vui lòng liên hệ quản trị viên nếu bạn cho rằng đây là nhầm lẫn.</p>
-        <a href="/" class="btn btn-viu-gold mt-3">Về trang chủ</a>
+
+<section class="section">
+    <div class="wrap">
+        <div style="max-width:520px;margin:0 auto;">
+            <div class="panel">
+                <div class="panel__body text-center py-5">
+                    <h1 class="section-title">Không có quyền truy cập</h1>
+                    <p class="text-muted mb-4">
+                        Tài khoản của bạn không được phân quyền cho khu vực này.
+                        Nếu cần quyền truy cập, vui lòng liên hệ quản trị viên của nhà trường.
+                    </p>
+                    <div class="d-flex gap-2 justify-content-center flex-wrap">
+                        <a class="btn-viu btn-viu-primary" href="/">Về trang chủ</a>
+                        <a class="btn-viu btn-viu-ghost" asp-controller="Account" asp-action="Login">Đăng nhập tài khoản khác</a>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
-</div>
+</section>

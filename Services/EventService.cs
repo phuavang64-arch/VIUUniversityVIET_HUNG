@@ -9,7 +9,13 @@ namespace VIUUniversity.Services
     public class EventService : IEventService
     {
         private readonly ApplicationDbContext _db;
-        public EventService(ApplicationDbContext db) => _db = db;
+        private readonly IContentSanitizer _sanitizer;
+
+        public EventService(ApplicationDbContext db, IContentSanitizer sanitizer)
+        {
+            _db = db;
+            _sanitizer = sanitizer;
+        }
 
         public async Task<PagedResult<Event>> GetPublishedAsync(int page, int pageSize)
         {
@@ -40,6 +46,8 @@ namespace VIUUniversity.Services
 
         public async Task<Event> CreateAsync(Event item)
         {
+            SanitizeForStorage(item);
+
             item.CreatedAt = DateTime.UtcNow;
             _db.Events.Add(item);
             await _db.SaveChangesAsync();
@@ -48,8 +56,22 @@ namespace VIUUniversity.Services
 
         public async Task UpdateAsync(Event item)
         {
-            item.UpdatedAt = DateTime.UtcNow;
-            _db.Events.Update(item);
+            SanitizeForStorage(item);
+
+            var existing = await _db.Events.FirstOrDefaultAsync(e => e.Id == item.Id);
+            if (existing == null)
+                return;
+
+            existing.Title = item.Title;
+            existing.Slug = item.Slug;
+            existing.Description = item.Description;
+            existing.ImageUrl = item.ImageUrl;
+            existing.Location = item.Location;
+            existing.StartAt = item.StartAt;
+            existing.EndAt = item.EndAt;
+            existing.IsPublished = item.IsPublished;
+            existing.UpdatedAt = DateTime.UtcNow;
+
             await _db.SaveChangesAsync();
         }
 
@@ -60,6 +82,14 @@ namespace VIUUniversity.Services
             entity.IsDeleted = true;
             entity.UpdatedAt = DateTime.UtcNow;
             await _db.SaveChangesAsync();
+        }
+
+        /// <summary>Description is rendered with @Html.Raw, so sanitize it before storage.</summary>
+        private void SanitizeForStorage(Event item)
+        {
+            item.Description = _sanitizer.SanitizeHtml(item.Description);
+            item.Title = _sanitizer.ToPlainText(item.Title, 250);
+            item.Location = _sanitizer.ToPlainText(item.Location, 200);
         }
     }
 }

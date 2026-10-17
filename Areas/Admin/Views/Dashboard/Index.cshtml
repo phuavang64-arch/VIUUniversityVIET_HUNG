@@ -1,81 +1,103 @@
 @model DashboardViewModel
 @{
-    ViewData["Title"] = "Tổng quan hệ thống";
+    ViewData["Title"] = "Tổng quan";
 }
 
-<div class="row g-4 mb-4">
-    <div class="col-md-4 col-lg-2">
-        <div class="admin-stat-card">
-            <div class="num">@Model.TotalDepartments</div>
-            <div class="label">Khoa</div>
+<!-- Thẻ số liệu: giảm số lượng, chỉ giữ những gì nhân viên cần hằng ngày -->
+<div class="admin-stat-row">
+    <div class="admin-stat">
+        <div class="admin-stat__label">Thí sinh chờ xử lý</div>
+        <div class="admin-stat__value">@Model.TotalPendingLeads</div>
+        <div class="admin-stat__hint admin-stat__hint--alert">
+            <a href="/admin/thi-sinh?processed=false">Xem danh sách</a>
         </div>
     </div>
-    <div class="col-md-4 col-lg-2">
-        <div class="admin-stat-card">
-            <div class="num">@Model.TotalMajors</div>
-            <div class="label">Ngành đào tạo</div>
+    <div class="admin-stat">
+        <div class="admin-stat__label">Tin nhắn chưa đọc</div>
+        <div class="admin-stat__value">@Model.TotalUnreadMessages</div>
+        <div class="admin-stat__hint">
+            <a href="/admin/lien-he?isRead=false">Xem danh sách</a>
         </div>
     </div>
-    <div class="col-md-4 col-lg-2">
-        <div class="admin-stat-card">
-            <div class="num">@Model.TotalLecturers</div>
-            <div class="label">Giảng viên</div>
+    <div class="admin-stat">
+        <div class="admin-stat__label">Tin tức</div>
+        <div class="admin-stat__value">@Model.TotalNews</div>
+        <div class="admin-stat__hint">
+            <a href="/Admin/News">Quản lý tin tức</a>
         </div>
     </div>
-    <div class="col-md-4 col-lg-2">
-        <div class="admin-stat-card">
-            <div class="num">@Model.TotalNews</div>
-            <div class="label">Tin tức</div>
-        </div>
-    </div>
-    <div class="col-md-4 col-lg-2">
-        <div class="admin-stat-card">
-            <div class="num">@Model.TotalAnnouncements</div>
-            <div class="label">Thông báo</div>
-        </div>
-    </div>
-    <div class="col-md-4 col-lg-2">
-        <div class="admin-stat-card">
-            <div class="num">@Model.TotalEvents</div>
-            <div class="label">Sự kiện</div>
-        </div>
+    <div class="admin-stat">
+        <div class="admin-stat__label">Ngành đào tạo</div>
+        <div class="admin-stat__value">@Model.TotalMajors</div>
+        <div class="admin-stat__hint">@Model.TotalDepartments khoa · @Model.TotalLecturers giảng viên</div>
     </div>
 </div>
 
-<div class="row g-4">
-    <div class="col-lg-8">
-        <div class="admin-card">
-            <h6 class="fw-bold mb-4" style="color:var(--viu-navy)">Tin tức đăng theo tháng</h6>
-            @if (Model.NewsByMonth.Any())
-            {
-                var max = Model.NewsByMonth.Max(x => x.Count);
-                <div class="d-flex align-items-end gap-3" style="height:200px;">
-                    @foreach (var m in Model.NewsByMonth)
-                    {
-                        var heightPct = max == 0 ? 0 : (m.Count * 100 / max);
-                        <div class="d-flex flex-column align-items-center justify-content-end" style="flex:1; height:100%;">
-                            <div class="fw-bold small mb-1">@m.Count</div>
-                            <div style="width:100%; background:var(--viu-gold); border-radius:6px 6px 0 0; height:@(heightPct)%;"></div>
-                            <div class="small text-muted mt-2">@m.Label</div>
-                        </div>
-                    }
-                </div>
-            }
-            else
-            {
-                <p class="text-muted mb-0">Chưa có đủ dữ liệu để hiển thị biểu đồ.</p>
-            }
+<!-- Biểu đồ: một tông xanh duy nhất, vẽ bằng SVG không phụ thuộc thư viện -->
+<div class="admin-panel">
+    <div class="admin-panel__head">
+        <h2 class="admin-panel__title">Tin tức theo tháng</h2>
+        <div class="admin-legend">
+            <span><span class="admin-legend__swatch"></span>Số bài đăng</span>
         </div>
     </div>
-    <div class="col-lg-4">
-        <div class="admin-card h-100">
-            <h6 class="fw-bold mb-3" style="color:var(--viu-navy)">Lối tắt</h6>
-            <div class="d-grid gap-2">
-                <a asp-controller="News" asp-action="Create" class="btn btn-viu-gold"><i class="fa-solid fa-plus me-2"></i>Thêm tin tức</a>
-                <a asp-controller="Announcements" asp-action="Create" class="btn btn-outline-secondary"><i class="fa-solid fa-plus me-2"></i>Thêm thông báo</a>
-                <a asp-controller="Events" asp-action="Create" class="btn btn-outline-secondary"><i class="fa-solid fa-plus me-2"></i>Thêm sự kiện</a>
-                <a asp-controller="Banners" asp-action="Create" class="btn btn-outline-secondary"><i class="fa-solid fa-plus me-2"></i>Thêm banner</a>
-            </div>
-        </div>
+    <div class="admin-panel__body">
+        @if (Model.NewsByMonth.Any())
+        {
+            var max = Model.NewsByMonth.Max(x => x.Count);
+            var w = 760.0;
+            var barW = Math.Max(18.0, w / Model.NewsByMonth.Count - 16);
+            var h = 180.0;
+            <svg viewBox="0 0 @(w) @(h + 26)" class="admin-chart" role="img"
+                 aria-label="Biểu đồ cột số bài tin tức theo tháng">
+                <line x1="0" y1="@(h)" x2="@(w)" y2="@(h)" class="admin-chart__axis" />
+                @for (var i = 0; i < Model.NewsByMonth.Count; i++)
+                {
+                    var item = Model.NewsByMonth[i];
+                    var barH = max > 0 ? Math.Round(item.Count / (double)max * (h - 26)) : 0;
+                    var x = 10 + i * (w / Model.NewsByMonth.Count);
+                    var y = h - barH;
+                    <rect x="@(x)" y="@(y)" width="@(barW)" height="@(Math.Max(barH, 1))" class="admin-chart__bar">
+                        <title>@item.Label: @item.Count bài</title>
+                    </rect>
+                    @* <text> xung đột với tag <text> của Razor -> phát qua Html.Raw *@
+                    @Html.Raw($"<text x='{x + barW / 2}' y='{h + 16}' text-anchor='middle' class='admin-chart__label'>{System.Net.WebUtility.HtmlEncode(item.Label)}</text>")
+                    @Html.Raw($"<text x='{x + barW / 2}' y='{y - 6}' text-anchor='middle' class='admin-chart__label'>{item.Count}</text>")
+                }
+            </svg>
+        }
+        else
+        {
+            <div class="empty-state"><strong>Chưa có dữ liệu</strong>Chưa có tin tức nào được đăng.</div>
+        }
+    </div>
+</div>
+
+<div class="admin-panel">
+    <div class="admin-panel__head">
+        <h2 class="admin-panel__title">Lượt đăng ký tuyển sinh theo tháng</h2>
+    </div>
+    <div class="admin-panel__body">
+        @if (Model.LeadsByMonth.Any())
+        {
+            <table class="table-viu">
+                <thead>
+                    <tr><th>Tháng</th><th class="num">Số hồ sơ</th></tr>
+                </thead>
+                <tbody>
+                    @foreach (var l in Model.LeadsByMonth)
+                    {
+                        <tr>
+                            <td>@l.Label</td>
+                            <td class="num">@l.Count</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        }
+        else
+        {
+            <div class="empty-state"><strong>Chưa có dữ liệu</strong></div>
+        }
     </div>
 </div>

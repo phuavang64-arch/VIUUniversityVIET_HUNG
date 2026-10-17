@@ -1,0 +1,157 @@
+@model List<AdmissionLead>
+@{
+    ViewData["Title"] = "Hồ sơ thí sinh";
+    var currentPage = (ViewBag.Page as int?) ?? 1;
+    int totalPages = ViewBag.TotalPages is int tp ? tp : 1;
+    string? kw = ViewBag.Keyword as string;
+    bool? processed = ViewBag.Processed is bool pr ? pr : (bool?)null;
+    int total = ViewBag.Total is int tt ? tt : Model.Count;
+    int pending = ViewBag.TotalPending is int tpd ? tpd : 0;
+}
+
+<div class="admin-stat-row">
+    <div class="admin-stat">
+        <div class="admin-stat__label">Tổng hồ sơ</div>
+        <div class="admin-stat__value">@total</div>
+    </div>
+    <div class="admin-stat">
+        <div class="admin-stat__label">Chờ xử lý</div>
+        <div class="admin-stat__value">@pending</div>
+        @if (pending > 0)
+        {
+            <div class="admin-stat__hint admin-stat__hint--alert">
+                <a asp-action="Index" asp-route-processed="false">Xem danh sách</a>
+            </div>
+        }
+    </div>
+</div>
+
+<div class="admin-panel">
+    <div class="admin-toolbar">
+        <form method="get" class="d-flex gap-2 admin-toolbar__search">
+            <label class="visually-hidden" for="kw">Tìm hồ sơ</label>
+            <input class="form-control" id="kw" name="keyword" value="@kw" placeholder="Tên, SĐT, email hoặc ngành..." />
+            <label class="visually-hidden" for="proc">Trạng thái</label>
+            <select class="form-select" id="proc" name="processed" style="width:auto;">
+                <option value="">Tất cả</option>
+                <option value="false" selected="@(processed == false)">Chưa xử lý</option>
+                <option value="true" selected="@(processed == true)">Đã xử lý</option>
+            </select>
+            <button type="submit" class="btn-viu btn-viu-outline">Lọc</button>
+        </form>
+        <div class="ms-auto d-flex gap-2">
+            <a asp-action="Index" class="btn-viu btn-viu-ghost btn-viu-sm">Đặt lại</a>
+            @if (User.IsInRole("Admin"))
+            {
+                <form method="post" asp-action="DeleteAllProcessed" class="d-inline"
+                      onsubmit="return confirm('Xoá toàn bộ hồ sơ đã xử lý? Thao tác này không thể hoàn tác.');">
+                    <button type="submit" class="btn-viu btn-viu-ghost btn-viu-sm">
+                        Dọn hồ sơ đã xử lý
+                    </button>
+                </form>
+            }
+        </div>
+    </div>
+
+    @if (Model.Any())
+    {
+        <div class="table-scroll">
+            <table class="table-viu">
+                <thead>
+                    <tr>
+                        <th>Họ tên</th>
+                        <th>Liên hệ</th>
+                        <th>Ngành quan tâm</th>
+                        <th style="width:110px;">Ngày nhận</th>
+                        <th style="width:110px;">Trạng thái</th>
+                        <th class="text-end" style="width:170px;">Thao tác</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var l in Model)
+                    {
+                        <tr>
+                            <td>
+                                <a asp-action="Detail" asp-route-id="@l.Id"
+                                   style="font-weight:600;color:var(--ink);">@l.FullName</a>
+                                @if (!string.IsNullOrWhiteSpace(l.HighSchool))
+                                {
+                                    <div class="small text-muted">@l.HighSchool</div>
+                                }
+                            </td>
+                            <td>
+                                <div>@l.PhoneNumber</div>
+                                @if (!string.IsNullOrWhiteSpace(l.Email))
+                                {
+                                    <div class="small text-muted">@l.Email</div>
+                                }
+                            </td>
+                            <td class="text-muted">
+                                @(string.IsNullOrWhiteSpace(l.DesiredMajor) ? "—" : l.DesiredMajor)
+                                @if (!string.IsNullOrWhiteSpace(l.PreferredMethod))
+                                {
+                                    <div class="small text-muted">@l.PreferredMethod</div>
+                                }
+                            </td>
+                            <td class="text-muted">@l.CreatedAt.ToString("dd/MM/yyyy")</td>
+                            <td>
+                                <span class="admin-status @(l.IsProcessed ? "admin-status--on" : "admin-status--warn")">
+                                    @(l.IsProcessed ? "Đã xử lý" : "Chờ xử lý")
+                                </span>
+                            </td>
+                            <td>
+                                <div class="admin-actions justify-content-end">
+                                    <a asp-action="Detail" asp-route-id="@l.Id" class="btn-viu btn-viu-ghost btn-viu-sm">Xem</a>
+                                    <form method="post" asp-action="ToggleProcessed" asp-route-id="@l.Id" class="d-inline">
+                                        <button type="submit" class="btn-viu btn-viu-outline btn-viu-sm">
+                                            @(l.IsProcessed ? "Mở lại" : "Đã xử lý")
+                                        </button>
+                                    </form>
+                                    @if (User.IsInRole("Admin"))
+                                    {
+                                        <form method="post" asp-action="Delete" asp-route-id="@l.Id" class="d-inline"
+                                              onsubmit="return confirm('Xoá hồ sơ của @l.FullName?');">
+                                            <button type="submit" class="btn-viu btn-viu-ghost btn-viu-sm">Xoá</button>
+                                        </form>
+                                    }
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+
+        @if (totalPages > 1)
+        {
+            <div class="p-3 d-flex justify-content-between align-items-center flex-wrap gap-2"
+                 style="border-top:1px solid var(--line);">
+                <span class="small text-muted">Trang @currentPage/@totalPages</span>
+                <ul class="pagination">
+                    <li class="page-item @(currentPage <= 1 ? "disabled" : "")">
+                        <a class="page-link" asp-action="Index" asp-route-page="@(currentPage - 1)" asp-route-keyword="@kw" asp-route-processed="@processed">Trước</a>
+                    </li>
+                    @for (var i = 1; i <= totalPages; i++)
+                    {
+                        var p = i;
+                        <li class="page-item @(p == currentPage ? "active" : "")">
+                            <a class="page-link" asp-action="Index" asp-route-page="@p" asp-route-keyword="@kw" asp-route-processed="@processed">@p</a>
+                        </li>
+                    }
+                    <li class="page-item @(currentPage >= totalPages ? "disabled" : "")">
+                        <a class="page-link" asp-action="Index" asp-route-page="@(currentPage + 1)" asp-route-keyword="@kw" asp-route-processed="@processed">Sau</a>
+                    </li>
+                </ul>
+            </div>
+        }
+    }
+    else
+    {
+        <div class="p-4">
+            <div class="empty-state">
+                <strong>@(string.IsNullOrWhiteSpace(kw) ? "Chưa có hồ sơ thí sinh" : "Không tìm thấy hồ sơ")</strong>
+                Hồ sơ từ biểu mẫu đăng ký tư vấn sẽ xuất hiện tại đây.
+            </div>
+        </div>
+    }
+</div>

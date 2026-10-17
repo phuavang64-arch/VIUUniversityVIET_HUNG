@@ -1,0 +1,237 @@
+@model PagedResult<News>
+@{
+    // Danh sách bài viết cho mọi chuyên mục dùng chung bảng News
+    // (Tin tức, Nghiên cứu KH, Hợp tác, Học phí). Controller đặt sẵn:
+    //   ViewBag.SectionKey   — giá trị ContentSection
+    //   ViewBag.BasePath     — ví dụ "/hop-tac"
+    //   ViewBag.PageTitle / PageDescription / PagePhoto / PageLead
+    //   ViewBag.ShowTuitionFields
+    //   ViewBag.LeadSections — List<Dictionary<string,object>> nội dung tĩnh phía trên
+    string sectionKey = ViewBag.SectionKey as string ?? ContentSection.TinTuc;
+    string basePath = (ViewBag.BasePath as string ?? "/tin-tuc").TrimEnd('/');
+    string kw = Context.Request.Query["keyword"].ToString();
+    bool isTuition = ViewBag.ShowTuitionFields == true;
+
+    var leadSections = ViewBag.LeadSections as List<Dictionary<string, object>> ?? new();
+    int totalPages = (int)Math.Ceiling(Model.TotalCount / (double)Model.PageSize);
+
+    // Trang chỉ có 1–2 bài thì lưới 3 cột bỏ trống phần lớn chiều ngang, nhìn như
+    // lỗi cắt trang. Chọn số cột khớp đúng số bài — cùng cách /tin-tuc đang làm.
+    var itemCols = Model.Items.Count switch
+    {
+        <= 1 => "col-12",
+        2 => "col-md-6",
+        _ => "col-md-6 col-lg-4",
+    };
+}
+
+<div class="viu-pagehead viu-pagehead--media"
+     style="--pagehead-photo: url('{(ViewBag.PagePhoto as string) ?? "/images/viu/viu-cntt.jpg"}');">
+    <div class="wrap">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="/">Trang chủ</a></li>
+                <li class="breadcrumb-item active" aria-current="page">@ViewData["Title"]</li>
+            </ol>
+        </nav>
+        <h1>@ViewData["Title"]</h1>
+        <p>@ViewData["Description"]</p>
+    </div>
+</div>
+
+@* Nội dung tĩnh của trang (giữ nguyên phần cũ của trang Hợp tác, v.v.) *@
+@foreach (var s in leadSections)
+{
+    var eyebrow = s.TryGetValue("eyebrow", out var e) ? (string?)e : null;
+    var title = s.TryGetValue("title", out var t) ? (string?)t : null;
+    var body = s.TryGetValue("body", out var b) ? (string?)b : null;
+    var alt = s.TryGetValue("alt", out var a) && (bool)a;
+    var image = s.TryGetValue("image", out var img) ? (string?)img : null;
+    var imageAlt = s.TryGetValue("imageAlt", out var ia) ? (string?)ia : null;
+
+    <section class="section @(alt ? "section--alt" : "")">
+        <div class="wrap">
+            @* Bố cục ảnh + chữ: ảnh một bên, nội dung một bên. Dùng lại component
+               .viu-media-split có sẵn để không lệch thiết kế. *@
+            @if (!string.IsNullOrWhiteSpace(image))
+            {
+                <div class="viu-media-split @(alt ? "viu-media-split--flip" : "")">
+                    <div class="viu-media-split__media">
+                        <img src="@image" alt="@(imageAlt ?? title ?? "")" loading="lazy" />
+                    </div>
+                    <div>
+                        @if (!string.IsNullOrWhiteSpace(eyebrow))
+                        {
+                            <span class="eyebrow">@eyebrow</span>
+                        }
+                        @if (!string.IsNullOrWhiteSpace(title))
+                        {
+                            <h2 class="section-title">@title</h2>
+                        }
+                        @if (!string.IsNullOrWhiteSpace(body))
+                        {
+                            <div class="viu-prose">@Html.Raw(body)</div>
+                        }
+                    </div>
+                </div>
+            }
+            else
+            {
+                @if (!string.IsNullOrWhiteSpace(eyebrow))
+                {
+                    <span class="eyebrow">@eyebrow</span>
+                }
+                @if (!string.IsNullOrWhiteSpace(title))
+                {
+                    <h2 class="section-title">@title</h2>
+                }
+                @if (!string.IsNullOrWhiteSpace(body))
+                {
+                    <div class="viu-prose">@Html.Raw(body)</div>
+                }
+            }
+        </div>
+    </section>
+}
+
+<section class="section">
+    <div class="wrap">
+        <div class="d-flex flex-wrap justify-content-between align-items-end gap-3 mb-4">
+            <div class="sec-head sec-head--plain">
+                <span class="eyebrow">Danh sách</span>
+                <h2 class="sec-head__title">
+                    @(isTuition ? "Văn bản và thông báo học phí" : $"{Model.TotalCount} bài viết")
+                </h2>
+            </div>
+
+            <form method="get" class="d-flex gap-2">
+                <label class="visually-hidden" for="kw">Tìm theo tiêu đề</label>
+                <input class="form-control" id="kw" name="keyword" value="@kw"
+                       placeholder="Tìm theo tiêu đề..." style="width:240px;" />
+                <button type="submit" class="btn-viu btn-viu-outline">Tìm</button>
+                @if (!string.IsNullOrWhiteSpace(kw))
+                {
+                    <a class="btn-viu btn-viu-ghost" href="@basePath">Xoá</a>
+                }
+            </form>
+        </div>
+
+        @if (Model.Items.Any())
+        {
+            <div class="row g-4">
+                @foreach (var n in Model.Items)
+                {
+                    <div class="@itemCols">
+                        <article class="tile">
+                            @if (!string.IsNullOrWhiteSpace(n.Thumbnail))
+                            {
+                                @* Ảnh trang trí (alt="") — tiêu đề bên dưới mới là link. *@
+                                <div class="tile__media">
+                                    @Html.Img(n.Thumbnail, "", sizes: "(max-width: 767px) 100vw, 50vw")
+                                </div>
+                            }
+                            else if (VIUUniversity.Html.VideoExtensions.IsVideo(n.VideoUrl))
+                            {
+                                @* Video thay ảnh đại diện: cùng khung 16:9 nên lưới không
+                                   bị lệch dòng khi một bài có video, bài kia có ảnh. *@
+                                <div class="tile__media">
+                                    @Html.Embed(n.VideoUrl, n.Title)
+                                </div>
+                            }
+                            <div class="tile__body">
+                                @if (isTuition)
+                                {
+                                    <div class="tile__meta" style="padding-top:0;">
+                                        @if (!string.IsNullOrWhiteSpace(n.DocumentNumber))
+                                        {
+                                            <span class="badge-viu">@n.DocumentNumber</span>
+                                        }
+                                        @if (!string.IsNullOrWhiteSpace(n.AcademicYear))
+                                        {
+                                            <span class="text-faint ms-2">@n.AcademicYear</span>
+                                        }
+                                    </div>
+                                }
+                                else if (n.Category != null)
+                                {
+                                    <div class="tile__meta" style="padding-top:0;">
+                                        <span class="badge-viu">@n.Category.Name</span>
+                                    </div>
+                                }
+
+                                <h3 class="tile__title @(isTuition ? "mt-2" : "")">
+                                    <a class="tile__link" href="@basePath/@n.Slug">@n.Title</a>
+                                </h3>
+
+                                @if (isTuition && n.IssuedDate.HasValue)
+                                {
+                                    <p class="tile__excerpt mb-0">
+                                        Ngày ban hành: <strong>@n.IssuedDate.Value.ToString("dd/MM/yyyy")</strong>
+                                    </p>
+                                }
+                                else if (!string.IsNullOrWhiteSpace(n.Summary))
+                                {
+                                    <p class="tile__excerpt">@n.Summary</p>
+                                }
+
+                                <div class="tile__meta">
+                                    <span>@n.PublishedAt?.ToString("dd/MM/yyyy")</span>
+                                    @if (isTuition && !string.IsNullOrWhiteSpace(n.AttachmentUrl))
+                                    {
+                                        <span class="badge-viu">Có tệp PDF</span>
+                                    }
+                                    @if (VIUUniversity.Html.VideoExtensions.IsVideo(n.VideoUrl))
+                                    {
+                                        <span class="badge-viu">Video</span>
+                                    }
+                                </div>
+                            </div>
+                        </article>
+                    </div>
+                }
+            </div>
+
+            @if (totalPages > 1)
+            {
+                <nav class="mt-4" aria-label="Phân trang">
+                    <ul class="pagination">
+                        <li class="page-item @(Model.PageNumber <= 1 ? "disabled" : "")">
+                            <a class="page-link" href="@(Model.PageNumber <= 1 ? "#" : $"{basePath}?page={Model.PageNumber - 1}&keyword={kw}")">Trước</a>
+                        </li>
+                        @for (var i = 1; i <= totalPages; i++)
+                        {
+                            var p = i;
+                            <li class="page-item @(p == Model.PageNumber ? "active" : "")">
+                                <a class="page-link" href="@basePath?page=@p&keyword=@kw">@p</a>
+                            </li>
+                        }
+                        <li class="page-item @(Model.PageNumber >= totalPages ? "disabled" : "")">
+                            <a class="page-link" href="@(Model.PageNumber >= totalPages ? "#" : $"{basePath}?page={Model.PageNumber + 1}&keyword={kw}")">Sau</a>
+                        </li>
+                    </ul>
+                </nav>
+            }
+        }
+        else
+        {
+            <div class="empty-state">
+                <strong>Chưa có bài viết</strong>
+                @if (!string.IsNullOrWhiteSpace(kw))
+                {
+                    <span>Không tìm thấy với từ khoá “@kw”.</span>
+                }
+                else if (isTuition)
+                {
+                    <span>
+                        Chưa có văn bản học phí nào được đăng. Ban Tuyển sinh sẽ cập nhật
+                        khi có văn bản chính thức.
+                    </span>
+                }
+                else
+                {
+                    <span>Mục này hiện chưa có bài viết.</span>
+                }
+            </div>
+        }
+    </div>
+</section>

@@ -4,44 +4,84 @@
     ViewData["Title"] = "Chỉnh sửa tin tức";
 }
 
-<div class="admin-card" style="max-width:800px;">
-    <form asp-action="Edit" asp-route-id="@Model.Id" method="post">
+<div class="admin-panel" style="max-width:900px;">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h5 class="fw-bold mb-1" style="color:var(--viu-navy);">Chỉnh sửa tin tức</h5>
+            @if (Model.IsPublished)
+            {
+                <a href="/tin-tuc/@Model.Slug" target="_blank" class="small">Xem bài trên website <i class="fa-solid fa-arrow-up-right-from-square"></i></a>
+            }
+        </div>
+        <a asp-action="Index" class="btn btn-outline-secondary btn-sm">Quay lại</a>
+    </div>
+
+    <form asp-action="Edit" asp-route-id="@Model.Id" method="post" enctype="multipart/form-data">
         <input type="hidden" asp-for="Id" />
         <input type="hidden" asp-for="CreatedAt" />
         <input type="hidden" asp-for="AuthorId" />
         <input type="hidden" asp-for="ViewCount" />
-        <div asp-validation-summary="All" class="alert alert-danger d-none-empty"></div>
+        <input type="hidden" asp-for="PublishedAt" />
+        <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
 
-        <div class="mb-3">
-            <label class="form-label fw-semibold">Tiêu đề</label>
-            <input asp-for="Title" class="form-control" required />
+        <div class="row g-3">
+            <div class="col-md-8">
+                <div class="mb-3">
+                    <label class="form-label fw-semibold">Tiêu đề</label>
+                    <input asp-for="Title" class="form-control form-control-lg" required />
+                </div>
+                <div class="mb-3">
+                    <label class="form-label fw-semibold">Đường dẫn (slug)</label>
+                    <input asp-for="Slug" class="form-control" />
+                </div>
+                <div class="mb-3">
+                    <label class="form-label fw-semibold">Tóm tắt</label>
+                    <textarea asp-for="Summary" class="form-control" rows="2"></textarea>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label fw-semibold">Nội dung</label>
+                    <textarea asp-for="Content" class="form-control" rows="12" required></textarea>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="mb-3">
+                    <label class="form-label fw-semibold">Chuyên mục</label>
+                    <select asp-for="CategoryId" class="form-select" asp-items="@(new SelectList(ViewBag.Categories, "Id", "Name", Model.CategoryId))"></select>
+                </div>
+                @if (!string.IsNullOrEmpty(Model.Thumbnail))
+                {
+                    <div class="mb-2">
+                        <img src="@Model.Thumbnail" class="thumbnail-preview" alt="Ảnh hiện tại" />
+                    </div>
+                }
+                <div class="mb-3">
+                    <label class="form-label fw-semibold">Đổi ảnh đại diện</label>
+                    <input type="file" name="thumbnailFile" accept="image/*" class="form-control" id="thumbnailFileInput" />
+                    <img id="thumbnailPreview" class="thumbnail-preview mt-2 d-none" alt="Xem trước" />
+                </div>
+                <div class="mb-3">
+                    <label class="form-label fw-semibold">URL ảnh</label>
+                    <input asp-for="Thumbnail" class="form-control" />
+                </div>
+                <div class="form-check form-switch mb-4">
+                    <input asp-for="IsPublished" class="form-check-input" />
+                    <label asp-for="IsPublished" class="form-check-label fw-semibold">Đã đăng / Xuất bản</label>
+                </div>
+                <button type="submit" class="btn btn-viu-primary w-100 mb-2"><i class="fa-solid fa-check me-2"></i>Cập nhật</button>
+                <a asp-action="Index" class="btn btn-outline-secondary w-100">Hủy</a>
+            </div>
         </div>
-        <div class="mb-3">
-            <label class="form-label fw-semibold">Đường dẫn (slug)</label>
-            <input asp-for="Slug" class="form-control" />
-        </div>
-        <div class="mb-3">
-            <label class="form-label fw-semibold">Chuyên mục</label>
-            <select asp-for="CategoryId" class="form-select" asp-items="@(new SelectList(ViewBag.Categories, "Id", "Name", Model.CategoryId))"></select>
-        </div>
-        <div class="mb-3">
-            <label class="form-label fw-semibold">Tóm tắt</label>
-            <textarea asp-for="Summary" class="form-control" rows="2"></textarea>
-        </div>
-        <div class="mb-3">
-            <label class="form-label fw-semibold">Ảnh đại diện (URL)</label>
-            <input asp-for="Thumbnail" class="form-control" />
-        </div>
-        <div class="mb-3">
-            <label class="form-label fw-semibold">Nội dung</label>
-            <textarea asp-for="Content" class="form-control" rows="10" required></textarea>
-        </div>
-        <div class="form-check mb-4">
-            <input asp-for="IsPublished" class="form-check-input" />
-            <label asp-for="IsPublished" class="form-check-label">Đã đăng</label>
-        </div>
-
-        <button type="submit" class="btn btn-viu-gold"><i class="fa-solid fa-check me-2"></i>Cập nhật</button>
-        <a asp-action="Index" class="btn btn-outline-secondary">Hủy</a>
     </form>
 </div>
+
+@section Scripts {
+<script>
+document.getElementById('thumbnailFileInput')?.addEventListener('change', function (e) {
+    const file = e.target.files?.[0];
+    const preview = document.getElementById('thumbnailPreview');
+    if (!file || !preview) return;
+    preview.src = URL.createObjectURL(file);
+    preview.classList.remove('d-none');
+});
+</script>
+}

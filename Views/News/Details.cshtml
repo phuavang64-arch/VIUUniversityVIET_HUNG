@@ -1,43 +1,82 @@
-@model News
+@model VIUUniversity.Models.News
 @{
     ViewData["Title"] = Model.Title;
     ViewData["Description"] = Model.Summary;
+    var related = ViewBag.RelatedNews as List<VIUUniversity.Models.News> ?? new();
 }
 
-<section class="viu-section-alt py-4">
-    <div class="container">
+<div class="viu-pagehead">
+    <div class="wrap">
         <nav aria-label="breadcrumb">
-            <ol class="breadcrumb mb-0">
+            <ol class="breadcrumb">
                 <li class="breadcrumb-item"><a href="/">Trang chủ</a></li>
-                <li class="breadcrumb-item"><a asp-action="Index">Tin tức</a></li>
-                <li class="breadcrumb-item active">@Model.Title</li>
+                <li class="breadcrumb-item"><a href="/tin-tuc">Tin tức</a></li>
+                <li class="breadcrumb-item active" aria-current="page">@Model.Title</li>
             </ol>
         </nav>
-    </div>
-</section>
-
-<section class="viu-section">
-    <div class="container" style="max-width:860px;">
-        <span class="badge-cat mb-3 d-inline-block">@Model.Category?.Name</span>
-        <h1 class="fw-bold mb-3" style="color:var(--viu-navy)">@Model.Title</h1>
-        <p class="text-muted mb-4">
-            <i class="fa-regular fa-calendar me-1"></i>@Model.PublishedAt?.ToString("dd/MM/yyyy")
-            &middot; <i class="fa-regular fa-eye me-1"></i>@Model.ViewCount lượt xem
+        <h1>@Model.Title</h1>
+        <p>
+            @if (Model.Category != null)
+            {
+                <span>@Model.Category.Name · </span>
+            }
+            <span>@Model.PublishedAt?.ToString("dd/MM/yyyy")</span>
             @if (Model.Author != null)
             {
-                <text>&middot; <i class="fa-regular fa-user me-1"></i>@Model.Author.FullName</text>
+                <span> · @Model.Author.FullName</span>
             }
         </p>
-        @if (!string.IsNullOrEmpty(Model.Thumbnail))
+    </div>
+</div>
+
+<section class="section">
+    <div class="wrap wrap-narrow">
+        @if (!string.IsNullOrWhiteSpace(Model.Thumbnail))
         {
-            <img src="@Model.Thumbnail" class="img-fluid rounded mb-4" alt="@Model.Title" />
+            <figure style="margin:0 0 1.75rem;">
+                @Html.Img(Model.Thumbnail, "",
+                    style: "width:100%;border-radius:var(--r);border:1px solid var(--line);",
+                    sizes: "(max-width: 991px) 100vw, 75vw")
+            </figure>
         }
-        <div class="viu-article-content fs-5" style="line-height:1.8;">
+
+        @* Content đã qua HtmlSanitizer ở tầng service trước khi lưu. *@
+        <div class="viu-prose">
             @Html.Raw(Model.Content)
         </div>
 
-        <div class="mt-5">
-            <a asp-action="Index" class="btn btn-viu-outline" style="border-color:var(--viu-navy); color:var(--viu-navy);"><i class="fa-solid fa-arrow-left me-2"></i>Quay lại danh sách tin tức</a>
+        <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mt-5 pt-4"
+             style="border-top:1px solid var(--line);">
+            <span class="small text-muted">@Model.ViewCount lượt đọc</span>
+            <a class="btn-viu btn-viu-ghost" href="/tin-tuc">Về danh sách tin tức</a>
         </div>
     </div>
 </section>
+
+@if (related.Any())
+{
+    <section class="section section--alt">
+        <div class="wrap">
+            <h2 class="section-title">Bài viết liên quan</h2>
+            <div class="row g-4">
+                @foreach (var r in related)
+                {
+                    <div class="col-md-4">
+                        <article class="tile">
+                            @if (!string.IsNullOrWhiteSpace(r.Thumbnail))
+                            {
+                                <div class="tile__media">
+                                    @Html.Img(r.Thumbnail, "", sizes: "(max-width: 767px) 100vw, 33vw")
+                                </div>
+                            }
+                            <div class="tile__body">
+                                <h3 class="tile__title"><a class="tile__link" href="/tin-tuc/@r.Slug">@r.Title</a></h3>
+                                <div class="tile__meta">@r.PublishedAt?.ToString("dd/MM/yyyy")</div>
+                            </div>
+                        </article>
+                    </div>
+                }
+            </div>
+        </div>
+    </section>
+}

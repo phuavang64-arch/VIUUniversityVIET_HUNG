@@ -1,352 +1,228 @@
 @model List<VIUUniversity.Models.AdmissionMajor>
+@using System.Text.Json
 @{
-    ViewData["Title"] = "Công cụ tính điểm & Chọn ngành thông minh";
+    ViewData["Title"] = "Công cụ tính điểm";
+    ViewData["Description"] = "Tính điểm xét tuyển theo tổ hợp môn và gợi ý ngành đào tạo phù hợp.";
 }
 
-<!-- Hero header -->
-<div class="py-5 text-white position-relative" style="background: linear-gradient(135deg, var(--viu-navy-dark) 0%, var(--viu-navy) 60%, #173f6b 100%); border-bottom: 4px solid var(--viu-gold);">
-    <div class="container py-4">
+<div class="viu-pagehead viu-pagehead--media"
+     style="--pagehead-photo: url('/images/viu/viu-students-cheer.jpg');">
+    <div class="wrap">
         <nav aria-label="breadcrumb">
-            <ol class="breadcrumb mb-2">
-                <li class="breadcrumb-item"><a href="/" class="text-white-50 text-decoration-none"><i class="fa-solid fa-house me-1"></i>Trang chủ</a></li>
-                <li class="breadcrumb-item"><a href="/tuyen-sinh" class="text-white-50 text-decoration-none">Tuyển sinh</a></li>
-                <li class="breadcrumb-item active text-white" aria-current="page">Tính điểm xét tuyển</li>
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="/">Trang chủ</a></li>
+                <li class="breadcrumb-item"><a href="/tuyen-sinh">Tuyển sinh</a></li>
+                <li class="breadcrumb-item active" aria-current="page">Tính điểm</li>
             </ol>
         </nav>
-        <div class="d-inline-flex align-items-center gap-2 px-3 py-1 rounded-pill mb-3" style="background: rgba(242, 183, 5, 0.15); border: 1px solid rgba(242, 183, 5, 0.4); color: var(--viu-gold);">
-            <i class="fa-solid fa-wand-magic-sparkles"></i>
-            <span class="small fw-semibold text-uppercase">Hệ thống trợ lý tuyển sinh VIU</span>
-        </div>
-        <h1 class="display-5 fw-bold mb-3">Công cụ Tính điểm & Gợi ý ngành xét tuyển</h1>
-        <p class="lead text-white-75 mb-0" style="max-width: 780px;">
-            Nhập điểm số của bạn (theo học bạ hoặc điểm thi THPT), hệ thống sẽ tự động tính toán điểm các tổ hợp và gợi ý các ngành đào tạo có khả năng trúng tuyển cao nhất tại VIU năm 2026.
-        </p>
+        <h1>Công cụ tính điểm xét tuyển</h1>
+        <p>Nhập điểm các môn thi để tính tổng điểm theo tổ hợp và so sánh với điểm chuẩn.</p>
     </div>
 </div>
 
-<div class="container py-5">
-    <div class="row g-5">
-        <!-- Form nhập điểm -->
-        <div class="col-lg-5">
-            <div class="card border-0 shadow-sm rounded-4 p-4 p-md-4 bg-white sticky-top" style="top: 90px;">
-                <div class="d-flex align-items-center gap-2 mb-3">
-                    <div class="p-2 rounded-circle bg-warning bg-opacity-15 text-warning">
-                        <i class="fa-solid fa-calculator fs-5"></i>
-                    </div>
-                    <div>
-                        <h5 class="fw-bold mb-0 text-dark">Nhập điểm các môn thi</h5>
-                        <span class="small text-muted">Thang điểm 10 (từ 0.0 đến 10.0)</span>
-                    </div>
+<section class="section">
+    <div class="wrap">
+        @if (Model.Any())
+        {
+            <form class="panel mb-4" id="scoreForm" onsubmit="return false;">
+                <div class="panel__head">
+                    <h2 class="admin-panel__title">Nhập điểm thi (thang 30)</h2>
                 </div>
-
-                <div class="mb-3">
-                    <label class="form-label small fw-semibold text-muted">Phương thức tính điểm:</label>
-                    <select id="calcMethod" class="form-select form-select-sm rounded-3">
-                        <option value="thpt">Điểm thi tốt nghiệp THPT 2026</option>
-                        <option value="hocba">Điểm trung bình học bạ THPT lớp 12</option>
-                        <option value="hocba3nam">Điểm trung bình học bạ 3 năm THPT</option>
-                    </select>
-                </div>
-
-                <div class="row g-2 mb-3">
-                    <div class="col-6">
-                        <label class="form-label small fw-semibold mb-1">Toán <span class="text-danger">*</span></label>
-                        <input type="number" id="scoreMath" class="form-control form-control-sm score-input rounded-3" min="0" max="10" step="0.1" value="7.5" placeholder="0 - 10" />
-                    </div>
-                    <div class="col-6">
-                        <label class="form-label small fw-semibold mb-1">Vật lý <span class="text-danger">*</span></label>
-                        <input type="number" id="scorePhys" class="form-control form-control-sm score-input rounded-3" min="0" max="10" step="0.1" value="7.0" placeholder="0 - 10" />
-                    </div>
-                    <div class="col-6">
-                        <label class="form-label small fw-semibold mb-1">Hóa học</label>
-                        <input type="number" id="scoreChem" class="form-control form-control-sm score-input rounded-3" min="0" max="10" step="0.1" value="6.5" placeholder="0 - 10" />
-                    </div>
-                    <div class="col-6">
-                        <label class="form-label small fw-semibold mb-1">Ngữ văn</label>
-                        <input type="number" id="scoreLit" class="form-control form-control-sm score-input rounded-3" min="0" max="10" step="0.1" value="7.0" placeholder="0 - 10" />
-                    </div>
-                    <div class="col-6">
-                        <label class="form-label small fw-semibold mb-1">Tiếng Anh</label>
-                        <input type="number" id="scoreEng" class="form-control form-control-sm score-input rounded-3" min="0" max="10" step="0.1" value="7.5" placeholder="0 - 10" />
-                    </div>
-                    <div class="col-6">
-                        <label class="form-label small fw-semibold mb-1">Sinh học</label>
-                        <input type="number" id="scoreBio" class="form-control form-control-sm score-input rounded-3" min="0" max="10" step="0.1" value="6.0" placeholder="0 - 10" />
-                    </div>
-                </div>
-
-                <div class="mb-4">
-                    <label class="form-label small fw-semibold text-muted">Khu vực ưu tiên:</label>
-                    <select id="priorityArea" class="form-select form-select-sm rounded-3">
-                        <option value="0.0">Khu vực 3 (Không cộng điểm)</option>
-                        <option value="0.25">Khu vực 2 (+0.25 điểm)</option>
-                        <option value="0.5">Khu vực 2 - Nông thôn (+0.5 điểm)</option>
-                        <option value="0.75" selected>Khu vực 1 (+0.75 điểm)</option>
-                    </select>
-                </div>
-
-                <button id="btnCalculate" type="button" class="btn btn-warning text-dark fw-bold w-100 rounded-pill py-2 shadow-sm">
-                    <i class="fa-solid fa-rotate me-1"></i> Tính toán & Gợi ý ngay
-                </button>
-            </div>
-        </div>
-
-        <!-- Kết quả tính điểm & Gợi ý ngành -->
-        <div class="col-lg-7">
-            <!-- Điểm các tổ hợp phổ biến -->
-            <div class="card border-0 shadow-sm rounded-4 p-4 mb-4 bg-white">
-                <span class="viu-eyebrow">Kết quả tổng hợp</span>
-                <h4 class="fw-bold mb-3" style="color: var(--viu-navy);">Điểm xét tuyển theo từng tổ hợp</h4>
-                
-                <div class="row g-3" id="combinationScoresContainer">
-                    <div class="col-sm-6 col-md-4">
-                        <div class="p-3 rounded-3 bg-light border text-center">
-                            <span class="badge bg-primary text-white fw-bold px-2 py-1 mb-1">A00 (Toán, Lý, Hóa)</span>
-                            <div class="h3 fw-bold text-dark mb-0" id="scoreA00">--</div>
-                            <span class="small text-muted" style="font-size: 11px;">Đã cộng ưu tiên</span>
+                <div class="panel__body">
+                    <div class="row g-3">
+                        <div class="col-6 col-md-3">
+                            <label class="form-label" for="sMath">Toán</label>
+                            <input class="form-control" id="sMath" type="number" min="0" max="10" step="0.01" value="8" />
+                        </div>
+                        <div class="col-6 col-md-3">
+                            <label class="form-label" for="sPhys">Lý</label>
+                            <input class="form-control" id="sPhys" type="number" min="0" max="10" step="0.01" value="8" />
+                        </div>
+                        <div class="col-6 col-md-3">
+                            <label class="form-label" for="sChem">Hóa</label>
+                            <input class="form-control" id="sChem" type="number" min="0" max="10" step="0.01" value="8" />
+                        </div>
+                        <div class="col-6 col-md-3">
+                            <label class="form-label" for="sLit">Văn</label>
+                            <input class="form-control" id="sLit" type="number" min="0" max="10" step="0.01" value="7" />
+                        </div>
+                        <div class="col-6 col-md-3">
+                            <label class="form-label" for="sEng">Ngoại ngữ</label>
+                            <input class="form-control" id="sEng" type="number" min="0" max="10" step="0.01" value="7" />
+                        </div>
+                        <div class="col-6 col-md-3">
+                            <label class="form-label" for="sSinh">Sinh học</label>
+                            <input class="form-control" id="sSinh" type="number" min="0" max="10" step="0.01" value="7" />
+                        </div>
+                        <div class="col-6 col-md-3">
+                            <label class="form-label" for="sHist">Sử</label>
+                            <input class="form-control" id="sHist" type="number" min="0" max="10" step="0.01" value="7" />
+                        </div>
+                        <div class="col-6 col-md-3">
+                            <label class="form-label" for="sGeo">Địa</label>
+                            <input class="form-control" id="sGeo" type="number" min="0" max="10" step="0.01" value="7" />
                         </div>
                     </div>
-                    <div class="col-sm-6 col-md-4">
-                        <div class="p-3 rounded-3 bg-light border text-center">
-                            <span class="badge bg-primary text-white fw-bold px-2 py-1 mb-1">A01 (Toán, Lý, Anh)</span>
-                            <div class="h3 fw-bold text-dark mb-0" id="scoreA01">--</div>
-                            <span class="small text-muted" style="font-size: 11px;">Đã cộng ưu tiên</span>
-                        </div>
-                    </div>
-                    <div class="col-sm-6 col-md-4">
-                        <div class="p-3 rounded-3 bg-light border text-center">
-                            <span class="badge bg-primary text-white fw-bold px-2 py-1 mb-1">D01 (Toán, Văn, Anh)</span>
-                            <div class="h3 fw-bold text-dark mb-0" id="scoreD01">--</div>
-                            <span class="small text-muted" style="font-size: 11px;">Đã cộng ưu tiên</span>
-                        </div>
-                    </div>
-                    <div class="col-sm-6 col-md-4">
-                        <div class="p-3 rounded-3 bg-light border text-center">
-                            <span class="badge bg-secondary text-white fw-bold px-2 py-1 mb-1">D07 (Toán, Hóa, Anh)</span>
-                            <div class="h3 fw-bold text-dark mb-0" id="scoreD07">--</div>
-                            <span class="small text-muted" style="font-size: 11px;">Đã cộng ưu tiên</span>
-                        </div>
-                    </div>
-                    <div class="col-sm-6 col-md-4">
-                        <div class="p-3 rounded-3 bg-light border text-center">
-                            <span class="badge bg-secondary text-white fw-bold px-2 py-1 mb-1">B00 (Toán, Hóa, Sinh)</span>
-                            <div class="h3 fw-bold text-dark mb-0" id="scoreB00">--</div>
-                            <span class="small text-muted" style="font-size: 11px;">Đã cộng ưu tiên</span>
-                        </div>
-                    </div>
-                    <div class="col-sm-6 col-md-4">
-                        <div class="p-3 rounded-3 bg-light border text-center">
-                            <span class="badge bg-success text-white fw-bold px-2 py-1 mb-1">Tổ hợp cao nhất</span>
-                            <div class="h3 fw-bold text-success mb-0" id="scoreMax">--</div>
-                            <span class="small text-muted" id="bestCombinationName" style="font-size: 11px;">--</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
 
-            <!-- Danh sách ngành gợi ý -->
-            <div>
-                <div class="d-flex justify-content-between align-items-center mb-3">
-                    <h5 class="fw-bold mb-0" style="color: var(--viu-navy);">
-                        <i class="fa-solid fa-list-check text-warning me-2"></i>Đánh giá khả năng trúng tuyển tại VIU
-                    </h5>
-                    <span class="badge bg-light text-dark border" id="matchSummary">Đang tính toán...</span>
-                </div>
+                    <div class="row g-3 mt-1 align-items-end">
+                        <div class="col-md-6">
+                            <label class="form-label" for="priorityArea">Khối ưu tiên (điểm cộng thêm)</label>
+                            <select class="form-select" id="priorityArea">
+                                <option value="0">Không cộng</option>
+                                <option value="1">Khối A: +1,0 đ</option>
+                                <option value="2">Khối B: +0,5 đ</option>
+                                <option value="3">Khối D: +1,0 đ</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6 d-flex gap-2">
+                            <button type="button" class="btn-viu btn-viu-primary" id="calcBtn">Tính điểm</button>
+                            <button type="reset" class="btn-viu btn-viu-ghost">Nhập lại</button>
+                        </div>
+                    </div>
 
-                <div class="d-flex flex-column gap-3" id="majorMatchList">
-                    <!-- Javascript populates this -->
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- Modal Quick Apply -->
-<div class="modal fade" id="quickApplyModal" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content rounded-4 border-0 shadow">
-            <div class="modal-header text-white" style="background: var(--viu-navy);">
-                <h5 class="modal-title fw-bold"><i class="fa-solid fa-graduation-cap me-2 text-warning"></i>Đăng ký tư vấn ngành học</h5>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-            </div>
-            <form asp-controller="Admissions" asp-action="SubmitLead" method="post">
-                @Html.AntiForgeryToken()
-                <div class="modal-body p-4">
-                    <p class="small text-muted mb-3">
-                        Bạn đang quan tâm ngành: <strong id="modalMajorName" class="text-primary">--</strong>. Ban Tuyển sinh VIU sẽ liên hệ hướng dẫn bạn nộp hồ sơ xét tuyển sớm nhất!
-                    </p>
-                    <input type="hidden" name="NewLead.DesiredMajor" id="modalInputMajor" value="" />
-                    <input type="hidden" name="NewLead.PreferredMethod" value="Xét học bạ / Điểm thi THPT" />
-                    
-                    <div class="mb-3">
-                        <label class="form-label small fw-semibold">Họ và tên thí sinh <span class="text-danger">*</span></label>
-                        <input name="NewLead.FullName" class="form-control rounded-3" placeholder="Nguyễn Văn A" required />
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label small fw-semibold">Số điện thoại liên hệ <span class="text-danger">*</span></label>
-                        <input name="NewLead.PhoneNumber" class="form-control rounded-3" placeholder="09xx.xxx.xxx" required />
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label small fw-semibold">Tỉnh / Thành phố đang học THPT</label>
-                        <input name="NewLead.Province" class="form-control rounded-3" placeholder="Hà Nội, Vĩnh Phúc, Phú Thọ..." />
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label small fw-semibold">Ghi chú hoặc điểm số của bạn</label>
-                        <textarea name="NewLead.Message" id="modalInputMessage" rows="2" class="form-control rounded-3" placeholder="Ví dụ: Điểm tổ hợp A01 của em được 22.0 điểm..."></textarea>
-                    </div>
-                </div>
-                <div class="modal-footer bg-light p-3">
-                    <button type="button" class="btn btn-secondary rounded-pill px-3" data-bs-dismiss="modal">Đóng</button>
-                    <button type="submit" class="btn btn-warning text-dark fw-bold rounded-pill px-4">
-                        <i class="fa-solid fa-paper-plane me-1"></i> Gửi đăng ký
-                    </button>
+                    <div class="mt-4" id="comboSummary" aria-live="polite"></div>
                 </div>
             </form>
-        </div>
-    </div>
-</div>
 
-@section Scripts {
-<script>
-    // Admission majors data from backend
-    const majorsData = [
-        @foreach (var m in Model)
-        {
-            <text>{
-                code: '@m.MajorCode',
-                name: '@m.MajorName',
-                combinations: '@(m.SubjectCombinations ?? "A00, A01, D01")',
-                score2024: @(m.Score2024 ?? 18.0m),
-                score2025: @(m.Score2025 ?? 19.0m),
-                quota: @(m.Quota ?? 200),
-                note: '@(m.Note ?? "")'
-            },</text>
+            <h2 class="section-title">Ngành phù hợp với điểm của bạn</h2>
+            <p class="small text-muted" id="matchSummary"></p>
+            <div class="row g-3" id="majorMatchList"></div>
         }
-    ];
+        else
+        {
+            <div class="empty-state">
+                <strong>Chưa có dữ liệu ngành tuyển sinh</strong>
+                Công cụ tính điểm cần dữ liệu điểm chuẩn để hoạt động.
+            </div>
+        }
+    </div>
+</section>
 
-    function calculateScores() {
-        const math = parseFloat(document.getElementById('scoreMath').value) || 0;
-        const phys = parseFloat(document.getElementById('scorePhys').value) || 0;
-        const chem = parseFloat(document.getElementById('scoreChem').value) || 0;
-        const lit = parseFloat(document.getElementById('scoreLit').value) || 0;
-        const eng = parseFloat(document.getElementById('scoreEng').value) || 0;
-        const bio = parseFloat(document.getElementById('scoreBio').value) || 0;
-        const priority = parseFloat(document.getElementById('priorityArea').value) || 0;
+@if (Model.Any())
+{
+    @section Scripts {
+        <script>
+            // Serialise bằng System.Text.Json: nội suy chuỗi thủ công vào JS từng từng
+            // có thể vỡ khi tên ngành chứa dấu nháy.
+            const majorsData = @Html.Raw(JsonSerializer.Serialize(
+                Model.Select(m => new
+                {
+                    code = m.MajorCode,
+                    name = m.MajorName,
+                    combinations = m.SubjectCombinations ?? "A00, A01, D01",
+                    score2025 = m.Score2025 ?? 19.0,
+                    quota = m.Quota ?? 0
+                }),
+                new JsonSerializerOptions
+                {
+                    Encoder = System.Text.Encodings.Web.JavaScriptEncoder.UnsafeRelaxedJsonEscaping
+                }));
 
-        const a00 = +(math + phys + chem + priority).toFixed(2);
-        const a01 = +(math + phys + eng + priority).toFixed(2);
-        const d01 = +(math + lit + eng + priority).toFixed(2);
-        const d07 = +(math + chem + eng + priority).toFixed(2);
-        const b00 = +(math + chem + bio + priority).toFixed(2);
+            const combos = {
+                A00: ['sMath', 'sPhys', 'sChem'],
+                A01: ['sMath', 'sPhys', 'sEng'],
+                D01: ['sMath', 'sLit', 'sEng'],
+                D07: ['sMath', 'sChem', 'sEng'],
+                B00: ['sMath', 'sChem', 'sSinh']
+            };
 
-        document.getElementById('scoreA00').innerText = a00;
-        document.getElementById('scoreA01').innerText = a01;
-        document.getElementById('scoreD01').innerText = d01;
-        document.getElementById('scoreD07').innerText = d07;
-        document.getElementById('scoreB00').innerText = b00;
+            const priorityMap = { 0: 0, 1: 1.0, 2: 0.5, 3: 1.0 };
 
-        const allCombos = [
-            { name: 'A00', score: a00 },
-            { name: 'A01', score: a01 },
-            { name: 'D01', score: d01 },
-            { name: 'D07', score: d07 },
-            { name: 'B00', score: b00 }
-        ];
+            function num(id) {
+                const v = parseFloat(document.getElementById(id).value);
+                return isNaN(v) ? 0 : v;
+            }
 
-        allCombos.sort((a, b) => b.score - a.score);
-        const best = allCombos[0];
-        document.getElementById('scoreMax').innerText = best.score;
-        document.getElementById('bestCombinationName').innerText = `Tổ hợp ${best.name}`;
+            function scoreCombo(key) {
+                const fields = combos[key];
+                if (!fields) return 0;
+                return fields.reduce((sum, f) => sum + num(f), 0);
+            }
 
-        // Match against majors
-        const container = document.getElementById('majorMatchList');
-        container.innerHTML = '';
-        let matchedCount = 0;
+            function calc() {
+                const bonus = priorityMap[document.getElementById('priorityArea').value] || 0;
 
-        majorsData.forEach(major => {
-            // Find candidate's highest score among this major's subject combinations
-            const majorCombos = major.combinations.split(',').map(s => s.trim());
-            let candidateScoreForMajor = 0;
-            let matchingComboName = '';
+                const rows = Object.keys(combos).map(k => ({ key: k, score: scoreCombo(k) + bonus }));
+                const best = rows.slice().sort((a, b) => b.score - a.score)[0];
 
-            majorCombos.forEach(c => {
-                const found = allCombos.find(x => x.name === c);
-                if (found && found.score > candidateScoreForMajor) {
-                    candidateScoreForMajor = found.score;
-                    matchingComboName = found.name;
-                }
+                // Tổng hợp tổ hợp
+                const summary = document.getElementById('comboSummary');
+                summary.replaceChildren();
+                const t = document.createElement('div');
+                t.className = 'alert';
+                t.textContent = 'Điểm cao nhất: ' + best.key + ' = ' + best.score.toFixed(2) + ' điểm'
+                    + (bonus > 0 ? ' (đã cộng ' + bonus + ' điểm khối ưu tiên)' : '');
+                summary.appendChild(t);
+
+                // Đối chiếu từng ngành
+                const list = document.getElementById('majorMatchList');
+                list.replaceChildren();
+                let matched = 0;
+
+                majorsData.forEach(function (major) {
+                    const keys = major.combinations.split(',').map(s => s.trim()).filter(k => combos[k]);
+                    if (!keys.length) return;
+
+                    let score = 0, usedKey = '';
+                    keys.forEach(function (k) {
+                        const s = scoreCombo(k) + bonus;
+                        if (s > score) { score = s; usedKey = k; }
+                    });
+                    if (score === 0) { score = best.score; usedKey = best.key; }
+
+                    const diff = +(score - major.score2025).toFixed(2);
+                    let label, colour, hit;
+                    if (diff >= 1) { label = 'Rất an toàn (+' + diff + ')'; colour = 'var(--viu-navy)'; hit = true; }
+                    else if (diff >= 0) { label = 'Đạt chuẩn (+' + diff + ')'; colour = 'var(--viu-blue)'; hit = true; }
+                    else if (diff >= -1.5) { label = 'Cơ hội xét tuyển (' + diff + ')'; colour = 'var(--ink-muted)'; hit = false; }
+                    else { label = 'Thử thách (' + diff + ')'; colour = 'var(--ink-muted)'; hit = false; }
+                    if (hit) matched++;
+
+                    const col = document.createElement('div');
+                    col.className = 'col-md-6 col-lg-4';
+
+                    const card = document.createElement('div');
+                    card.className = 'panel h-100 d-flex flex-column';
+
+                    const body = document.createElement('div');
+                    body.className = 'panel__body flex-fill';
+
+                    const code = document.createElement('div');
+                    code.className = 'small text-muted';
+                    code.textContent = 'Mã ngành: ' + major.code;
+
+                    const name = document.createElement('h3');
+                    name.style.fontSize = '1rem';
+                    name.style.margin = '.25rem 0 .5rem';
+                    name.textContent = major.name;
+
+                    const meta = document.createElement('div');
+                    meta.className = 'small text-muted';
+                    meta.textContent = 'Tổ hợp: ' + major.combinations
+                        + (major.quota ? ' · Chỉ tiêu: ' + major.quota : '');
+
+                    const verdict = document.createElement('div');
+                    verdict.style.margin = '.6rem 0 0';
+                    verdict.style.fontWeight = '600';
+                    verdict.style.color = colour;
+                    verdict.textContent = label;
+
+                    body.append(code, name, meta, verdict);
+                    card.appendChild(body);
+                    col.appendChild(card);
+                    list.appendChild(col);
+                });
+
+                document.getElementById('matchSummary').textContent =
+                    'Phù hợp với ' + matched + '/' + majorsData.length + ' ngành.';
+            }
+
+            document.getElementById('calcBtn').addEventListener('click', calc);
+            document.getElementById('priorityArea').addEventListener('change', calc);
+            document.querySelectorAll('#scoreForm input[type=number]').forEach(function (el) {
+                el.addEventListener('input', calc);
             });
-
-            if (candidateScoreForMajor === 0) {
-                candidateScoreForMajor = best.score;
-                matchingComboName = best.name;
-            }
-
-            const benchmark = major.score2025;
-            const diff = +(candidateScoreForMajor - benchmark).toFixed(2);
-
-            let badgeHtml = '';
-            let cardBorder = '';
-            if (diff >= 1.0) {
-                matchedCount++;
-                badgeHtml = `<span class="badge bg-success text-white fw-bold px-3 py-2"><i class="fa-solid fa-circle-check me-1"></i>Rất an toàn (+${diff} đ)</span>`;
-                cardBorder = 'border-success';
-            } else if (diff >= 0) {
-                matchedCount++;
-                badgeHtml = `<span class="badge bg-primary text-white fw-bold px-3 py-2"><i class="fa-solid fa-check me-1"></i>Đạt chuẩn (+${diff} đ)</span>`;
-                cardBorder = 'border-primary';
-            } else if (diff >= -1.5) {
-                badgeHtml = `<span class="badge bg-warning text-dark fw-bold px-3 py-2"><i class="fa-solid fa-triangle-exclamation me-1"></i>Cơ hội xét tuyển (${diff} đ)</span>`;
-                cardBorder = 'border-warning';
-            } else {
-                badgeHtml = `<span class="badge bg-secondary text-white fw-bold px-3 py-2"><i class="fa-solid fa-circle-xmark me-1"></i>Thử thách (${diff} đ)</span>`;
-            }
-
-            const card = document.createElement('div');
-            card.className = `card border-0 shadow-sm rounded-4 p-4 bg-white border-start border-4 ${cardBorder}`;
-            card.innerHTML = `
-                <div class="d-flex flex-wrap justify-content-between align-items-start gap-2 mb-2">
-                    <div>
-                        <span class="badge bg-light text-dark border small mb-1">Mã ngành: ${major.code}</span>
-                        <h5 class="fw-bold mb-1 text-dark">${major.name}</h5>
-                        <div class="small text-muted">
-                            <span>Tổ hợp: <strong>${major.combinations}</strong></span> &middot; 
-                            <span>Chỉ tiêu: <strong>${major.quota}</strong></span>
-                        </div>
-                    </div>
-                    <div>${badgeHtml}</div>
-                </div>
-                <div class="d-flex flex-wrap align-items-center justify-content-between pt-3 mt-2 border-top gap-2">
-                    <div class="small">
-                        <span class="text-muted">Điểm chuẩn 2025: <strong class="text-danger">${major.score2025}</strong></span> | 
-                        <span class="text-muted">Điểm của bạn (${matchingComboName}): <strong class="text-primary">${candidateScoreForMajor}</strong></span>
-                    </div>
-                    <button class="btn btn-warning text-dark btn-sm rounded-pill px-3 fw-bold" onclick="openApplyModal('${major.name}', '${matchingComboName}', ${candidateScoreForMajor})">
-                        <i class="fa-solid fa-paper-plane me-1"></i> Đăng ký xét tuyển ngành này
-                    </button>
-                </div>
-            `;
-            container.appendChild(card);
-        });
-
-        document.getElementById('matchSummary').innerText = `Phù hợp với ${matchedCount}/${majorsData.length} ngành`;
+            calc();
+        </script>
     }
-
-    function openApplyModal(majorName, combo, score) {
-        document.getElementById('modalMajorName').innerText = majorName;
-        document.getElementById('modalInputMajor').value = majorName;
-        document.getElementById('modalInputMessage').value = `Điểm xét tuyển tổ hợp ${combo}: ${score} điểm. Mong muốn nhận thông tin học bổng và quy trình nộp hồ sơ.`;
-        const modal = new bootstrap.Modal(document.getElementById('quickApplyModal'));
-        modal.show();
-    }
-
-    document.querySelectorAll('.score-input').forEach(input => {
-        input.addEventListener('input', calculateScores);
-    });
-    document.getElementById('priorityArea').addEventListener('change', calculateScores);
-    document.getElementById('btnCalculate').addEventListener('click', calculateScores);
-
-    // Initial run
-    calculateScores();
-</script>
 }

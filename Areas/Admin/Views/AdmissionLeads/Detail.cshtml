@@ -1,0 +1,102 @@
+@model VIUUniversity.Models.AdmissionLead
+@{
+    ViewData["Title"] = "Chi tiết thí sinh";
+}
+
+<div class="admin-panel" style="max-width:680px;">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h5 class="fw-bold mb-1" style="color:var(--viu-blue);">
+                <i class="fa-solid fa-user-graduate me-2"></i>@Model.FullName
+            </h5>
+            <p class="text-muted small mb-0">Đăng ký lúc @Model.CreatedAt.AddHours(7).ToString("HH:mm dd/MM/yyyy")</p>
+        </div>
+        <a asp-action="Index" class="btn btn-outline-secondary btn-sm">
+            <i class="fa-solid fa-arrow-left me-1"></i>Danh sách
+        </a>
+    </div>
+
+    <div class="row g-3">
+        <div class="col-md-6">
+            <div class="mb-3 p-3 rounded-3" style="background:var(--viu-blue-soft);">
+                <div class="small text-muted mb-1">Họ và tên</div>
+                <div class="fw-semibold">@Model.FullName</div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="mb-3 p-3 rounded-3" style="background:var(--viu-blue-soft);">
+                <div class="small text-muted mb-1">Số điện thoại</div>
+                <div class="fw-semibold"><a href="tel:@Model.PhoneNumber">@Model.PhoneNumber</a></div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="mb-3 p-3 rounded-3" style="background:var(--viu-blue-soft);">
+                <div class="small text-muted mb-1">Email</div>
+                <div class="fw-semibold">@(Model.Email ?? "—")</div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="mb-3 p-3 rounded-3" style="background:var(--viu-blue-soft);">
+                <div class="small text-muted mb-1">Tỉnh / Thành phố</div>
+                <div class="fw-semibold">@(Model.Province ?? "—")</div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="mb-3 p-3 rounded-3" style="background:var(--viu-blue-soft);">
+                <div class="small text-muted mb-1">Trường THPT</div>
+                <div class="fw-semibold">@(Model.HighSchool ?? "—")</div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="mb-3 p-3 rounded-3" style="background:var(--viu-blue-soft);">
+                <div class="small text-muted mb-1">Ngành đăng ký</div>
+                <div class="fw-semibold" style="color:var(--viu-blue);">@(Model.DesiredMajor ?? "—")</div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="mb-3 p-3 rounded-3" style="background:var(--viu-blue-soft);">
+                <div class="small text-muted mb-1">Phương thức xét tuyển</div>
+                <div class="fw-semibold">@(Model.PreferredMethod ?? "—")</div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="mb-3 p-3 rounded-3" style="background:var(--viu-blue-soft);">
+                <div class="small text-muted mb-1">Trạng thái</div>
+                <div>
+                    @if (Model.IsProcessed)
+                    {
+                        <span class="badge-processed"><i class="fa-solid fa-check me-1"></i>Đã xử lý</span>
+                    }
+                    else
+                    {
+                        <span class="badge-pending"><i class="fa-solid fa-clock me-1"></i>Chưa xử lý</span>
+                    }
+                </div>
+            </div>
+        </div>
+        @if (!string.IsNullOrWhiteSpace(Model.Message))
+        {
+            <div class="col-12">
+                <div class="mb-3 p-3 rounded-3 border">
+                    <div class="small text-muted mb-1">Lời nhắn / Câu hỏi</div>
+                    <div>@Model.Message</div>
+                </div>
+            </div>
+        }
+    </div>
+
+    <div class="d-flex gap-2 mt-3 pt-3 border-top">
+        <form asp-action="ToggleProcessed" asp-route-id="@Model.Id" method="post">
+            <button type="submit" class="btn @(Model.IsProcessed ? "btn-outline-warning" : "btn-outline-success")">
+                <i class="fa-solid @(Model.IsProcessed ? "fa-rotate-left" : "fa-check") me-1"></i>
+                @(Model.IsProcessed ? "Đánh dấu chưa xử lý" : "Đánh dấu đã xử lý")
+            </button>
+        </form>
+        <form asp-action="Delete" asp-route-id="@Model.Id" method="post"
+              onsubmit="return confirm('Xóa hồ sơ này?');">
+            <button type="submit" class="btn btn-outline-danger">
+                <i class="fa-solid fa-trash me-1"></i>Xóa
+            </button>
+        </form>
+    </div>
+</div>

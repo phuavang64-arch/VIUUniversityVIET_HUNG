@@ -1,0 +1,245 @@
+@model News
+@using Microsoft.AspNetCore.Mvc.Rendering
+@using VIUUniversity.Models
+@{
+    // Form thêm/sửa dùng chung cho Nghiên cứu KH, Hợp tác, Học phí.
+    // Controller cụ thể đặt: ViewBag.SectionLabel, ViewBag.PublicUrl, ViewBag.ShowTuitionFields.
+    var label = ViewBag.SectionLabel as string ?? ContentSection.Label(Model.Section);
+    var publicUrl = ViewBag.PublicUrl as string;
+    var isTuition = ViewBag.ShowTuitionFields == true;
+    var years = ViewBag.SuggestedYears as List<string> ?? new();
+    var isEdit = Model.Id > 0;
+}
+
+<div class="admin-panel" style="max-width:1000px;">
+    <div class="d-flex justify-content-between align-items-center mb-4 gap-3 flex-wrap">
+        <div>
+            <h5 class="fw-bold mb-1" style="color:var(--viu-navy);">
+                @(isEdit ? "Cập nhật" : "Thêm mới") @label.ToLower()
+            </h5>
+            <p class="text-muted small mb-0">
+                Bài đã xuất bản sẽ hiển thị ở trang
+                @if (!string.IsNullOrWhiteSpace(publicUrl))
+                {
+                    <a href="@publicUrl" target="_blank">@publicUrl</a>
+                }
+                <span class="text-muted">(cần sửa mã nguồn để hiện ở trang chủ)</span>.
+            </p>
+        </div>
+        <a asp-action="Index" class="btn btn-outline-secondary btn-sm">
+            <i class="fa-solid fa-arrow-left me-1"></i>Danh sách
+        </a>
+    </div>
+
+    <form method="post" enctype="multipart/form-data"
+          asp-action="@(isEdit ? "Edit" : "Create")" asp-route-id="@(isEdit ? Model.Id : null)">
+        @* Token chống CSRF: các form trong /admin đều cần, nhưng partial này dùng
+           chung nên phải tự thêm vì thẻ asp-action không sinh token cho thẻ form thô. *@
+        @Html.AntiForgeryToken()
+
+        <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+
+        @if (TempData["Error"] != null)
+        {
+            <div class="alert alert-danger">@TempData["Error"]</div>
+        }
+
+        <div class="row g-3">
+            <div class="col-md-8">
+                @if (isTuition)
+                {
+                    <div class="alert alert-warning small mb-3">
+                        <strong>Nguyên tắc:</strong> chỉ điền những gì có trong văn bản
+                        chính thức. Không tự đặt mức học phí, số công văn, chữ ký hay
+                        con dấu. Nếu chưa có văn bản, để trống và nhấn
+                        <em>Lưu nháp</em> cho tới khi Ban Tuyển sinh cung cấp.
+                    </div>
+                }
+
+                <div class="mb-3">
+                    <label class="form-label fw-semibold">
+                        @(isTuition ? "Tiêu đề văn bản / thông báo" : "Tiêu đề")
+                        <span class="text-danger">*</span>
+                    </label>
+                    <input asp-for="Title" class="form-control form-control-lg" required
+                           placeholder="@(isTuition
+                               ? "Ví dụ: Thông báo mức học phí đại học chính quy năm học 2026 - 2027"
+                               : "Ví dụ: Nghiên cứu khoa học ứng dụng trong sản xuất")" />
+                    <span asp-validation-for="Title" class="text-danger small"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label fw-semibold">
+                        Đường dẫn (slug)
+                        <span class="text-muted small">- để trống sẽ tự sinh</span>
+                    </label>
+                    <input asp-for="Slug" class="form-control" placeholder="tu-dong-sinh-tu-tieu-de" />
+                </div>
+
+                @if (isTuition)
+                {
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold" for="DocumentNumber">Số / ký hiệu văn bản</label>
+                            <input asp-for="DocumentNumber" class="form-control" id="DocumentNumber"
+                                   placeholder="Ví dụ: 1234/TB-ĐHCN-VHD" />
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold" for="IssuedDate">Ngày ban hành</label>
+                            <input asp-for="IssuedDate" type="date" class="form-control" id="IssuedDate" />
+                            <div class="form-text">Khác với ngày đăng lên website.</div>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold" for="AcademicYear">
+                                Năm học / khóa áp dụng
+                            </label>
+                            <input asp-for="AcademicYear" class="form-control" id="AcademicYear"
+                                   list="yearSuggestions" placeholder="Ví dụ: 2026 - 2027" />
+                            <datalist id="yearSuggestions">
+                                @foreach (var y in years)
+                                {
+                                    <option value="@y"></option>
+                                }
+                            </datalist>
+                            <div class="form-text">
+                                Bắt buộc nếu văn bản có hiệu lực theo năm: học phí khác
+                                nhau giữa các năm nên không hiển thị chung một mức.
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold" for="attachmentFile">
+                                Tệp PDF đính kèm
+                            </label>
+                            <input type="file" name="attachmentFile" accept="application/pdf,.pdf"
+                                   class="form-control" id="attachmentFile" />
+                            @if (!string.IsNullOrWhiteSpace(Model.AttachmentUrl))
+                            {
+                                <div class="form-text d-flex align-items-center gap-2 flex-wrap mt-1">
+                                    <span>Đã có:</span>
+                                    <a href="@Model.AttachmentUrl" target="_blank" rel="noopener">
+                                        @(string.IsNullOrWhiteSpace(Model.AttachmentName) ? "tệp PDF" : Model.AttachmentName)
+                                    </a>
+                                </div>
+                            }
+                            else
+                            {
+                                <div class="form-text">PDF, tối đa 20 MB. Không bắt buộc.</div>
+                            }
+                        </div>
+                    </div>
+                }
+
+                <div class="mb-3 @(isTuition ? "mt-3" : "")">
+                    <label class="form-label fw-semibold">Tóm tắt</label>
+                    <textarea asp-for="Summary" class="form-control" rows="2"
+                              placeholder="Mô tả ngắn hiển thị trên danh sách..."></textarea>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label fw-semibold">
+                        @(isTuition ? "Nội dung văn bản" : "Nội dung bài viết")
+                        <span class="text-danger">*</span>
+                    </label>
+                    <textarea asp-for="Content" class="form-control" rows="14" required
+                              placeholder="Nhập nội dung (hỗ trợ HTML cơ bản: &lt;p&gt;, &lt;strong&gt;, &lt;ul&gt;, &lt;table&gt;...)"></textarea>
+                    @if (isTuition)
+                    {
+                        <div class="form-text">
+                            Trình bày như văn bản hành chính: số văn bản, ngày ban hành,
+                            căn cứ, đối tượng và mức áp dụng — mỗi mục một &lt;p&gt; hoặc
+                            một dòng &lt;li&gt;.
+                        </div>
+                    }
+                    <span asp-validation-for="Content" class="text-danger small"></span>
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="mb-3">
+                    <label class="form-label fw-semibold">Chuyên mục tin</label>
+                    <select asp-for="CategoryId" class="form-select"
+                            asp-items="@(new SelectList(ViewBag.Categories, "Id", "Name"))">
+                        <option value="">-- Không phân loại --</option>
+                    </select>
+                    <div class="form-text">
+                        Tuỳ chọn. Chỉ dùng để gom bài theo chủ đề chung với Tin tức.
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label fw-semibold" for="VideoUrl">
+                        Video nhúng (tuỳ chọn)
+                    </label>
+                    <input asp-for="VideoUrl" class="form-control" id="VideoUrl"
+                           placeholder="https://www.youtube.com/watch?v=... hoặc https://.../video.mp4" />
+                    <div class="form-text">
+                        Dán link YouTube, Vimeo hoặc tệp <code>.mp4</code> (https). Video
+                        hiển thị ở đầu bài, thay cho ảnh đại diện. Các link khác bị bỏ qua.
+                    </div>
+                    @if (!string.IsNullOrWhiteSpace(Model.VideoUrl))
+                    {
+                        <div class="form-text">
+                            Đang có: <code>@Model.VideoUrl</code>
+                        </div>
+                    }
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label fw-semibold">Ảnh đại diện (upload)</label>
+                    <input type="file" name="thumbnailFile" accept="image/*" class="form-control"
+                           id="thumbnailFileInput" />
+                    <div class="form-text">JPG, PNG, WEBP, GIF — tối đa 5 MB.</div>
+                    <img id="thumbnailPreview" class="thumbnail-preview mt-2 d-none" alt="Xem trước" />
+                    @if (!string.IsNullOrWhiteSpace(Model.Thumbnail))
+                    {
+                        <img src="@Model.Thumbnail" alt="Ảnh hiện tại"
+                             class="thumbnail-preview mt-2" />
+                    }
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label fw-semibold" for="PublishedAt">Ngày đăng</label>
+                    <input asp-for="PublishedAt" type="date" class="form-control" id="PublishedAt" />
+                    <div class="form-text">Để trống = dùng ngày đăng bài.</div>
+                </div>
+
+                <div class="form-check form-switch mb-4 p-3 rounded-3"
+                     style="background:var(--viu-gold-light);">
+                    <input asp-for="IsPublished" class="form-check-input" role="switch" />
+                    <label asp-for="IsPublished" class="form-check-label fw-semibold">
+                        Đăng ngay (xuất bản)
+                    </label>
+                    <div class="form-text">Bỏ chọn để lưu nháp.</div>
+                </div>
+
+                <button type="submit" class="btn btn-viu-primary w-100 mb-2">
+                    <i class="fa-solid fa-paper-plane me-2"></i>
+                    @(isEdit ? "Lưu thay đổi" : (Model.IsPublished ? "Đăng" : "Lưu nháp"))
+                </button>
+                <a asp-action="Index" class="btn btn-outline-secondary w-100">Hủy</a>
+
+                @if (isEdit)
+                {
+                    <div class="d-grid mt-2">
+                        <a asp-action="Preview" asp-route-id="@Model.Id" target="_blank" rel="noopener"
+                           class="btn btn-outline-secondary btn-sm">
+                            <i class="fa-solid fa-eye me-1"></i>Xem trước
+                        </a>
+                    </div>
+                }
+            </div>
+        </div>
+    </form>
+</div>
+
+@section Scripts {
+<script>
+    document.getElementById('thumbnailFileInput')?.addEventListener('change', function (e) {
+        var file = e.target.files && e.target.files[0];
+        var preview = document.getElementById('thumbnailPreview');
+        if (!file || !preview) return;
+        preview.src = URL.createObjectURL(file);
+        preview.classList.remove('d-none');
+    });
+</script>
+}

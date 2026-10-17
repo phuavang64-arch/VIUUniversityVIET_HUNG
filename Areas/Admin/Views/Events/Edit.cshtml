@@ -3,8 +3,8 @@
     ViewData["Title"] = "Chỉnh sửa sự kiện";
 }
 
-<div class="admin-card" style="max-width:800px;">
-    <form asp-action="Edit" asp-route-id="@Model.Id" method="post">
+<div class="admin-panel" style="max-width:800px;">
+    <form asp-action="Edit" asp-route-id="@Model.Id" method="post" enctype="multipart/form-data">
         <input type="hidden" asp-for="Id" />
         <input type="hidden" asp-for="CreatedAt" />
         <div asp-validation-summary="All" class="alert alert-danger d-none-empty"></div>
@@ -31,8 +31,16 @@
             <input asp-for="Location" class="form-control" />
         </div>
         <div class="mb-3">
-            <label class="form-label fw-semibold">Ảnh minh họa (URL)</label>
-            <input asp-for="ImageUrl" class="form-control" />
+            @if (!string.IsNullOrEmpty(Model.ImageUrl))
+            {
+                <div class="mb-2">
+                    <img src="@Model.ImageUrl" style="max-height:120px;border-radius:8px;object-fit:cover;" />
+                </div>
+            }
+            <label class="form-label fw-semibold">Thay đổi ảnh sự kiện từ máy tính</label>
+            <input type="file" name="imageFile" class="form-control" accept="image/*" />
+            <div class="form-text small">Hoặc sửa đường dẫn ảnh:</div>
+            <input asp-for="ImageUrl" class="form-control mt-1" />
         </div>
         <div class="mb-3">
             <label class="form-label fw-semibold">Mô tả</label>
@@ -42,7 +50,7 @@
             <input asp-for="IsPublished" class="form-check-input" />
             <label asp-for="IsPublished" class="form-check-label">Đã đăng</label>
         </div>
-        <button type="submit" class="btn btn-viu-gold"><i class="fa-solid fa-check me-2"></i>Cập nhật</button>
+        <button type="submit" class="btn btn-viu-primary"><i class="fa-solid fa-check me-2"></i>Cập nhật</button>
         <a asp-action="Index" class="btn btn-outline-secondary">Hủy</a>
     </form>
 </div>

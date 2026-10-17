@@ -1,0 +1,244 @@
+@{
+    // Template dùng chung cho các trang nội dung tĩnh.
+    // Giữ nội dung ở một chỗ để không phải lặp lại khối trang trí.
+    string pageTitle = ViewData["Title"] as string ?? "";
+    string pageDesc = ViewData["Description"] as string ?? "";
+
+    // Ảnh phủ nền cho đầu trang. Trang nào không truyền thì đầu trang vẫn là
+    // dải navy phẳng như cũ — thiếu ảnh không được làm hỏng trang.
+    var heroImage = ViewBag.HeroImage as string;
+
+    // Các ô ảnh hiển thị dưới nội dung (xem VIUUniversity.ViewModels.PhotoItem).
+    var photos = ViewBag.Photos as List<VIUUniversity.ViewModels.PhotoItem>
+                 ?? new List<VIUUniversity.ViewModels.PhotoItem>();
+    var photosTitle = ViewBag.PhotosTitle as string ?? "Hình ảnh nhà trường";
+
+    var sections = ViewBag.Sections as List<Dictionary<string, object>> ?? new();
+    var campuses = ViewBag.Campuses as List<VIUUniversity.Models.Campus> ?? new List<VIUUniversity.Models.Campus>();
+    var partners = ViewBag.Partners as List<VIUUniversity.Models.Partner> ?? new List<VIUUniversity.Models.Partner>();
+}
+
+<div class="viu-pagehead @(string.IsNullOrWhiteSpace(heroImage) ? "" : "viu-pagehead--media")"
+     @if (!string.IsNullOrWhiteSpace(heroImage))
+     {
+         <text>style="--pagehead-photo: url('@heroImage');"</text>
+     }>
+    <div class="wrap">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="/">Trang chủ</a></li>
+                <li class="breadcrumb-item active" aria-current="page">@pageTitle</li>
+            </ol>
+        </nav>
+        <h1>@pageTitle</h1>
+        @if (!string.IsNullOrWhiteSpace(pageDesc))
+        {
+            <p>@pageDesc</p>
+        }
+    </div>
+</div>
+
+@foreach (var s in sections)
+{
+    var eyebrow = s.TryGetValue("eyebrow", out var e) ? (string?)e : null;
+    var title = s.TryGetValue("title", out var t) ? (string?)t : null;
+    var body = s.TryGetValue("body", out var b) ? (string?)b : null;
+    var alt = s.TryGetValue("alt", out var a) && (bool)a;
+    var image = s.TryGetValue("image", out var img) ? (string?)img : null;
+    var imageAlt = s.TryGetValue("imageAlt", out var ia) ? (string?)ia : null;
+
+    <section class="section @(alt ? "section--alt" : "")">
+        <div class="wrap">
+            @if (!string.IsNullOrWhiteSpace(image))
+            {
+                <div class="viu-media-split @(alt ? "viu-media-split--flip" : "")">
+                    <div class="viu-media-split__media">
+                        <img src="@image" alt="@(imageAlt ?? title ?? "")" loading="lazy" />
+                    </div>
+                    <div>
+                        @if (!string.IsNullOrWhiteSpace(eyebrow))
+                        {
+                            <span class="eyebrow">@eyebrow</span>
+                        }
+                        @if (!string.IsNullOrWhiteSpace(title))
+                        {
+                            <h2 class="section-title">@title</h2>
+                        }
+                        @if (!string.IsNullOrWhiteSpace(body))
+                        {
+                            <div class="viu-prose">@Html.Raw(body)</div>
+                        }
+                    </div>
+                </div>
+            }
+            else
+            {
+                @if (!string.IsNullOrWhiteSpace(eyebrow))
+                {
+                    <span class="eyebrow">@eyebrow</span>
+                }
+                @if (!string.IsNullOrWhiteSpace(title))
+                {
+                    <h2 class="section-title">@title</h2>
+                }
+                @if (!string.IsNullOrWhiteSpace(body))
+                {
+                    <div class="viu-prose">@Html.Raw(body)</div>
+                }
+            }
+        </div>
+    </section>
+}
+
+@if (campuses.Any())
+{
+    <section class="section section--alt">
+        <div class="wrap">
+            <h2 class="section-title">Hệ thống cơ sở đào tạo</h2>
+            <div class="viu-cols-3 mb-4">
+                @* Ảnh chụp thật kèm từng cơ sở. Danh sách cơ sở dưới đây vẫn lấy
+                   từ database nên danh sách có thể dài hơn (hoặc ngắn hơn) số ảnh. *@
+                <figure class="viu-campus-card" style="margin:0;">
+                    @Html.Img("/images/viu/viu-sontay-gate.jpg",
+                        "Cổng chính của Cơ sở Sơn Tây",
+                        sizes: "(max-width: 767px) 100vw, 33vw")
+                    <figcaption>
+                        <strong>Cơ sở Sơn Tây</strong>
+                        <span>Số 16 Hữu Nghị, phường Tùng Thiện</span>
+                    </figcaption>
+                </figure>
+                <figure class="viu-campus-card" style="margin:0;">
+                    @Html.Img("/images/viu/viu-garden.jpg",
+                        "Khuôn viên cây xanh và bảng tên nhà trường",
+                        sizes: "(max-width: 767px) 100vw, 33vw")
+                    <figcaption>
+                        <strong>Khuôn viên nhà trường</strong>
+                        <span>Sân trường, hành lang và cây xanh</span>
+                    </figcaption>
+                </figure>
+                <figure class="viu-campus-card" style="margin:0;">
+                    @Html.Img("/images/viu/viu-thachthat.jpg",
+                        "Khuôn viên Cơ sở Thạch Thất",
+                        sizes: "(max-width: 767px) 100vw, 33vw")
+                    <figcaption>
+                        <strong>Cơ sở Thạch Thất</strong>
+                        <span>Các toà nhà phục vụ đào tạo</span>
+                    </figcaption>
+                </figure>
+            </div>
+            <div class="row g-4">
+                @foreach (var c in campuses)
+                {
+                    <div class="col-md-4">
+                        <div class="panel h-100">
+                            <div class="panel__body">
+                                <h3 class="h6 mb-2" style="color:var(--ink);">@c.Name</h3>
+                                @if (!string.IsNullOrWhiteSpace(c.Description))
+                                {
+                                    <p class="small text-muted mb-2">@c.Description</p>
+                                }
+                                <dl class="viu-deflist">
+                                    <dt>Địa chỉ</dt>
+                                    <dd>@(string.IsNullOrWhiteSpace(c.Address) ? "Chưa cập nhật" : c.Address)</dd>
+                                    @if (!string.IsNullOrWhiteSpace(c.Phone))
+                                    {
+                                        <dt>Điện thoại</dt><dd>@c.Phone</dd>
+                                    }
+                                    @if (!string.IsNullOrWhiteSpace(c.Email))
+                                    {
+                                        <dt>Email</dt><dd>@c.Email</dd>
+                                    }
+                                </dl>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+    </section>
+}
+
+@if (photos.Count > 0)
+{
+    <section class="section">
+        <div class="wrap">
+            <h2 class="section-title">@photosTitle</h2>
+            <div class="viu-photo-grid viu-reveal">
+                @foreach (var p in photos)
+                {
+                    <figure class="@(p.Wide ? "viu-photo--wide" : "")@(p.Tall ? "viu-photo--tall" : "")">
+                        @if (!string.IsNullOrWhiteSpace(p.Href))
+                        {
+                            <a href="@p.Href">
+                                @Html.Img(p.Src, p.Alt, sizes: "(max-width: 767px) 100vw, 33vw")
+                            </a>
+                        }
+                        else
+                        {
+                            @Html.Img(p.Src, p.Alt, sizes: "(max-width: 767px) 100vw, 33vw")
+                        }
+                        @if (!string.IsNullOrWhiteSpace(p.Caption))
+                        {
+                            <figcaption>
+                                @if (!string.IsNullOrWhiteSpace(p.Href))
+                                {
+                                    <a href="@p.Href">@p.Caption</a>
+                                }
+                                else
+                                {
+                                    @p.Caption
+                                }
+                            </figcaption>
+                        }
+                    </figure>
+                }
+            </div>
+        </div>
+    </section>
+}
+
+@if (partners.Any())
+{
+    <section class="section">
+        <div class="wrap">
+            <h2 class="section-title">Đối tác</h2>
+            <div class="table-scroll">
+                <table class="table-viu">
+                    <thead>
+                        <tr><th>Tên đối tác</th><th>Loại hợp tác</th><th>Quốc gia</th></tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var p in partners)
+                        {
+                            <tr>
+                                <td>
+                                    @if (!string.IsNullOrWhiteSpace(p.Website))
+                                    {
+                                        <a href="@p.Website" target="_blank" rel="noopener">@p.Name</a>
+                                    }
+                                    else
+                                    {
+                                        @p.Name
+                                    }
+                                </td>
+                                <td class="text-muted">@(p.PartnerType ?? "—")</td>
+                                <td class="text-muted">@(p.Country ?? "—")</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </section>
+}
+
+<section class="section section--alt">
+    <div class="wrap text-center">
+        <h2 class="section-title">Cần thêm thông tin?</h2>
+        <p class="text-muted mb-4">Ban Tuyển sinh sẵn sàng hỗ trợ bạn.</p>
+        <div class="d-flex gap-2 justify-content-center flex-wrap">
+            <a class="btn-viu btn-viu-primary" href="/lien-he">Liên hệ nhà trường</a>
+            <a class="btn-viu btn-viu-ghost" href="/tuyen-sinh">Thông tin tuyển sinh</a>
+        </div>
+    </div>
+</section>

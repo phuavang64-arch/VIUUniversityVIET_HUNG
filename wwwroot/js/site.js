@@ -3,7 +3,7 @@ document.addEventListener('DOMContentLoaded', function () {
     var sidebar = document.querySelector('.admin-sidebar');
     if (toggle && sidebar) {
         toggle.addEventListener('click', function () {
-            sidebar.classList.toggle('show');
+            sidebar.classList.toggle('open');
         });
     }
 });

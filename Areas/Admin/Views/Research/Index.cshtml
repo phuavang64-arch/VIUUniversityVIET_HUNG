@@ -1,0 +1,10 @@
+@model PagedResult<News>
+@{
+    // Toàn bộ bảng, nút, phân trang nằm trong partial dùng chung.
+    ViewBag.SectionLabel = "Nghiên cứu khoa học";
+    ViewBag.PublicUrl = "/nghien-cuu";
+    ViewBag.ShowTuitionFields = false;
+}
+@* Tiền tố @ trước await là bắt buộc: giá trị trả về của PartialAsync chỉ được
+   ghi ra output khi có @. Trong khối @{ } nó bị bỏ qua và trang hiện ra rỗng. *@
+@await Html.PartialAsync("SectionIndex", Model)

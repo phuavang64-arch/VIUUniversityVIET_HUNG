@@ -28,6 +28,8 @@ namespace VIUUniversity.Data
         public DbSet<AdmissionMajor> AdmissionMajors => Set<AdmissionMajor>();
         public DbSet<AdmissionLead> AdmissionLeads => Set<AdmissionLead>();
         public DbSet<ContactMessage> ContactMessages => Set<ContactMessage>();
+        public DbSet<GalleryImage> GalleryImages => Set<GalleryImage>();
+        public DbSet<SiteSetting> SiteSettings => Set<SiteSetting>();
 
         protected override void OnModelCreating(ModelBuilder builder)
         {
@@ -58,6 +60,7 @@ namespace VIUUniversity.Data
                 .OnDelete(DeleteBehavior.Restrict);
 
             builder.Entity<NewsCategory>().HasIndex(c => c.Slug).IsUnique();
+            builder.Entity<SiteSetting>().HasIndex(s => s.Key).IsUnique();
             builder.Entity<News>().HasIndex(n => n.Slug).IsUnique();
             builder.Entity<News>()
                 .HasOne(n => n.Category)
@@ -78,11 +81,13 @@ namespace VIUUniversity.Data
 
             builder.Entity<Event>().HasIndex(e => e.Slug).IsUnique();
 
-            // ---- Decimal precision ----
-            builder.Entity<Major>().Property(m => m.Tuition).HasColumnType("decimal(18,2)");
-            builder.Entity<AdmissionMajor>().Property(m => m.Score2023).HasColumnType("decimal(4,2)");
-            builder.Entity<AdmissionMajor>().Property(m => m.Score2024).HasColumnType("decimal(4,2)");
-            builder.Entity<AdmissionMajor>().Property(m => m.Score2025).HasColumnType("decimal(4,2)");
+            // ---- Numeric precision ----
+            // No explicit column type is declared for the score/tuition columns.
+            //
+            // They used to be decimal with HasColumnType("decimal(4,2)"). That hardcoded a
+            // SQL Server type name, and on SQLite the provider maps decimal to TEXT and
+            // refuses to ORDER BY it at all. The properties are now double, which needs no
+            // per-provider mapping and sorts correctly on both providers.
         }
     }
 }

@@ -1,4 +1,6 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 using VIUUniversity.Models;
 using VIUUniversity.Services.Interfaces;
 using VIUUniversity.ViewModels;
@@ -6,6 +8,7 @@ using VIUUniversity.ViewModels;
 namespace VIUUniversity.Controllers
 {
     [Route("tuyen-sinh")]
+    [AllowAnonymous]
     public class AdmissionsController : Controller
     {
         private readonly IAdmissionService _admissionService;
@@ -29,22 +32,34 @@ namespace VIUUniversity.Controllers
                 NewLead = new AdmissionLead()
             };
 
-            ViewData["Title"] = "Cổng thông tin Tuyển sinh 2026";
+            ViewData["Title"] = "Cổng thông tin Tuyển sinh";
             ViewData["Description"] = "Thông tin tuyển sinh đại học chính quy, các phương thức xét tuyển, bảng chỉ tiêu và đăng ký trực tuyến tại VIU.";
             return View(vm);
         }
 
         // GET: /tuyen-sinh/tra-cuu-diem-chuan
+        // `year` used to be accepted but never used in the query, so the year dropdown on
+        // the page changed nothing. It now drives the sort order of the table.
         [HttpGet("tra-cuu-diem-chuan")]
-        public async Task<IActionResult> Scores(string? keyword, int year = 2025)
+        public async Task<IActionResult> Scores(string? keyword, int? year)
         {
+            // Guard against arbitrary values in the query string.
+            var selectedYear = year is 2023 or 2024 or 2025 ? year.Value : 2025;
+
             var majors = await _admissionService.GetAdmissionMajorsAsync(keyword);
+
+            var ordered = selectedYear switch
+            {
+                2023 => majors.OrderByDescending(m => m.Score2023).ThenBy(m => m.MajorName).ToList(),
+                2024 => majors.OrderByDescending(m => m.Score2024).ThenBy(m => m.MajorName).ToList(),
+                _ => majors.OrderByDescending(m => m.Score2025).ThenBy(m => m.MajorName).ToList()
+            };
 
             var vm = new ScoreSearchViewModel
             {
                 Keyword = keyword,
-                Year = year,
-                Majors = majors
+                Year = selectedYear,
+                Majors = ordered
             };
 
             ViewData["Title"] = "Tra cứu điểm chuẩn trúng tuyển";
@@ -65,20 +80,35 @@ namespace VIUUniversity.Controllers
         // POST: /tuyen-sinh/dang-ky
         [HttpPost("dang-ky")]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> SubmitLead(AdmissionIndexViewModel vm)
+        [EnableRateLimiting(RateLimitPolicies.PublicForms)]
+        public async Task<IActionResult> SubmitLead([FromForm] AdmissionIndexViewModel? vm, [FromForm] AdmissionLead? newLead)
         {
-            if (ModelState.IsValid)
+            var lead = vm?.NewLead ?? newLead;
+
+            // Validated explicitly instead of trusting ModelState: the POST is loosely bound
+            // from a [FromForm] view model, so the entity's data annotations are not
+            // guaranteed to have been evaluated.
+            if (lead != null)
             {
-                await _admissionService.SubmitLeadAsync(vm.NewLead);
-                TempData["Success"] = "Đăng ký tư vấn tuyển sinh thành công! Ban tư vấn VIU sẽ liên hệ với bạn trong thời gian sớm nhất.";
+                lead.FullName = lead.FullName?.Trim() ?? string.Empty;
+                lead.PhoneNumber = lead.PhoneNumber?.Trim() ?? string.Empty;
+
+                if (string.IsNullOrWhiteSpace(lead.FullName))
+                    ModelState.AddModelError(nameof(lead.FullName), "Vui lòng nhập họ và tên.");
+
+                if (string.IsNullOrWhiteSpace(lead.PhoneNumber))
+                    ModelState.AddModelError(nameof(lead.PhoneNumber), "Vui lòng nhập số điện thoại.");
+            }
+
+            if (lead == null || !ModelState.IsValid)
+            {
+                TempData["Error"] = "Vui lòng điền đầy đủ họ tên và số điện thoại liên hệ.";
                 return RedirectToAction(nameof(Index));
             }
 
-            // Re-populate if model state is invalid
-            vm.Methods = await _admissionService.GetAdmissionMethodsAsync();
-            vm.Majors = await _admissionService.GetAdmissionMajorsAsync();
-            TempData["Error"] = "Vui lòng kiểm tra lại các thông tin bắt buộc.";
-            return View(nameof(Index), vm);
+            await _admissionService.SubmitLeadAsync(lead);
+            TempData["Success"] = "Đăng ký tư vấn tuyển sinh thành công! Ban tư vấn VIU sẽ liên hệ với bạn trong thời gian sớm nhất.";
+            return RedirectToAction(nameof(Index));
         }
     }
 }

@@ -1,0 +1,410 @@
+/* ===================================================================
+   VIU UNIVERSITY — ADMIN AREA
+   Dùng cùng token với site.css. Bảng màu chỉ xanh #00A6D6 + đen + trắng.
+
+   Sidebar và topbar là KHỐI TỐI (nền đen, chữ trắng) để phân biệt khu vực
+   quản trị với website công khai. #00A6D6 trên nền trắng chỉ đạt 2.58:1 nên
+   không thể làm nền tối cho chữ trắng — vì vậy đổi sang đen.
+   =================================================================== */
+
+.admin-shell {
+  display: flex;
+  min-height: 100vh;
+  background: var(--surface-alt);
+}
+
+/* ---------- Sidebar ---------- */
+.admin-sidebar {
+  width: 250px;
+  flex-shrink: 0;
+  background: #000000;
+  color: #ffffff;
+  display: flex;
+  flex-direction: column;
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  overflow-y: auto;
+}
+.admin-sidebar__brand {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  padding: 1rem 1.1rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.13);
+}
+.admin-sidebar__brand img {
+  width: 34px;
+  height: 34px;
+  object-fit: contain;
+  background: #fff;
+  border-radius: var(--r-sm);
+  padding: 2px;
+}
+.admin-sidebar__brand-name {
+  font-size: 0.92rem;
+  font-weight: 700;
+  color: #fff;
+  line-height: 1.25;
+}
+.admin-sidebar__brand-sub {
+  font-size: 0.74rem;
+  color: rgba(255, 255, 255, 0.65);
+}
+
+.admin-nav {
+  padding: 0.75rem 0.6rem 1.5rem;
+  flex: 1;
+}
+.admin-nav__group {
+  padding: 0.9rem 0.6rem 0.3rem;
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.45);
+}
+.admin-nav__link {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  padding: 0.5rem 0.6rem;
+  margin-bottom: 0.1rem;
+  font-size: 0.87rem;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.85);
+  border-radius: var(--r-sm);
+  border-left: 2px solid transparent;
+}
+.admin-nav__link:hover {
+  background: rgba(255, 255, 255, 0.09);
+  color: #fff;
+  text-decoration: none;
+}
+.admin-nav__link.active {
+  background: rgba(255, 255, 255, 0.14);
+  color: #fff;
+  border-left-color: var(--viu-primary);
+}
+.admin-nav__link svg {
+  flex-shrink: 0;
+  opacity: 0.8;
+}
+.admin-nav__foot {
+  padding: 0.9rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.13);
+}
+.admin-nav__foot .btn {
+  width: 100%;
+}
+
+/* ---------- Main ---------- */
+.admin-main {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.admin-topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.85rem 1.5rem;
+  background: var(--surface);
+  border-bottom: 1px solid var(--line);
+  position: sticky;
+  top: 0;
+  z-index: 1020;
+}
+.admin-topbar__title {
+  font-size: 1.02rem;
+  font-weight: 700;
+  color: var(--ink);
+  margin: 0;
+}
+.admin-topbar__meta {
+  font-size: 0.8rem;
+  color: var(--ink-muted);
+}
+.admin-topbar__actions {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.admin-content {
+  padding: 1.5rem;
+  flex: 1;
+}
+
+/* ---------- Thẻ thống kê ---------- */
+.admin-stat-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+.admin-stat {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--r);
+  padding: 1rem 1.1rem;
+}
+.admin-stat__label {
+  font-size: 0.78rem;
+  color: var(--ink-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  font-weight: 600;
+  margin-bottom: 0.35rem;
+}
+.admin-stat__value {
+  font-size: 1.7rem;
+  font-weight: 700;
+  color: var(--ink);
+  line-height: 1.1;
+  font-variant-numeric: tabular-nums;
+}
+.admin-stat__hint {
+  font-size: 0.78rem;
+  color: var(--ink-muted);
+  margin-top: 0.2rem;
+}
+.admin-stat__hint--alert {
+  color: var(--viu-blue);
+  font-weight: 600;
+}
+
+/* ---------- Bảng ---------- */
+.admin-panel {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--r);
+  margin-bottom: 1.5rem;
+  overflow: hidden;
+}
+.admin-panel__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+  padding: 0.85rem 1.1rem;
+  border-bottom: 1px solid var(--line);
+  background: var(--surface);
+}
+.admin-panel__title {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--ink);
+  margin: 0;
+}
+.admin-panel__body {
+  padding: 1.1rem;
+}
+.admin-panel__body--flush {
+  padding: 0;
+}
+
+/* Thanh công cụ: tìm kiếm + hành động */
+.admin-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  flex-wrap: wrap;
+  padding: 0.75rem 1.1rem;
+  border-bottom: 1px solid var(--line-soft);
+  background: var(--surface-alt);
+}
+.admin-toolbar__search {
+  flex: 1;
+  min-width: 200px;
+  max-width: 340px;
+}
+.admin-toolbar .form-control,
+.admin-toolbar .form-select {
+  padding: 0.4rem 0.6rem;
+  font-size: 0.87rem;
+}
+
+/* Trạng thái trong bảng */
+.admin-status {
+  display: inline-block;
+  padding: 0.15rem 0.45rem;
+  font-size: 0.74rem;
+  font-weight: 600;
+  border-radius: var(--r-xs);
+  border: 1px solid;
+}
+.admin-status--on {
+  background: #e6f6fc;
+  color: #000000;
+  border-color: #b3e5f5;
+}
+.admin-status--off {
+  background: var(--surface-alt);
+  color: var(--ink-muted);
+  border-color: var(--line);
+}
+.admin-status--warn {
+  background: #e6f6fc;
+  color: #000000;
+  border-color: #b3e5f5;
+}
+
+/* Nhóm hành động trong ô bảng */
+.admin-actions {
+  display: flex;
+  gap: 0.3rem;
+  flex-wrap: wrap;
+}
+
+/* ---------- Biểu đồ: một tông xanh duy nhất ---------- */
+.admin-chart {
+  width: 100%;
+  height: 220px;
+}
+.admin-chart__bar {
+  fill: var(--viu-blue);
+}
+.admin-chart__bar:hover {
+  fill: var(--viu-navy);
+}
+.admin-chart__axis {
+  stroke: var(--line);
+  stroke-width: 1;
+}
+.admin-chart__label {
+  font-size: 11px;
+  fill: var(--ink-muted);
+  font-family: var(--font);
+}
+.admin-legend {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+  font-size: 0.8rem;
+  color: var(--ink-muted);
+}
+.admin-legend__swatch {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  background: var(--viu-blue);
+  border-radius: 2px;
+  margin-right: 0.35rem;
+}
+
+/* ---------- Gallery ---------- */
+.admin-gallery {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
+  gap: 1rem;
+}
+.admin-gallery__item {
+  border: 1px solid var(--line);
+  border-radius: var(--r);
+  overflow: hidden;
+  background: var(--surface);
+}
+.admin-gallery__item img {
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  object-fit: cover;
+  display: block;
+}
+.admin-gallery__meta {
+  padding: 0.6rem 0.7rem;
+}
+.admin-gallery__cap {
+  font-size: 0.83rem;
+  color: var(--ink-body);
+  margin-bottom: 0.3rem;
+}
+.admin-gallery__tag {
+  font-size: 0.72rem;
+  color: var(--ink-muted);
+}
+
+/* ---------- Login ---------- */
+.login-page {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem 1rem;
+  background: var(--viu-navy);
+}
+.login-card {
+  width: 100%;
+  max-width: 400px;
+  background: var(--surface);
+  border-radius: var(--r);
+  box-shadow: var(--shadow-lg);
+  overflow: hidden;
+}
+.login-card__head {
+  padding: 1.5rem 1.5rem 1rem;
+  text-align: center;
+  border-bottom: 1px solid var(--line-soft);
+}
+.login-card__body {
+  padding: 1.5rem;
+}
+.login-card__brand {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.6rem;
+}
+.login-card__brand img {
+  height: 54px;
+  object-fit: contain;
+}
+
+/* ---------- Hamburger (mobile) ---------- */
+.admin-burger {
+  display: none;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--r-sm);
+  padding: 0.4rem 0.55rem;
+  color: var(--ink);
+  cursor: pointer;
+}
+.admin-scrim {
+  display: none;
+}
+
+@media (max-width: 900px) {
+  .admin-burger {
+    display: inline-flex;
+  }
+  .admin-sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    z-index: 1060;
+    transform: translateX(-100%);
+    transition: transform 0.2s ease;
+  }
+  .admin-sidebar.is-open {
+    transform: translateX(0);
+  }
+  .admin-scrim {
+    display: block;
+    position: fixed;
+    inset: 0;
+    z-index: 1050;
+    background: rgba(7, 59, 80, 0.5);
+  }
+  .admin-content {
+    padding: 1rem;
+  }
+  .admin-topbar {
+    padding: 0.75rem 1rem;
+  }
+}

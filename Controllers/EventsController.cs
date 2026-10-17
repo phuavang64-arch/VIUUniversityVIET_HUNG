@@ -1,8 +1,10 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using VIUUniversity.Services.Interfaces;
 
 namespace VIUUniversity.Controllers
 {
+    [AllowAnonymous]
     [Route("su-kien")]
     public class EventsController : Controller
     {

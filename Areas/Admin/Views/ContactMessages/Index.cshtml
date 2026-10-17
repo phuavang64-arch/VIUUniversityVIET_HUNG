@@ -1,0 +1,129 @@
+@model List<ContactMessage>
+@{
+    ViewData["Title"] = "Tin nhắn liên hệ";
+    var currentPage = (ViewBag.Page as int?) ?? 1;
+    int totalPages = ViewBag.TotalPages is int tp ? tp : 1;
+    string? kw = ViewBag.Keyword as string;
+    bool? isRead = ViewBag.IsRead is bool ir ? ir : (bool?)null;
+    int total = ViewBag.Total is int tt ? tt : Model.Count;
+    int unread = ViewBag.TotalUnread is int tu ? tu : 0;
+}
+
+<div class="admin-stat-row">
+    <div class="admin-stat">
+        <div class="admin-stat__label">Tổng tin nhắn</div>
+        <div class="admin-stat__value">@total</div>
+    </div>
+    <div class="admin-stat">
+        <div class="admin-stat__label">Chưa đọc</div>
+        <div class="admin-stat__value">@unread</div>
+        @if (unread > 0)
+        {
+            <div class="admin-stat__hint admin-stat__hint--alert">
+                <a asp-action="Index" asp-route-isRead="false">Xem danh sách</a>
+            </div>
+        }
+    </div>
+</div>
+
+<div class="admin-panel">
+    <div class="admin-toolbar">
+        <form method="get" class="d-flex gap-2 admin-toolbar__search">
+            <label class="visually-hidden" for="kw">Tìm tin nhắn</label>
+            <input class="form-control" id="kw" name="keyword" value="@kw" placeholder="Tên, email hoặc tiêu đề..." />
+            <label class="visually-hidden" for="rd">Trạng thái</label>
+            <select class="form-select" id="rd" name="isRead" style="width:auto;">
+                <option value="">Tất cả</option>
+                <option value="false" selected="@(isRead == false)">Chưa đọc</option>
+                <option value="true" selected="@(isRead == true)">Đã đọc</option>
+            </select>
+            <button type="submit" class="btn-viu btn-viu-outline">Lọc</button>
+        </form>
+        <a asp-action="Index" class="ms-auto btn-viu btn-viu-ghost btn-viu-sm">Đặt lại</a>
+    </div>
+
+    @if (Model.Any())
+    {
+        <div class="table-scroll">
+            <table class="table-viu">
+                <thead>
+                    <tr>
+                        <th>Người gửi</th>
+                        <th>Tiêu đề</th>
+                        <th style="width:110px;">Ngày nhận</th>
+                        <th style="width:90px;">Trạng thái</th>
+                        <th class="text-end" style="width:170px;">Thao tác</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var m in Model)
+                    {
+                        <tr>
+                            <td>
+                                <a asp-action="Detail" asp-route-id="@m.Id"
+                                   style="font-weight:600;color:var(--ink);">@m.FullName</a>
+                                <div class="small text-muted">@m.Email</div>
+                            </td>
+                            <td>@m.Subject</td>
+                            <td class="text-muted">@m.CreatedAt.ToString("dd/MM/yyyy")</td>
+                            <td>
+                                <span class="admin-status @(m.IsRead ? "admin-status--off" : "admin-status--warn")">
+                                    @(m.IsRead ? "Đã đọc" : "Chưa đọc")
+                                </span>
+                            </td>
+                            <td>
+                                <div class="admin-actions justify-content-end">
+                                    <a asp-action="Detail" asp-route-id="@m.Id" class="btn-viu btn-viu-ghost btn-viu-sm">Xem</a>
+                                    <form method="post" asp-action="ToggleRead" asp-route-id="@m.Id" class="d-inline">
+                                        <button type="submit" class="btn-viu btn-viu-outline btn-viu-sm">
+                                            @(m.IsRead ? "Chưa đọc" : "Đã đọc")
+                                        </button>
+                                    </form>
+                                    @if (User.IsInRole("Admin"))
+                                    {
+                                        <form method="post" asp-action="Delete" asp-route-id="@m.Id" class="d-inline"
+                                              onsubmit="return confirm('Xoá tin nhắn này?');">
+                                            <button type="submit" class="btn-viu btn-viu-ghost btn-viu-sm">Xoá</button>
+                                        </form>
+                                    }
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+
+        @if (totalPages > 1)
+        {
+            <div class="p-3 d-flex justify-content-between align-items-center flex-wrap gap-2"
+                 style="border-top:1px solid var(--line);">
+                <span class="small text-muted">Trang @currentPage/@totalPages</span>
+                <ul class="pagination">
+                    <li class="page-item @(currentPage <= 1 ? "disabled" : "")">
+                        <a class="page-link" asp-action="Index" asp-route-page="@(currentPage - 1)" asp-route-keyword="@kw" asp-route-isRead="@isRead">Trước</a>
+                    </li>
+                    @for (var i = 1; i <= totalPages; i++)
+                    {
+                        var p = i;
+                        <li class="page-item @(p == currentPage ? "active" : "")">
+                            <a class="page-link" asp-action="Index" asp-route-page="@p" asp-route-keyword="@kw" asp-route-isRead="@isRead">@p</a>
+                        </li>
+                    }
+                    <li class="page-item @(currentPage >= totalPages ? "disabled" : "")">
+                        <a class="page-link" asp-action="Index" asp-route-page="@(currentPage + 1)" asp-route-keyword="@kw" asp-route-isRead="@isRead">Sau</a>
+                    </li>
+                </ul>
+            </div>
+        }
+    }
+    else
+    {
+        <div class="p-4">
+            <div class="empty-state">
+                <strong>Không có tin nhắn</strong>
+                Tin nhắn từ biểu mẫu liên hệ sẽ xuất hiện tại đây.
+            </div>
+        </div>
+    }
+</div>

@@ -2,6 +2,30 @@ bin/
 obj/
 .vs/
 *.user
+*.suo
+
+# Local database + WAL/SHM files. Never commit these: they contain real content and,
+# in this project's history, real personal data.
+*.db
+*.db-shm
+*.db-wal
+*.sqlite
+*.sqlite3
+
+# Local secrets. appsettings.json holds no credentials now; keep it that way.
 appsettings.Development.json
+appsettings.*.Local.json
+secrets.json
+
+# User-uploaded content
 wwwroot/uploads/*
 !wwwroot/uploads/.gitkeep
+
+# OS / editor noise
+.DS_Store
+Thumbs.db
+.vscode/*
+!.vscode/settings.json
+
+# Local tooling
+.aider*

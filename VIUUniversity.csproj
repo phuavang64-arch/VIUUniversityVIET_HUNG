@@ -5,21 +5,33 @@
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <UserSecretsId>viu-university-secrets</UserSecretsId>
-  </PropertyGroup>
+    <!-- SDK đánh dấu Responses API là "evaluation only" (OPENAI001).
+       Chỉ tắt cho phần Chat dùng nó; không tắt ở phạm vi toàn bản build. -->
+  <NoWarn>$(NoWarn);OPENAI001</NoWarn>
+</PropertyGroup>
+
+  <!-- The test project lives in a subfolder and has its own .csproj; keep its sources
+       out of this project's default **/*.cs glob. -->
+  <ItemGroup>
+    <Compile Remove="VIUUniversity.Tests/**/*.cs" />
+    <Content Remove="VIUUniversity.Tests/**" />
+    <None Remove="VIUUniversity.Tests/**" />
+  </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="8.0.8" />
-    <PackageReference Include="Microsoft.AspNetCore.Identity.UI" Version="8.0.8" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="8.0.8" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="8.0.8" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="8.0.8">
+    <PackageReference Include="HtmlSanitizer" Version="9.2.1039" />
+    <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="8.0.31" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="8.0.31" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="8.0.31" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="8.0.31">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="8.0.8">
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="8.0.31">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
+    <PackageReference Include="OpenAI" Version="2.14.0" />
   </ItemGroup>
 
 </Project>

@@ -1,46 +1,84 @@
 @model News
 @using Microsoft.AspNetCore.Mvc.Rendering
 @{
-    ViewData["Title"] = "Thêm tin tức";
+    ViewData["Title"] = "Đăng tin tức mới";
 }
 
-<div class="admin-card" style="max-width:800px;">
-    <form asp-action="Create" method="post">
-        <div asp-validation-summary="All" class="alert alert-danger d-none-empty"></div>
+<div class="admin-panel" style="max-width:900px;">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h5 class="fw-bold mb-1" style="color:var(--viu-navy);">Đăng bài tin tức</h5>
+            <p class="text-muted small mb-0">Tin đã đăng sẽ xuất hiện ở trang chủ và mục <a href="/tin-tuc" target="_blank">Tin tức</a>, đồng thời có thể tìm thấy qua tìm kiếm.</p>
+        </div>
+        <a asp-action="Index" class="btn btn-outline-secondary btn-sm"><i class="fa-solid fa-arrow-left me-1"></i>Danh sách</a>
+    </div>
 
-        <div class="mb-3">
-            <label class="form-label fw-semibold">Tiêu đề</label>
-            <input asp-for="Title" class="form-control" required />
-        </div>
-        <div class="mb-3">
-            <label class="form-label fw-semibold">Đường dẫn (slug) <span class="text-muted small">- để trống sẽ tự sinh</span></label>
-            <input asp-for="Slug" class="form-control" />
-        </div>
-        <div class="mb-3">
-            <label class="form-label fw-semibold">Chuyên mục</label>
-            <select asp-for="CategoryId" class="form-select" asp-items="@(new SelectList(ViewBag.Categories, "Id", "Name"))">
-                <option value="">-- Chọn chuyên mục --</option>
-            </select>
-        </div>
-        <div class="mb-3">
-            <label class="form-label fw-semibold">Tóm tắt</label>
-            <textarea asp-for="Summary" class="form-control" rows="2"></textarea>
-        </div>
-        <div class="mb-3">
-            <label class="form-label fw-semibold">Ảnh đại diện (URL)</label>
-            <input asp-for="Thumbnail" class="form-control" placeholder="/uploads/news/anh.jpg" />
-        </div>
-        <div class="mb-3">
-            <label class="form-label fw-semibold">Nội dung</label>
-            <textarea asp-for="Content" class="form-control" rows="10" required></textarea>
-            <div class="form-text">Hỗ trợ HTML cơ bản. Có thể tích hợp trình soạn thảo (CKEditor/TinyMCE) sau.</div>
-        </div>
-        <div class="form-check mb-4">
-            <input asp-for="IsPublished" class="form-check-input" />
-            <label asp-for="IsPublished" class="form-check-label">Đăng ngay</label>
-        </div>
+    <form asp-action="Create" method="post" enctype="multipart/form-data">
+        <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
 
-        <button type="submit" class="btn btn-viu-gold"><i class="fa-solid fa-check me-2"></i>Lưu tin tức</button>
-        <a asp-action="Index" class="btn btn-outline-secondary">Hủy</a>
+        <div class="row g-3">
+            <div class="col-md-8">
+                <div class="mb-3">
+                    <label class="form-label fw-semibold">Tiêu đề <span class="text-danger">*</span></label>
+                    <input asp-for="Title" class="form-control form-control-lg" required placeholder="Ví dụ: VIU công bố lịch xét tuyển bổ sung 2026" />
+                    <span asp-validation-for="Title" class="text-danger small"></span>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label fw-semibold">Đường dẫn (slug) <span class="text-muted small">- để trống sẽ tự sinh</span></label>
+                    <input asp-for="Slug" class="form-control" placeholder="viu-cong-bo-lich-xet-tuyen..." />
+                </div>
+                <div class="mb-3">
+                    <label class="form-label fw-semibold">Tóm tắt</label>
+                    <textarea asp-for="Summary" class="form-control" rows="2" placeholder="Mô tả ngắn hiển thị trên danh sách tin..."></textarea>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label fw-semibold">Nội dung bài viết <span class="text-danger">*</span></label>
+                    <textarea asp-for="Content" class="form-control" rows="12" required placeholder="Nhập nội dung tin tức (có thể dùng HTML cơ bản: &lt;p&gt;, &lt;strong&gt;, &lt;ul&gt;...)"></textarea>
+                    <div class="form-text">Hỗ trợ HTML cơ bản để định dạng đoạn văn, danh sách, liên kết.</div>
+                    <span asp-validation-for="Content" class="text-danger small"></span>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="mb-3">
+                    <label class="form-label fw-semibold">Chuyên mục</label>
+                    <select asp-for="CategoryId" class="form-select" asp-items="@(new SelectList(ViewBag.Categories, "Id", "Name"))">
+                        <option value="">-- Chọn chuyên mục --</option>
+                    </select>
+                    <div class="form-text">
+                        Dùng để gom tin theo chủ đề (Tuyển sinh, Hoạt động nhà
+                        trường...). Tin không thuộc chủ đề nào thì để trống.
+                    </div>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label fw-semibold">Ảnh đại diện (upload)</label>
+                    <input type="file" name="thumbnailFile" accept="image/*" class="form-control" id="thumbnailFileInput" />
+                    <div class="form-text">JPG, PNG, WEBP — tối đa vài MB.</div>
+                    <img id="thumbnailPreview" class="thumbnail-preview mt-2 d-none" alt="Xem trước" />
+                </div>
+                <div class="mb-3">
+                    <label class="form-label fw-semibold">Hoặc URL ảnh</label>
+                    <input asp-for="Thumbnail" class="form-control" placeholder="/uploads/news/anh.jpg hoặc https://..." />
+                </div>
+                <div class="form-check form-switch mb-4 p-3 rounded-3" style="background:var(--viu-gold-light);">
+                    <input asp-for="IsPublished" class="form-check-input" role="switch" />
+                    <label asp-for="IsPublished" class="form-check-label fw-semibold">Đăng ngay (xuất bản)</label>
+                    <div class="form-text">Bỏ chọn nếu muốn lưu nháp.</div>
+                </div>
+                <button type="submit" class="btn btn-viu-primary w-100 mb-2"><i class="fa-solid fa-paper-plane me-2"></i>Đăng tin tức</button>
+                <a asp-action="Index" class="btn btn-outline-secondary w-100">Hủy</a>
+            </div>
+        </div>
     </form>
 </div>
+
+@section Scripts {
+<script>
+document.getElementById('thumbnailFileInput')?.addEventListener('change', function (e) {
+    const file = e.target.files?.[0];
+    const preview = document.getElementById('thumbnailPreview');
+    if (!file || !preview) return;
+    preview.src = URL.createObjectURL(file);
+    preview.classList.remove('d-none');
+});
+</script>
+}

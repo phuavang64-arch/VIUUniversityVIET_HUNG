@@ -1,0 +1,44 @@
+@model List<VIUUniversity.Models.SiteSetting>
+@{
+    ViewData["Title"] = "Cài đặt website";
+    var groups = Model.Where(s => !s.Key.StartsWith("seed."))
+                     .GroupBy(s => s.Group ?? "Khác")
+                     .ToList();
+}
+
+<div class="admin-panel">
+    <div class="admin-panel__body">
+        <div class="alert mb-0">
+            Các giá trị trống sẽ <strong>không được hiển thị</strong> ở bất kỳ đâu trên website.
+            Dùng ô trống cho mọi con số chưa được xác minh — đặc biệt là số liệu quảng bá.
+        </div>
+    </div>
+</div>
+
+<form method="post" asp-action="Index">
+    <div class="admin-panel">
+        <div class="admin-panel__body">
+            @foreach (var group in groups)
+            {
+                <h2 class="admin-panel__title mt-4 mb-2">@group.Key</h2>
+                @foreach (var s in group)
+                {
+                    <div class="mb-3">
+                        <label class="form-label" for="set-@s.Id">@s.Key</label>
+                        <input class="form-control" id="set-@s.Id" name="settings[@s.Id].Value" value="@s.Value" />
+                        @if (!string.IsNullOrWhiteSpace(s.Description))
+                        {
+                            <span class="form-hint">@s.Description</span>
+                        }
+                        <input type="hidden" name="settings[@s.Id].Key" value="@s.Key" />
+                    </div>
+                }
+            }
+        </div>
+        <div class="p-3" style="border-top:1px solid var(--line);">
+            <button type="submit" class="btn-viu btn-viu-primary">
+                <i class="fa-solid fa-floppy-disk" aria-hidden="true"></i> Lưu cài đặt
+            </button>
+        </div>
+    </div>
+</form>

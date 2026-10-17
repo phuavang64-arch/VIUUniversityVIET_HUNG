@@ -1,0 +1,81 @@
+@model VIUUniversity.ViewModels.SearchPageViewModel
+@{
+    ViewData["Title"] = string.IsNullOrWhiteSpace(Model.Query) ? "Tìm kiếm" : $"Kết quả: {Model.Query}";
+}
+
+<div class="viu-pagehead viu-pagehead--media"
+     style="--pagehead-photo: url('/images/viu/viu-garden.jpg');">
+    <div class="wrap">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="/">Trang chủ</a></li>
+                <li class="breadcrumb-item active" aria-current="page">Tìm kiếm</li>
+            </ol>
+        </nav>
+        <h1>Tìm kiếm</h1>
+        <p>Tìm kiếm trong tin tức, thông báo, sự kiện và ngành đào tạo.</p>
+    </div>
+</div>
+
+<section class="section">
+    <div class="wrap">
+        <form method="get" asp-controller="Home" asp-action="SearchPage" class="mb-4">
+            <label class="visually-hidden" for="q">Từ khoá tìm kiếm</label>
+            <div class="d-flex gap-2" style="max-width:560px;">
+                <input class="form-control" id="q" name="q" value="@Model.Query"
+                       placeholder="Nhập từ khoá..." autofocus />
+                <button type="submit" class="btn-viu btn-viu-primary">Tìm</button>
+            </div>
+        </form>
+
+        @if (string.IsNullOrWhiteSpace(Model.Query))
+        {
+            <div class="empty-state">
+                <strong>Nhập từ khoá để tìm kiếm</strong>
+                Ví dụ: "tuyển sinh", "học bổng", "công nghệ thông tin".
+            </div>
+        }
+        else if (Model.Results.Any())
+        {
+            <div class="d-flex flex-wrap gap-3 mb-3">
+                <span class="badge-viu">Tin tức: @Model.NewsCount</span>
+                <span class="badge-viu">Thông báo: @Model.AnnouncementCount</span>
+                <span class="badge-viu">Sự kiện: @Model.EventCount</span>
+                <span class="badge-viu">Ngành học: @Model.MajorCount</span>
+            </div>
+
+            <div class="panel">
+                <ul class="list-unstyled mb-0">
+                    @foreach (var r in Model.Results)
+                    {
+                        <li style="border-bottom:1px solid var(--line-soft);">
+                            <a href="@r.Url" class="d-block p-3" style="color:var(--ink-body);text-decoration:none;">
+                                <div class="d-flex justify-content-between align-items-start gap-3 flex-wrap">
+                                    <div style="font-weight:600;">@r.Title</div>
+                                    <div class="d-flex align-items-center gap-2">
+                                        <span class="badge-viu badge-viu--plain">@r.Type</span>
+                                        @if (!string.IsNullOrWhiteSpace(r.Date))
+                                        {
+                                            <span class="small text-faint">@r.Date</span>
+                                        }
+                                    </div>
+                                </div>
+                                @if (!string.IsNullOrWhiteSpace(r.Summary))
+                                {
+                                    <div class="small text-muted mt-1">@r.Summary</div>
+                                }
+                            </a>
+                        </li>
+                    }
+                </ul>
+            </div>
+        }
+        else
+        {
+            <div class="empty-state">
+                <strong>Không tìm thấy kết quả</strong>
+                <span>Không có nội dung nào khớp với từ khoá “@Model.Query”.</span>
+            </div>
+        }
+    </div>
+</section>

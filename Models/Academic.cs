@@ -41,8 +41,32 @@ namespace VIUUniversity.Models
         public string? Description { get; set; }
         public string? DegreeLevel { get; set; } // Đại học / Cao đẳng
         public int DurationYears { get; set; }
-        public decimal Tuition { get; set; }
+
+        /// <summary>
+        /// Mô tả thời gian đào tạo nguyên văn của Trường, ví dụ "hệ cử nhân đại học
+        /// là 4 năm, hệ kỹ sư từ 4,5 – 5 năm".
+        ///
+        /// Tồn tại song song với <see cref="DurationYears"/> vì Trường công bố thời
+        /// gian khác nhau theo hệ (cử nhân / kỹ sư) và theo từng khóa; ép vào một
+        /// số nguyên sẽ bịa mất phần thông tin đó.
+        /// </summary>
+        public string? DurationDescription { get; set; }
+
+        /// <summary>Học phí (VND). double thay vì decimal — xem ghi chú ở AdmissionMajor.Score2023.</summary>
+        public double Tuition { get; set; }
         public string? CareerDescription { get; set; }
+
+        /// <summary>Kiến thức và kỹ năng ngành đào tạo trang bị cho sinh viên.</summary>
+        public string? SkillsDescription { get; set; }
+
+        /// <summary>
+        /// Trang giới thiệu ngành trên cổng tuyển sinh chính thức của Trường.
+        /// Mọi mã ngành trong seed đều trích từ đây — xem SeedData.MAJORS_K50.
+        /// Giữ nguyên URL này để mọi ngày còn tra ngược nguồn.
+        /// </summary>
+        [MaxLength(300)]
+        public string? SourceUrl { get; set; }
+
         public string? ImageUrl { get; set; }
 
         public int DepartmentId { get; set; }

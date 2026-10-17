@@ -3,8 +3,8 @@
     ViewData["Title"] = "Thêm sự kiện";
 }
 
-<div class="admin-card" style="max-width:800px;">
-    <form asp-action="Create" method="post">
+<div class="admin-panel" style="max-width:800px;">
+    <form asp-action="Create" method="post" enctype="multipart/form-data">
         <div asp-validation-summary="All" class="alert alert-danger d-none-empty"></div>
         <div class="mb-3">
             <label class="form-label fw-semibold">Tên sự kiện</label>
@@ -29,8 +29,10 @@
             <input asp-for="Location" class="form-control" />
         </div>
         <div class="mb-3">
-            <label class="form-label fw-semibold">Ảnh minh họa (URL)</label>
-            <input asp-for="ImageUrl" class="form-control" />
+            <label class="form-label fw-semibold">Chọn file ảnh sự kiện</label>
+            <input type="file" name="imageFile" class="form-control" accept="image/*" />
+            <div class="form-text small">Hoặc nhập đường dẫn ảnh:</div>
+            <input asp-for="ImageUrl" class="form-control mt-1" placeholder="/images/real/hoitn.jpg" />
         </div>
         <div class="mb-3">
             <label class="form-label fw-semibold">Mô tả</label>
@@ -40,7 +42,7 @@
             <input asp-for="IsPublished" class="form-check-input" />
             <label asp-for="IsPublished" class="form-check-label">Đăng ngay</label>
         </div>
-        <button type="submit" class="btn btn-viu-gold"><i class="fa-solid fa-check me-2"></i>Lưu</button>
+        <button type="submit" class="btn btn-viu-primary"><i class="fa-solid fa-check me-2"></i>Lưu</button>
         <a asp-action="Index" class="btn btn-outline-secondary">Hủy</a>
     </form>
 </div>

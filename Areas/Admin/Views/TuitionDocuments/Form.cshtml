@@ -1,0 +1,10 @@
+@model News
+@{
+    // Toàn bộ biểu mẫu nằm trong partial dùng chung.
+    ViewBag.SectionLabel = "Văn bản học phí";
+    ViewBag.PublicUrl = "/hoc-phi";
+    ViewBag.ShowTuitionFields = true;
+}
+@* Tiền tố @ trước await là bắt buộc: giá trị trả về của PartialAsync chỉ được
+   ghi ra output khi có @. Trong khối @{ } nó bị bỏ qua và trang hiện ra rỗng. *@
+@await Html.PartialAsync("SectionForm", Model)

@@ -1,0 +1,84 @@
+@model VIUUniversity.Models.GalleryImage
+@{
+    ViewData["Title"] = "Thêm ảnh vào thư viện";
+}
+
+<div class="admin-panel" style="max-width:700px;">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h5 class="fw-bold mb-0" style="color:var(--viu-blue);">
+            <i class="fa-solid fa-image me-2"></i>Thêm ảnh vào thư viện
+        </h5>
+        <a asp-action="Index" class="btn btn-outline-secondary btn-sm">
+            <i class="fa-solid fa-arrow-left me-1"></i>Thư viện
+        </a>
+    </div>
+
+    <form asp-action="Create" method="post" enctype="multipart/form-data">
+        <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+
+        <div class="mb-3">
+            <label class="form-label fw-semibold">
+                Upload nhiều ảnh cùng lúc <span class="text-danger">*</span>
+            </label>
+            <input type="file" name="imageFiles" accept="image/*" multiple class="form-control" id="multiImageInput" />
+            <div class="form-text">Chọn nhiều ảnh: JPG, PNG, WEBP. Tất cả ảnh sẽ được gán chung Caption và Album.</div>
+            <div id="imagePreviewGrid" class="row g-2 mt-2"></div>
+        </div>
+
+        <hr class="my-3" />
+        <div class="small text-muted mb-2">Hoặc nhập URL ảnh trực tiếp:</div>
+
+        <div class="mb-3">
+            <label class="form-label fw-semibold">URL ảnh</label>
+            <input asp-for="ImageUrl" class="form-control" placeholder="https://... hoặc /uploads/gallery/..." />
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label fw-semibold">Chú thích ảnh</label>
+            <input asp-for="Caption" class="form-control" placeholder="Ví dụ: Lễ khai giảng năm học 2026..." />
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label fw-semibold">Album / Nhóm ảnh</label>
+            <input asp-for="Album" class="form-control" list="albumList"
+                   placeholder="campus, events, students, facilities..." />
+            <datalist id="albumList">
+                <option value="campus">campus - Cơ sở vật chất</option>
+                <option value="events">events - Sự kiện</option>
+                <option value="students">students - Sinh viên</option>
+                <option value="facilities">facilities - Phòng lab & Thiết bị</option>
+                <option value="ceremonies">ceremonies - Lễ tốt nghiệp</option>
+                <option value="sports">sports - Thể thao & VHVN</option>
+            </datalist>
+        </div>
+
+        <div class="mb-4">
+            <label class="form-label fw-semibold">Thứ tự hiển thị</label>
+            <input asp-for="DisplayOrder" type="number" class="form-control" value="0" />
+        </div>
+
+        <button type="submit" class="btn btn-viu-primary w-100">
+            <i class="fa-solid fa-cloud-arrow-up me-2"></i>Thêm vào thư viện
+        </button>
+    </form>
+</div>
+
+@section Scripts {
+<script>
+document.getElementById('multiImageInput')?.addEventListener('change', function (e) {
+    const grid = document.getElementById('imagePreviewGrid');
+    grid.innerHTML = '';
+    const files = Array.from(e.target.files || []);
+    files.forEach(file => {
+        const reader = new FileReader();
+        reader.onload = (ev) => {
+            const col = document.createElement('div');
+            col.className = 'col-6 col-md-4 col-lg-3';
+            col.innerHTML = `<img src="${ev.target.result}" style="width:100%;height:90px;object-fit:cover;border-radius:8px;border:1px solid #cdeaf5;" />`;
+            grid.appendChild(col);
+        };
+        reader.readAsDataURL(file);
+    });
+});
+</script>
+}

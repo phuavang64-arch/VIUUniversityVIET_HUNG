@@ -1,0 +1,4 @@
+<Solution>
+  <Project Path="VIUUniversity.csproj" />
+  <Project Path="VIUUniversity.Tests/VIUUniversity.Tests.csproj" />
+</Solution>
