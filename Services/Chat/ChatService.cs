@@ -1,3 +1,4 @@
+using Markdig;
 using Microsoft.Extensions.Options;
 
 namespace VIUUniversity.Services.Chat
@@ -13,9 +14,8 @@ namespace VIUUniversity.Services.Chat
     }
 
     /// <summary>
-    /// Orchestrates retrieval + model call. The prompt tells the model to answer only from
-    /// the supplied facts when facts are present, and to say so plainly when they are not,
-    /// rather than inventing tuition fees or admission scores.
+    /// Intelligent, conversational AI service that orchestrates database grounding + LLM completion.
+    /// Provides an open, friendly ChatGPT-like experience while remaining deeply accurate about university facts.
     /// </summary>
     public class ChatService : IChatService
     {
@@ -40,30 +40,18 @@ namespace VIUUniversity.Services.Chat
 
         public string Endpoint => "/api/chat";
 
-        private string SystemPrompt(bool hasFacts) => $"""
-            Bạn là trợ lý AI trên website Trường Đại học Công nghiệp Việt – Hung.
-            Hãy giao tiếp bằng tiếng Việt rõ ràng, lịch sự và dễ hiểu. Ưu tiên hỗ trợ các câu
-            hỏi về ngành học, tuyển sinh, chương trình đào tạo, học phí, học bổng, cơ sở đào tạo,
-            thông báo, sự kiện và thông tin liên hệ của trường.
+        private static string SystemPrompt => """
+            Bạn là một trợ lý AI thông minh, hiểu biết sâu rộng, thân thiện và giao tiếp tự nhiên như ChatGPT trên website Trường Đại học Công nghiệp Việt – Hung (VIU).
 
-            NGUYÊN TẮC BẮT BUỘC:
-            1. Chỉ khẳng định thông tin về trường khi có căn cứ từ DỮ LIỆU TRƯỜNG được cung cấp
-               bên dưới. Nếu chưa có dữ liệu hoặc không chắc chắn, hãy nói rõ và hướng dẫn người
-               dùng liên hệ bộ phận phụ trách.
-            2. {(_options.AllowGeneralKnowledge
-                    ? "Khi người dùng hỏi ngoài phạm vi dữ liệu trường, có thể trả lời ngắn gọn nếu phù hợp, sau đó hướng dẫn quay lại nội dung liên quan đến Việt – Hung."
-                    : "KHÔNG trả lời ngoài phạm vi dữ liệu trường; hãy hướng người dùng về bộ phận phụ trách.")}
-            3. TUYỆT ĐỐI không tự tạo điểm chuẩn, học phí, hạn nộp hồ sơ, chỉ tiêu, số liệu hay
-               chính sách. Thiếu dữ liệu thì nói là chưa có dữ liệu.
-            4. Nếu một trường trong dữ liệu ghi "chưa cập nhật"/"chưa công bố", phải giữ nguyên
-               nghĩa đó, không suy đoán.
-            5. Không bao giờ yêu cầu người dùng cung cấp mật khẩu, API key hoặc thông tin nhạy cảm
-               không cần thiết.
-            6. Trả lời ngắn gọn, tối đa 5 câu.
-            7. KHÔNG dùng Markdown. Dùng HTML tối thiểu: <p>, <ul><li>, <strong>, <a href="...">.
-            8. {(hasFacts
-                    ? "Dữ liệu trường đã được cung cấp bên dưới cho câu hỏi này."
-                    : "KHÔNG có dữ liệu trường nào liên quan tới câu hỏi này — hãy nói rõ điều đó.")}
+            PHONG CÁCH VÀ NĂNG LỰC TRÒ CHUYỆN:
+            1. Bạn có thể trò chuyện cởi mở, thông minh, tinh tế và hữu ích về MỌI chủ đề: học tập, lập trình, công nghệ, cuộc sống, tư vấn hướng nghiệp, giải bài tập, viết lách, văn hóa, khoa học, dịch thuật, hoặc tâm sự, giải trí nhẹ nhàng.
+            2. Trả lời tự nhiên, ấm áp, lịch sự và sinh động bằng tiếng Việt (hoặc ngôn ngữ người dùng dùng nếu họ nói tiếng khác).
+            3. Trình bày câu trả lời rõ ràng, mạch lạc, có chiều sâu. Sử dụng Markdown tự nhiên (in đậm **từ khóa**, danh sách gạch đầu dòng, bảng biểu, code block, trích dẫn...) để câu trả lời sinh động, dễ đọc.
+            4. Tuyệt đối KHÔNG trả lời cộc lốc hoặc rập khuôn máy móc. Hãy trả lời chu đáo, hữu ích như một người bạn kiêm cố vấn thông minh.
+
+            KHI NGƯỜI DÙNG HỎI VỀ TRƯỜNG ĐẠI HỌC CÔNG NGHIỆP VIỆT – HUNG (VIU):
+            1. Nếu câu hỏi liên quan đến trường (ngành học, học phí, điểm chuẩn, cơ sở vật chất, tuyển sinh, liên hệ...), hãy ưu tiên sử dụng thông tin chính xác từ phần [DỮ LIỆU THAM KHẢO VỀ TRƯỜNG] nếu được cung cấp.
+            2. Với các số liệu như điểm chuẩn chính thức hoặc học phí, hãy bám sát dữ liệu thực tế được cung cấp. Nếu dữ liệu chưa có, hãy giải thích rõ và hướng dẫn người dùng liên hệ hotline hoặc trang thông tin của trường.
             """;
 
         public async Task<ChatAnswer> AskAsync(
@@ -74,46 +62,41 @@ namespace VIUUniversity.Services.Chat
             question = (question ?? string.Empty).Trim();
             if (question.Length == 0)
             {
-                return Unavailable("Bạn vui lòng nhập câu hỏi.");
+                return Unavailable("Bạn vui lòng nhập câu hỏi hoặc nội dung muốn trò chuyện.");
             }
 
-            if (question.Length > 500)
-                question = question[..500];
+            if (question.Length > 2000)
+                question = question[..2000];
 
             var knowledge = await _knowledge.BuildAsync(question, ct);
             var hasFacts = knowledge.HasTopicFacts;
 
             if (!IsConfigured)
             {
-                // Không có API key: vẫn trả lời được phần có dữ liệu, và nói rõ phần còn lại.
                 return hasFacts
                     ? new ChatAnswer
                     {
-                        Reply = "<p>Trợ lý AI chưa được cấu hình nên mình mới chỉ tra cứu được dữ liệu " +
-                                "trực tiếp từ hệ thống.</p>",
+                        Reply = "<p>Trợ lý AI chưa được kích hoạt nên hệ thống hiện chỉ tra cứu được dữ liệu trực tiếp.</p>",
                         Source = AnswerSource.Unavailable,
                         SourceNote = "Chưa cấu hình dịch vụ AI",
                         Links = knowledge.Links,
                         Suggestions = knowledge.FollowUps
                     }
                     : Unavailable(
-                        "Trợ lý AI chưa được cấu hình và mình chưa tìm thấy dữ liệu phù hợp trong hệ thống. " +
-                        "Bạn vui lòng liên hệ hotline tuyển sinh để được hỗ trợ trực tiếp.");
+                        "Trợ lý AI chưa được cấu hình. Bạn vui lòng liên hệ hotline tuyển sinh để được hỗ trợ trực tiếp.");
             }
 
-            var turns = new List<ChatTurn> { new("system", SystemPrompt(hasFacts)) };
+            var turns = new List<ChatTurn> { new("system", SystemPrompt) };
 
-            // Giữ lịch sử gần đây để hiểu câu hỏi tiếp nối ("vậy còn cái đó?").
-            foreach (var turn in history.TakeLast(6))
+            // Giữ lịch sử hội thoại gần nhất để duy trì ngữ cảnh trò chuyện mượt mà như ChatGPT.
+            foreach (var turn in history.TakeLast(10))
             {
                 if (turn.Role is "user" or "assistant")
-                    turns.Add(new ChatTurn(turn.Role, turn.Content[..Math.Min(turn.Content.Length, 800)]));
+                    turns.Add(new ChatTurn(turn.Role, turn.Content[..Math.Min(turn.Content.Length, 1500)]));
             }
 
-            turns.Add(new ChatTurn("user", question));
-
-            var prompt = BuildUserTurn(question, knowledge.Text);
-            turns[^1] = new ChatTurn("user", prompt);
+            var userPrompt = BuildUserTurn(question, knowledge.Text);
+            turns.Add(new ChatTurn("user", userPrompt));
 
             var reply = await _provider.CompleteAsync(turns, ct);
 
@@ -124,32 +107,35 @@ namespace VIUUniversity.Services.Chat
                 return hasFacts
                     ? new ChatAnswer
                     {
-                        Reply = "<p>Dịch vụ AI không phản hồi. Bạn có thể xem các thông tin bên dưới " +
-                                "hoặc liên hệ hotline tuyển sinh.</p>",
+                        Reply = "<p>Dịch vụ AI tạm thời gián đoạn. Bạn có thể xem các thông tin tham khảo bên dưới hoặc liên hệ nhà trường.</p>",
                         Source = AnswerSource.Unavailable,
                         SourceNote = "Dịch vụ AI tạm thời không phản hồi",
                         Links = knowledge.Links,
                         Suggestions = knowledge.FollowUps
                     }
                     : Unavailable(
-                        "Dịch vụ AI tạm thời không phản hồi. Bạn vui lòng thử lại sau hoặc liên hệ " +
-                        "hotline tuyển sinh để được hỗ trợ trực tiếp.");
+                        "Dịch vụ AI tạm thời không phản hồi. Bạn vui lòng thử lại sau giây lát.");
             }
+
+            var formattedHtml = RenderMarkdownToSafeHtml(reply);
 
             return new ChatAnswer
             {
-                Reply = Sanitize(reply!),
+                Reply = formattedHtml,
                 Source = hasFacts ? AnswerSource.Grounded : AnswerSource.General,
-                SourceNote = hasFacts
-                    ? "Câu trả lời dựa trên dữ liệu đang lưu trong hệ thống của trường."
-                    : "Nội dung này do AI tổng hợp, không phải thông tin chính thức của trường.",
-                Links = knowledge.Links,
-                Suggestions = knowledge.FollowUps
+                SourceNote = hasFacts ? "Thông tin từ dữ liệu nhà trường" : null,
+                Links = hasFacts ? knowledge.Links : new List<ChatLink>(),
+                Suggestions = hasFacts ? knowledge.FollowUps : new List<string>()
             };
         }
 
-        private static string BuildUserTurn(string question, string knowledge) =>
-            $"CÂU HỎI: {question}\n\nDỮ LIỆU TRƯỜNG:\n{knowledge}";
+        private static string BuildUserTurn(string question, string knowledge)
+        {
+            if (string.IsNullOrWhiteSpace(knowledge))
+                return question;
+
+            return $"{question}\n\n[DỮ LIỆU THAM KHẢO VỀ TRƯỜNG ĐH CÔNG NGHIỆP VIỆT - HUNG]:\n{knowledge}";
+        }
 
         private static ChatAnswer Unavailable(string message) => new()
         {
@@ -165,18 +151,22 @@ namespace VIUUniversity.Services.Chat
             }
         };
 
-        /// <summary>
-        /// The model is instructed to emit minimal HTML, but a model is still untrusted
-        /// input: strip anything active before it reaches innerHTML in the browser.
-        /// </summary>
-        private static string Sanitize(string html)
+        private static readonly MarkdownPipeline MarkdownPipe = new MarkdownPipelineBuilder()
+            .UseAdvancedExtensions()
+            .Build();
+
+        private static string RenderMarkdownToSafeHtml(string markdown)
         {
+            if (string.IsNullOrWhiteSpace(markdown))
+                return string.Empty;
+
+            var html = Markdown.ToHtml(markdown, MarkdownPipe);
             var sanitizer = new HtmlSanitizerAdapter();
             return sanitizer.Sanitize(html);
         }
     }
 
-    /// <summary>Thin adapter over the shared HtmlSanitizer so ChatService has no direct dependency.</summary>
+    /// <summary>Thin adapter over HtmlSanitizer allowing rich formatted Markdown elements safely.</summary>
     internal sealed class HtmlSanitizerAdapter
     {
         private readonly Ganss.Xss.HtmlSanitizer _sanitizer = Create();
@@ -184,14 +174,42 @@ namespace VIUUniversity.Services.Chat
         private static Ganss.Xss.HtmlSanitizer Create()
         {
             var s = new Ganss.Xss.HtmlSanitizer();
+            s.AllowedTags.Add("p");
+            s.AllowedTags.Add("h1");
+            s.AllowedTags.Add("h2");
+            s.AllowedTags.Add("h3");
+            s.AllowedTags.Add("h4");
+            s.AllowedTags.Add("h5");
+            s.AllowedTags.Add("h6");
             s.AllowedTags.Add("a");
             s.AllowedTags.Add("ul");
             s.AllowedTags.Add("ol");
             s.AllowedTags.Add("li");
             s.AllowedTags.Add("strong");
+            s.AllowedTags.Add("b");
             s.AllowedTags.Add("em");
+            s.AllowedTags.Add("i");
             s.AllowedTags.Add("br");
+            s.AllowedTags.Add("hr");
+            s.AllowedTags.Add("code");
+            s.AllowedTags.Add("pre");
+            s.AllowedTags.Add("blockquote");
+            s.AllowedTags.Add("table");
+            s.AllowedTags.Add("thead");
+            s.AllowedTags.Add("tbody");
+            s.AllowedTags.Add("tr");
+            s.AllowedTags.Add("th");
+            s.AllowedTags.Add("td");
+
             s.AllowedAttributes.Add("href");
+            s.AllowedAttributes.Add("target");
+            s.AllowedAttributes.Add("rel");
+            s.AllowedAttributes.Add("class");
+
+            s.AllowedSchemes.Add("http");
+            s.AllowedSchemes.Add("https");
+            s.AllowedSchemes.Add("mailto");
+            s.AllowedSchemes.Add("tel");
             return s;
         }
 

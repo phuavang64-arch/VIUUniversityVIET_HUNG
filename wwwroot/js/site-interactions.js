@@ -203,8 +203,7 @@
         var history = [];   // in-session conversation turns
         var busy = false;
 
-        var GREETING = 'Xin chào! Tôi là Trợ lý Việt – Hung. ' +
-            'Tôi có thể hỗ trợ về ngành học, tuyển sinh, học phí, cơ sở đào tạo và thông tin liên hệ của nhà trường.';
+        var GREETING = '<p>Xin chào! Mình là <strong>Trợ lý AI Việt – Hung</strong>. Bạn có thể trò chuyện, thảo luận hoặc đặt bất kỳ câu hỏi nào về trường cũng như các chủ đề bạn quan tâm nhé!</p>';
 
         function setStatus(text, state) {
             if (!statusEl) return;
@@ -221,14 +220,12 @@
             toggle.setAttribute('aria-expanded', 'true');
             toggle.setAttribute('aria-label', 'Đóng trợ lý tuyển sinh');
             if (!log.childElementCount) {
-                botSay(GREETING, cfg.configured
-                    ? 'Tôi trả lời dựa trên dữ liệu đang lưu trong hệ thống của trường.'
-                    : 'Hiện chưa cấu hình dịch vụ AI, tôi chỉ tra cứu được dữ liệu trực tiếp từ hệ thống.');
+                botSay(GREETING, cfg.configured ? null : 'Hiện chưa cấu hình dịch vụ AI');
                 renderChips([
-                    'Các ngành đào tạo',
-                    'Thông tin tuyển sinh',
-                    'Học phí',
-                    'Liên hệ tư vấn'
+                    'Trường có những ngành đào tạo nào?',
+                    'Tư vấn chọn ngành phù hợp',
+                    'Học phí và học bổng',
+                    'Trò chuyện cùng AI'
                 ]);
             }
             input.focus();
@@ -318,7 +315,7 @@
             fetch(cfg.endpoint, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
-                body: JSON.stringify({ message: question, history: history.slice(-6) })
+                body: JSON.stringify({ message: question, history: history.slice(-10) })
             })
                 .then(function (r) {
                     if (!r.ok) throw new Error('http ' + r.status);
@@ -340,7 +337,7 @@
                         }
                         note = data.sourceNote || 'Không lấy được dữ liệu';
                     } else {
-                        setStatus(cfg.configured ? 'Đang kết nối' : 'Chế độ tra cứu dữ liệu', 'online');
+                        setStatus(cfg.configured ? 'AI Trực tuyến' : 'Chế độ tra cứu dữ liệu', 'online');
                         note = data.sourceNote;
                     }
 

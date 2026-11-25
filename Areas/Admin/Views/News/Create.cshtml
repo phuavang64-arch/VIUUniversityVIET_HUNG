@@ -2,46 +2,69 @@
 @using Microsoft.AspNetCore.Mvc.Rendering
 @{
     ViewData["Title"] = "Đăng tin tức mới";
+    var isEdit = Model.Id > 0;
 }
-
 <div class="admin-panel" style="max-width:900px;">
-    <div class="d-flex justify-content-between align-items-center mb-4">
+    <div class="d-flex justify-content-between align-items-center mb-4 gap-3 flex-wrap">
         <div>
-            <h5 class="fw-bold mb-1" style="color:var(--viu-navy);">Đăng bài tin tức</h5>
-            <p class="text-muted small mb-0">Tin đã đăng sẽ xuất hiện ở trang chủ và mục <a href="/tin-tuc" target="_blank">Tin tức</a>, đồng thời có thể tìm thấy qua tìm kiếm.</p>
+            <h5 class="fw-bold mb-1" style="color:var(--viu-navy);">
+                @(isEdit ? "Cập nhật" : "Đăng mới") bài tin tức
+            </h5>
+            <p class="text-muted small mb-0">
+                Tin đã đăng sẽ xuất hiện ở trang chủ và mục <a href="/tin-tuc" target="_blank">Tin tức</a>.
+            </p>
         </div>
-        <a asp-action="Index" class="btn btn-outline-secondary btn-sm"><i class="fa-solid fa-arrow-left me-1"></i>Danh sách</a>
+        <a asp-action="Index" class="btn-viu btn-viu-ghost btn-viu-sm">
+            <i class="fa-solid fa-arrow-left me-1"></i>Danh sách
+        </a>
     </div>
 
-    <form asp-action="Create" method="post" enctype="multipart/form-data">
+    <form method="post" enctype="multipart/form-data"
+          asp-action="@(isEdit ? "Edit" : "Create")" asp-route-id="@(isEdit ? Model.Id : null)">
+        @Html.AntiForgeryToken()
+
         <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
 
         <div class="row g-3">
             <div class="col-md-8">
                 <div class="mb-3">
-                    <label class="form-label fw-semibold">Tiêu đề <span class="text-danger">*</span></label>
-                    <input asp-for="Title" class="form-control form-control-lg" required placeholder="Ví dụ: VIU công bố lịch xét tuyển bổ sung 2026" />
+                    <label class="form-label fw-semibold">
+                        Tiêu đề <span class="text-danger">*</span>
+                    </label>
+                    <input asp-for="Title" class="form-control" required
+                           placeholder="Ví dụ: VIU công bố lịch xét tuyển bổ sung 2026" />
                     <span asp-validation-for="Title" class="text-danger small"></span>
                 </div>
+
                 <div class="mb-3">
-                    <label class="form-label fw-semibold">Đường dẫn (slug) <span class="text-muted small">- để trống sẽ tự sinh</span></label>
+                    <label class="form-label fw-semibold">
+                        Đường dẫn (slug) <span class="text-muted small">- để trống sẽ tự sinh</span>
+                    </label>
                     <input asp-for="Slug" class="form-control" placeholder="viu-cong-bo-lich-xet-tuyen..." />
                 </div>
+
                 <div class="mb-3">
                     <label class="form-label fw-semibold">Tóm tắt</label>
-                    <textarea asp-for="Summary" class="form-control" rows="2" placeholder="Mô tả ngắn hiển thị trên danh sách tin..."></textarea>
+                    <textarea asp-for="Summary" class="form-control" rows="2"
+                              placeholder="Mô tả ngắn hiển thị trên danh sách tin..."></textarea>
                 </div>
+
                 <div class="mb-3">
-                    <label class="form-label fw-semibold">Nội dung bài viết <span class="text-danger">*</span></label>
-                    <textarea asp-for="Content" class="form-control" rows="12" required placeholder="Nhập nội dung tin tức (có thể dùng HTML cơ bản: &lt;p&gt;, &lt;strong&gt;, &lt;ul&gt;...)"></textarea>
+                    <label class="form-label fw-semibold">
+                        Nội dung bài viết <span class="text-danger">*</span>
+                    </label>
+                    <textarea asp-for="Content" class="form-control" rows="12" required
+                              placeholder="Nhập nội dung tin tức (có thể dùng HTML cơ bản: &lt;p&gt;, &lt;strong&gt;, &lt;ul&gt;...)"></textarea>
                     <div class="form-text">Hỗ trợ HTML cơ bản để định dạng đoạn văn, danh sách, liên kết.</div>
                     <span asp-validation-for="Content" class="text-danger small"></span>
                 </div>
             </div>
+
             <div class="col-md-4">
                 <div class="mb-3">
                     <label class="form-label fw-semibold">Chuyên mục</label>
-                    <select asp-for="CategoryId" class="form-select" asp-items="@(new SelectList(ViewBag.Categories, "Id", "Name"))">
+                    <select asp-for="CategoryId" class="form-select"
+                            asp-items="@(new SelectList(ViewBag.Categories, "Id", "Name", Model.CategoryId))">
                         <option value="">-- Chọn chuyên mục --</option>
                     </select>
                     <div class="form-text">
@@ -49,23 +72,35 @@
                         trường...). Tin không thuộc chủ đề nào thì để trống.
                     </div>
                 </div>
+
                 <div class="mb-3">
                     <label class="form-label fw-semibold">Ảnh đại diện (upload)</label>
-                    <input type="file" name="thumbnailFile" accept="image/*" class="form-control" id="thumbnailFileInput" />
-                    <div class="form-text">JPG, PNG, WEBP — tối đa vài MB.</div>
+                    <input type="file" name="thumbnailFile" accept="image/*" class="form-control"
+                           id="thumbnailFileInput" />
+                    <div class="form-text">JPG, PNG, WEBP, GIF — tối đa 5 MB.</div>
                     <img id="thumbnailPreview" class="thumbnail-preview mt-2 d-none" alt="Xem trước" />
+                    @if (!string.IsNullOrWhiteSpace(Model.Thumbnail))
+                    {
+                        <img src="@Model.Thumbnail" alt="Ảnh hiện tại" class="thumbnail-preview mt-2" />
+                    }
                 </div>
+
                 <div class="mb-3">
                     <label class="form-label fw-semibold">Hoặc URL ảnh</label>
                     <input asp-for="Thumbnail" class="form-control" placeholder="/uploads/news/anh.jpg hoặc https://..." />
                 </div>
-                <div class="form-check form-switch mb-4 p-3 rounded-3" style="background:var(--viu-gold-light);">
+
+                <div class="form-check form-switch mb-4 p-3 rounded-3" style="background:var(--viu-navy-soft);">
                     <input asp-for="IsPublished" class="form-check-input" role="switch" />
                     <label asp-for="IsPublished" class="form-check-label fw-semibold">Đăng ngay (xuất bản)</label>
                     <div class="form-text">Bỏ chọn nếu muốn lưu nháp.</div>
                 </div>
-                <button type="submit" class="btn btn-viu-primary w-100 mb-2"><i class="fa-solid fa-paper-plane me-2"></i>Đăng tin tức</button>
-                <a asp-action="Index" class="btn btn-outline-secondary w-100">Hủy</a>
+
+                <button type="submit" class="btn-viu btn-viu-primary w-100 mb-2">
+                    <i class="fa-solid fa-paper-plane me-2"></i>
+                    @(isEdit ? "Cập nhật" : "Đăng tin tức")
+                </button>
+                <a asp-action="Index" class="btn-viu btn-viu-ghost w-100">Hủy</a>
             </div>
         </div>
     </form>
@@ -73,12 +108,12 @@
 
 @section Scripts {
 <script>
-document.getElementById('thumbnailFileInput')?.addEventListener('change', function (e) {
-    const file = e.target.files?.[0];
-    const preview = document.getElementById('thumbnailPreview');
-    if (!file || !preview) return;
-    preview.src = URL.createObjectURL(file);
-    preview.classList.remove('d-none');
-});
+    document.getElementById('thumbnailFileInput')?.addEventListener('change', function (e) {
+        const file = e.target.files?.[0];
+        const preview = document.getElementById('thumbnailPreview');
+        if (!file || !preview) return;
+        preview.src = URL.createObjectURL(file);
+        preview.classList.remove('d-none');
+    });
 </script>
 }

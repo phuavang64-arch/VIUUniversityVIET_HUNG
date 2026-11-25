@@ -2311,9 +2311,34 @@ body.viu-chat-open .viu-chat-toggle {
 .viu-chat__msg p:last-child {
   margin: 0;
 }
-.viu-chat__msg ul {
+.viu-chat__msg ul,
+.viu-chat__msg ol {
   margin: 0 0 0.5em;
-  padding-left: 1.1rem;
+  padding-left: 1.2rem;
+}
+.viu-chat__msg code {
+  background: rgba(0, 0, 0, 0.06);
+  padding: 0.1em 0.35em;
+  border-radius: 4px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 0.86em;
+}
+.viu-chat__msg pre {
+  background: #f1f3f5;
+  border-radius: 6px;
+  padding: 0.6rem;
+  overflow-x: auto;
+  margin: 0.5em 0;
+}
+.viu-chat__msg pre code {
+  background: transparent;
+  padding: 0;
+}
+.viu-chat__msg blockquote {
+  border-left: 3px solid var(--viu-gold, #c5a059);
+  margin: 0.5em 0;
+  padding-left: 0.7rem;
+  color: var(--ink-muted);
 }
 .viu-chat__msg a {
   text-decoration: underline;

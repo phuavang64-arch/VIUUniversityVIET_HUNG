@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Design;
+using Pomelo.EntityFrameworkCore.MySql;
 
 namespace VIUUniversity.Data
 {
@@ -14,8 +15,8 @@ namespace VIUUniversity.Data
         {
             var optionsBuilder = new DbContextOptionsBuilder<ApplicationDbContext>();
 
-            var connString = "Data Source=VIUUniversity.db";
-            optionsBuilder.UseSqlite(connString);
+            var connString = "Server=localhost;Port=3306;Database=VIUUniversityDB;Uid=root;Pwd=;";
+            optionsBuilder.UseMySql(connString, new MySqlServerVersion(new Version(8, 0, 36)));
 
             return new ApplicationDbContext(optionsBuilder.Options);
         }

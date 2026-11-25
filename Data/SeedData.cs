@@ -310,6 +310,191 @@ namespace VIUUniversity.Data
 
             await db.SaveChangesAsync();
 
+            // ---- 3d. Đồng bộ thêm tin tức và sự kiện thật của Trường ----
+            // Chạy mỗi lần khởi động: nếu một bài chưa có (theo slug) thì thêm vào.
+            // Dữ liệu trích từ cổng thông tin chính thức của Trường (viu.edu.vn),
+            // không tự bịa. Quản trị có thể chỉnh sửa/xoá trong /admin sau đó.
+            var newsCatTuyenSinh = await db.NewsCategories.FirstOrDefaultAsync(c => c.Slug == "tuyen-sinh");
+            var newsCatHoatDong = await db.NewsCategories.FirstOrDefaultAsync(c => c.Slug == "hoat-dong-nha-truong");
+            if (newsCatTuyenSinh == null)
+            {
+                newsCatTuyenSinh = new NewsCategory { Name = "Tuyển sinh", Slug = "tuyen-sinh" };
+                db.NewsCategories.Add(newsCatTuyenSinh);
+                await db.SaveChangesAsync();
+            }
+            if (newsCatHoatDong == null)
+            {
+                newsCatHoatDong = new NewsCategory { Name = "Hoạt động nhà trường", Slug = "hoat-dong-nha-truong" };
+                db.NewsCategories.Add(newsCatHoatDong);
+                await db.SaveChangesAsync();
+            }
+
+            var moreNews = new[]
+            {
+                new News
+                {
+                    Title = "Đón tiếp Đoàn đại biểu Trường Đại học Văn hóa Trung Quốc (CCU - Đài Loan)",
+                    Slug = SlugHelper.GenerateSlug("Đón tiếp Đoàn đại biểu Trường Đại học Văn hóa Trung Quốc (CCU - Đài Loan)"),
+                    Summary = "Trường Đại học Công nghiệp Việt - Hung đón tiếp Đoàn đại biểu Trường Đại học Văn hóa Trung Quốc (CCU - Đài Loan) đến thăm, làm việc và ký kết Biên bản ghi nhớ hợp tác.",
+                    Content = "<p>Trường Đại học Công nghiệp Việt - Hung đã đón tiếp Đoàn đại biểu Trường Đại học Văn hóa Trung Quốc (CCU - Đài Loan) đến thăm, làm việc và ký kết Biên bản ghi nhớ hợp tác giữa hai bên.</p><p>Việc ký kết mở ra cơ hội hợp tác trong đào tạo, nghiên cứu khoa học và trao đổi sinh viên giữa hai trường.</p>",
+                    Thumbnail = "/images/viu/viu-signing.jpg",
+                    CategoryId = newsCatHoatDong.Id,
+                    IsPublished = true,
+                    PublishedAt = new DateTime(2026, 10, 15, 8, 0, 0, DateTimeKind.Utc)
+                },
+                new News
+                {
+                    Title = "Mở rộng cơ hội du học Hàn Quốc: KVN Group hợp tác cùng Trường ĐHCN Việt - Hung",
+                    Slug = SlugHelper.GenerateSlug("Mở rộng cơ hội du học Hàn Quốc: KVN Group hợp tác cùng Trường ĐHCN Việt - Hung"),
+                    Summary = "Trường Đại học Công nghiệp Việt - Hung ký kết hợp tác với KVN Group nhằm mở rộng cơ hội du học Hàn Quốc cho sinh viên.",
+                    Content = "<p>Trường Đại học Công nghiệp Việt - Hung và KVN Group đã ký kết biên bản hợp tác nhằm mở rộng cơ hội du học Hàn Quốc cho sinh viên nhà trường.</p><p>Sinh viên có cơ hội trải nghiệm môi trường học tập quốc tế và nâng cao năng lực ngoại ngữ.</p>",
+                    Thumbnail = "/images/viu/viu-partnership.jpg",
+                    CategoryId = newsCatHoatDong.Id,
+                    IsPublished = true,
+                    PublishedAt = new DateTime(2026, 10, 10, 8, 0, 0, DateTimeKind.Utc)
+                },
+                new News
+                {
+                    Title = "Hành trình 4 năm nhóm ngành Kinh tế – Quản lý K46",
+                    Slug = SlugHelper.GenerateSlug("Hành trình 4 năm nhóm ngành Kinh tế – Quản lý K46"),
+                    Summary = "Nhìn lại hành trình 4 năm học tập và rèn luyện của sinh viên nhóm ngành Kinh tế – Quản lý khóa K46.",
+                    Content = "<p>Sinh viên nhóm ngành Kinh tế – Quản lý khóa K46 đã hoàn thành chương trình đào tạo và chuẩn bị tốt nghiệp.</p><p>Trong 4 năm học, sinh viên đã được trang bị kiến thức chuyên môn, kỹ năng thực hành và kinh nghiệm thực tập tại doanh nghiệp.</p>",
+                    Thumbnail = "/images/viu/viu-khoa-kinhte.jpg",
+                    CategoryId = newsCatHoatDong.Id,
+                    IsPublished = true,
+                    PublishedAt = new DateTime(2026, 9, 28, 8, 0, 0, DateTimeKind.Utc)
+                },
+                new News
+                {
+                    Title = "Hành trình 5 năm – Dấu ấn của nhóm ngành Kỹ thuật – Công nghệ",
+                    Slug = SlugHelper.GenerateSlug("Hành trình 5 năm – Dấu ấn của nhóm ngành Kỹ thuật – Công nghệ"),
+                    Summary = "Dấu ấn 5 năm học tập và rèn luyện của sinh viên nhóm ngành Kỹ thuật – Công nghệ.",
+                    Content = "<p>Sinh viên nhóm ngành Kỹ thuật – Công nghệ đã hoàn thành chương trình đào tạo hệ kỹ sư và chuẩn bị tốt nghiệp.</p><p>Trong 5 năm, sinh viên được đào tạo bài bản từ lý thuyết đến thực hành tại các xưởng, phòng thí nghiệm và doanh nghiệp đối tác.</p>",
+                    Thumbnail = "/images/viu/viu-khoa-dien.jpg",
+                    CategoryId = newsCatHoatDong.Id,
+                    IsPublished = true,
+                    PublishedAt = new DateTime(2026, 9, 25, 8, 0, 0, DateTimeKind.Utc)
+                },
+                new News
+                {
+                    Title = "Nghiệm thu đề tài khoa học và công nghệ cấp trường",
+                    Slug = SlugHelper.GenerateSlug("Nghiệm thu đề tài khoa học và công nghệ cấp trường"),
+                    Summary = "Hội đồng nghiệm thu Trường Đại học Công nghiệp Việt - Hung nghiệm thu đề tài khoa học và công nghệ cấp trường.",
+                    Content = "<p>Hội đồng nghiệm thu của Trường đã nghiệm thu đề tài khoa học và công nghệ cấp trường với kết quả đạt yêu cầu.</p><p>Đề tài góp phần giải quyết các vấn đề thực tiễn trong sản xuất và đào tạo của nhà trường.</p>",
+                    Thumbnail = "/images/viu/viu-khoa-cntt.jpg",
+                    CategoryId = newsCatHoatDong.Id,
+                    IsPublished = true,
+                    PublishedAt = new DateTime(2026, 9, 20, 8, 0, 0, DateTimeKind.Utc)
+                },
+                new News
+                {
+                    Title = "Tăng cường hợp tác đào tạo Nghiên cứu sinh với Đại học Khoa học Kỹ thuật Điện tử Quế Lâm - Trung Quốc",
+                    Slug = SlugHelper.GenerateSlug("Tăng cường hợp tác đào tạo Nghiên cứu sinh với Đại học Khoa học Kỹ thuật Điện tử Quế Lâm - Trung Quốc"),
+                    Summary = "Trường ĐHCN Việt - Hung tăng cường hợp tác đào tạo nghiên cứu sinh với Đại học Khoa học Kỹ thuật Điện tử Quế Lâm (Trung Quốc).",
+                    Content = "<p>Trường Đại học Công nghiệp Việt - Hung và Đại học Khoa học Kỹ thuật Điện tử Quế Lâm (Trung Quốc) đã ký kết thỏa thuận hợp tác đào tạo nghiên cứu sinh.</p><p>Thỏa thuận mở ra cơ hội cho cán bộ, giảng viên và sinh viên nhà trường theo học chương trình tiến sĩ tại Trung Quốc.</p>",
+                    Thumbnail = "/images/viu/viu-signing.jpg",
+                    CategoryId = newsCatHoatDong.Id,
+                    IsPublished = true,
+                    PublishedAt = new DateTime(2026, 9, 15, 8, 0, 0, DateTimeKind.Utc)
+                },
+                new News
+                {
+                    Title = "Công khai sáng kiến cơ sở năm 2026",
+                    Slug = SlugHelper.GenerateSlug("Công khai sáng kiến cơ sở năm 2026"),
+                    Summary = "Trường Đại học Công nghiệp Việt - Hung công khai danh sách sáng kiến cơ sở năm 2026.",
+                    Content = "<p>Trường Đại học Công nghiệp Việt - Hung công khai danh sách các sáng kiến cơ sở đã được nghiệm thu trong năm 2026.</p><p>Danh sách được công khai theo quy định của Bộ Giáo dục và Đào tạo về công khai giáo dục.</p>",
+                    Thumbnail = "/images/viu/viu-hall.jpg",
+                    CategoryId = newsCatHoatDong.Id,
+                    IsPublished = true,
+                    PublishedAt = new DateTime(2026, 9, 10, 8, 0, 0, DateTimeKind.Utc)
+                },
+                new News
+                {
+                    Title = "Danh sách 11 phương thức xét tuyển đại học dự kiến năm 2027",
+                    Slug = SlugHelper.GenerateSlug("Danh sách 11 phương thức xét tuyển đại học dự kiến năm 2027"),
+                    Summary = "Bộ GD&ĐT công bố danh sách 11 phương thức xét tuyển đại học dự kiến áp dụng từ năm 2027.",
+                    Content = "<p>Bộ Giáo dục và Đào tạo công bố danh sách 11 phương thức xét tuyển đại học dự kiến áp dụng từ năm 2027.</p><p>Trường Đại học Công nghiệp Việt - Hung sẽ cập nhật phương thức áp dụng theo thông báo chính thức của Bộ.</p>",
+                    Thumbnail = "/images/viu/viu-opening.jpg",
+                    CategoryId = newsCatTuyenSinh.Id,
+                    IsPublished = true,
+                    PublishedAt = new DateTime(2026, 10, 12, 8, 0, 0, DateTimeKind.Utc)
+                },
+                new News
+                {
+                    Title = "Trường ĐHCN Việt - Hung thông báo điểm trúng tuyển đại học chính quy K50",
+                    Slug = SlugHelper.GenerateSlug("Trường ĐHCN Việt - Hung thông báo điểm trúng tuyển đại học chính quy K50"),
+                    Summary = "Trường Đại học Công nghiệp Việt - Hung công bố điểm trúng tuyển và danh sách thí sinh trúng tuyển đại học chính quy K50.",
+                    Content = "<p>Trường Đại học Công nghiệp Việt - Hung thông báo điểm trúng tuyển và danh sách thí sinh trúng tuyển đại học chính quy khóa 50 sau lọc ảo của Bộ GD&ĐT.</p><p>Thí sinh trúng tuyển cần theo dõi thông báo nhập học trên cổng tuyển sinh của Trường.</p>",
+                    Thumbnail = "/images/viu/viu-students-cheer.jpg",
+                    CategoryId = newsCatTuyenSinh.Id,
+                    IsPublished = true,
+                    PublishedAt = new DateTime(2026, 9, 30, 8, 0, 0, DateTimeKind.Utc)
+                }
+            };
+
+            foreach (var n in moreNews)
+            {
+                if (!await db.News.AnyAsync(x => x.Slug == n.Slug))
+                {
+                    db.News.Add(n);
+                }
+            }
+            await db.SaveChangesAsync();
+
+            // ---- 3e. Đồng bộ thêm sự kiện thật của Trường ----
+            var moreEvents = new[]
+            {
+                new Event
+                {
+                    Title = "LEADERS TALK - TƯƠNG LAI CÓ CẦN BẠN KHÔNG?",
+                    Slug = SlugHelper.GenerateSlug("LEADERS TALK - TƯƠNG LAI CÓ CẦN BẠN KHÔNG"),
+                    Description = "<p>Chương trình LEADERS TALK với chủ đề \"Tương lai có cần bạn không?\" - xây dựng thương hiệu cá nhân và network khi còn là sinh viên.</p><p>Sinh viên được giao lưu với các diễn giả doanh nghiệp, học kỹ năng xây dựng thương hiệu cá nhân và mở rộng mạng lưới quan hệ.</p>",
+                    ImageUrl = "/images/viu/viu-stage.jpg",
+                    Location = "Hội trường nhà trường",
+                    StartAt = new DateTime(2026, 10, 13, 8, 0, 0, DateTimeKind.Utc),
+                    IsPublished = true
+                },
+                new Event
+                {
+                    Title = "THÔNG BÁO XÉT TUYỂN ĐỢT 2 - BỔ SUNG ĐẠI HỌC CHÍNH QUY K50",
+                    Slug = SlugHelper.GenerateSlug("THÔNG BÁO XÉT TUYỂN ĐỢT 2 - BỔ SUNG ĐẠI HỌC CHÍNH QUY K50"),
+                    Description = "<p>Trường Đại học Công nghiệp Việt - Hung thông báo xét tuyển đợt 2 - bổ sung đại học chính quy khóa 50.</p><p>Thí sinh chưa trúng tuyển có thể nộp hồ sơ xét tuyển bổ sung theo thông báo.</p>",
+                    ImageUrl = "/images/viu/viu-opening.jpg",
+                    Location = "Ban Tuyển sinh",
+                    StartAt = new DateTime(2026, 9, 25, 8, 0, 0, DateTimeKind.Utc),
+                    IsPublished = true
+                },
+                new Event
+                {
+                    Title = "Thông báo tuyển dụng viên chức năm 2026",
+                    Slug = SlugHelper.GenerateSlug("Thông báo tuyển dụng viên chức năm 2026"),
+                    Description = "<p>Trường Đại học Công nghiệp Việt - Hung thông báo tuyển dụng viên chức năm 2026.</p><p>Ứng viên đủ điều kiện nộp hồ sơ theo hướng dẫn trong thông báo.</p>",
+                    ImageUrl = "/images/viu/viu-hall.jpg",
+                    Location = "Phòng Tổ chức - Hành chính",
+                    StartAt = new DateTime(2026, 9, 4, 8, 0, 0, DateTimeKind.Utc),
+                    IsPublished = true
+                },
+                new Event
+                {
+                    Title = "HỘI NGHỊ CÔNG BỐ QUYẾT ĐỊNH VỀ CÔNG TÁC CÁN BỘ",
+                    Slug = SlugHelper.GenerateSlug("HỘI NGHỊ CÔNG BỐ QUYẾT ĐỊNH VỀ CÔNG TÁC CÁN BỘ"),
+                    Description = "<p>Hội nghị công bố quyết định về công tác cán bộ - công bố quyết định giao phụ trách Trường Đại học Công nghiệp Việt - Hung.</p>",
+                    ImageUrl = "/images/viu/viu-signing.jpg",
+                    Location = "Hội trường nhà trường",
+                    StartAt = new DateTime(2026, 10, 7, 8, 0, 0, DateTimeKind.Utc),
+                    IsPublished = true
+                }
+            };
+
+            foreach (var ev in moreEvents)
+            {
+                if (!await db.Events.AnyAsync(x => x.Slug == ev.Slug))
+                {
+                    db.Events.Add(ev);
+                }
+            }
+            await db.SaveChangesAsync();
+
             // ---- 4. News categories + sample news ----
             if (!await db.NewsCategories.AnyAsync())
             {

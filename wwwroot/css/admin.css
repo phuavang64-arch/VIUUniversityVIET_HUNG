@@ -17,14 +17,13 @@
 .admin-sidebar {
   width: 250px;
   flex-shrink: 0;
-  background: #000000;
+  background: #00A6D6;
   color: #ffffff;
   display: flex;
   flex-direction: column;
-  position: sticky;
-  top: 0;
-  height: 100vh;
-  overflow-y: auto;
+  position: relative;
+  border-right: 3px solid #008fc0;
+  box-shadow: 2px 0 8px rgba(0, 0, 0, 0.15);
 }
 .admin-sidebar__brand {
   display: flex;
@@ -407,4 +406,14 @@
   .admin-topbar {
     padding: 0.75rem 1rem;
   }
+}
+
+/* ---------- Xem trước ảnh đại diện ---------- */
+.thumbnail-preview {
+  max-width: 100%;
+  max-height: 200px;
+  object-fit: cover;
+  border-radius: var(--r);
+  border: 1px solid var(--line);
+  margin-top: 0.5rem;
 }

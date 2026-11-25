@@ -1,0 +1,131 @@
+@model List<VIUUniversity.Models.Lecturer>
+@{
+    var departments = ViewBag.Departments as List<VIUUniversity.Models.Department> ?? new();
+    var keyword = ViewBag.Keyword as string;
+    var selectedDept = ViewBag.DepartmentId as int?;
+    var total = ViewBag.TotalCount as int? ?? 0;
+    var page = ViewBag.PageNumber as int? ?? 1;
+    int totalPages = (int)Math.Ceiling(total / 10.0);
+}
+<div class="admin-panel">
+    @if (TempData["Success"] != null)
+    {
+        <div class="alert alert-success m-3">@TempData["Success"]</div>
+    }
+
+    <div class="admin-toolbar">
+        <form method="get" class="d-flex gap-2 admin-toolbar__search">
+            <label class="visually-hidden" for="kw">Tìm theo tên</label>
+            <input class="form-control" id="kw" name="keyword" value="@keyword" placeholder="Tìm theo tên, học vị, email..." />
+            <select class="form-select" name="departmentId" style="width:auto;">
+                <option value="">Tất cả khoa</option>
+                @foreach (var d in departments)
+                {
+                    <option value="@d.Id" selected="@(d.Id == selectedDept)">@d.Name</option>
+                }
+            </select>
+            <button type="submit" class="btn-viu btn-viu-outline">Tìm</button>
+            @if (!string.IsNullOrWhiteSpace(keyword) || selectedDept.HasValue)
+            {
+                <a class="btn-viu btn-viu-ghost" asp-action="Index">Xoá</a>
+            }
+        </form>
+        <div class="ms-auto">
+            <a asp-action="Create" class="btn-viu btn-viu-primary btn-viu-sm">
+                <i class="fa-solid fa-plus" aria-hidden="true"></i> Thêm mới
+            </a>
+        </div>
+    </div>
+
+    @if (Model.Any())
+    {
+        <div class="table-scroll">
+            <table class="table-viu">
+                <thead>
+                    <tr>
+                        <th style="width:72px;">Ảnh</th>
+                        <th>Họ và tên</th>
+                        <th style="width:150px;">Học vị</th>
+                        <th style="width:180px;">Khoa</th>
+                        <th style="width:200px;">Email</th>
+                        <th class="text-end" style="width:180px;">Thao tác</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var l in Model)
+                    {
+                        <tr>
+                            <td>
+                                @if (!string.IsNullOrEmpty(l.Avatar))
+                                {
+                                    <img src="@l.Avatar" alt="" loading="lazy"
+                                         style="width:48px;height:48px;object-fit:cover;border-radius:50%;border:1px solid var(--line);" />
+                                }
+                                else
+                                {
+                                    <div style="width:48px;height:48px;border-radius:50%;background:var(--surface-alt);display:flex;align-items:center;justify-content:center;color:var(--ink-muted);">
+                                        <i class="fa-solid fa-user"></i>
+                                    </div>
+                                }
+                            </td>
+                            <td>
+                                <strong style="color:var(--ink);">@l.FullName</strong>
+                                @if (!string.IsNullOrWhiteSpace(l.Biography))
+                                {
+                                    <div class="small text-muted" style="max-width:320px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">
+                                        @l.Biography
+                                    </div>
+                                }
+                            </td>
+                            <td class="text-muted">@(string.IsNullOrWhiteSpace(l.AcademicTitle) ? "—" : l.AcademicTitle)</td>
+                            <td class="text-muted">@(l.Department?.Name ?? "—")</td>
+                            <td class="text-muted small">@(string.IsNullOrWhiteSpace(l.Email) ? "—" : l.Email)</td>
+                            <td>
+                                <div class="admin-actions justify-content-end">
+                                    <a asp-action="Edit" asp-route-id="@l.Id" class="btn-viu btn-viu-ghost btn-viu-sm">Sửa</a>
+                                    <form method="post" asp-action="Delete" asp-route-id="@l.Id" class="d-inline"
+                                          onsubmit="return confirm('Xoá giảng viên &quot;@l.FullName&quot;?');">
+                                        @Html.AntiForgeryToken()
+                                        <button type="submit" class="btn-viu btn-viu-ghost btn-viu-sm">Xoá</button>
+                                    </form>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+
+        <div class="p-3 d-flex justify-content-between align-items-center flex-wrap gap-2"
+             style="border-top:1px solid var(--line);">
+            <span class="small text-muted">@total giảng viên · Trang @(page)/@Math.Max(totalPages, 1)</span>
+            @if (totalPages > 1)
+            {
+                <ul class="pagination">
+                    <li class="page-item @(page <= 1 ? "disabled" : "")">
+                        <a class="page-link" asp-action="Index" asp-route-page="@(page - 1)" asp-route-keyword="@keyword" asp-route-departmentId="@selectedDept">Trước</a>
+                    </li>
+                    @for (var i = 1; i <= totalPages; i++)
+                    {
+                        var p = i;
+                        <li class="page-item @(p == page ? "active" : "")">
+                            <a class="page-link" asp-action="Index" asp-route-page="@p" asp-route-keyword="@keyword" asp-route-departmentId="@selectedDept">@p</a>
+                        </li>
+                    }
+                    <li class="page-item @(page >= totalPages ? "disabled" : "")">
+                        <a class="page-link" asp-action="Index" asp-route-page="@(page + 1)" asp-route-keyword="@keyword" asp-route-departmentId="@selectedDept">Sau</a>
+                    </li>
+                </ul>
+            }
+        </div>
+    }
+    else
+    {
+        <div class="p-4">
+            <div class="empty-state">
+                <strong>Chưa có giảng viên nào</strong>
+                <a asp-action="Create">Thêm giảng viên đầu tiên</a>
+            </div>
+        </div>
+    }
+</div>

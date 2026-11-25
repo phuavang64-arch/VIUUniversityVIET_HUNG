@@ -2,6 +2,7 @@ using System.Threading.RateLimiting;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.EntityFrameworkCore;
+using Pomelo.EntityFrameworkCore.MySql;
 using VIUUniversity.Data;
 using VIUUniversity.Models;
 using VIUUniversity.Services;
@@ -10,20 +11,17 @@ using VIUUniversity.Services.Interfaces;
 
 var builder = WebApplication.CreateBuilder(args);
 
+// Ensure user-secrets are loaded even when running without ASPNETCORE_ENVIRONMENT=Development
+builder.Configuration.AddUserSecrets<Program>(optional: true);
+
 // ---- Database ----
-// SQLite is the default (zero-config, file-based). Swap the connection string for a SQL
-// Server one and the app switches provider automatically.
-var connString = builder.Configuration.GetConnectionString("DefaultConnection") ?? "Data Source=VIUUniversity.db";
-if (connString.Contains("Data Source=", StringComparison.OrdinalIgnoreCase) || connString.EndsWith(".db", StringComparison.OrdinalIgnoreCase))
-{
-    builder.Services.AddDbContext<ApplicationDbContext>(options =>
-        options.UseSqlite(connString));
-}
-else
-{
-    builder.Services.AddDbContext<ApplicationDbContext>(options =>
-        options.UseSqlServer(connString));
-}
+// MySQL is the database provider for this project (Pomelo). The connection string in
+// appsettings.json (or user-secrets) points at a MySQL server; there is no
+// zero-config file-based fallback anymore.
+var connString = builder.Configuration.GetConnectionString("DefaultConnection")
+    ?? "Server=localhost;Port=3306;Database=VIUUniversityDB;Uid=root;Pwd=;";
+builder.Services.AddDbContext<ApplicationDbContext>(options =>
+    options.UseMySql(connString, new MySqlServerVersion(new Version(8, 0, 36))));
 
 // ---- Identity (Authentication + Authorization) ----
 builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options =>
@@ -136,6 +134,28 @@ builder.Services.Configure<ChatOptions>(builder.Configuration.GetSection(ChatOpt
 
 var chatOptions = builder.Configuration.GetSection(ChatOptions.SectionName).Get<ChatOptions>() ?? new ChatOptions();
 
+// Fallback: allow configuring Gemini via environment variables without appsettings/user-secrets.
+if (string.IsNullOrWhiteSpace(chatOptions.ApiKey))
+{
+    var geminiKey = Environment.GetEnvironmentVariable("GEMINI_API_KEY")
+        ?? Environment.GetEnvironmentVariable("GOOGLE_API_KEY");
+    if (!string.IsNullOrWhiteSpace(geminiKey))
+    {
+        chatOptions.ApiKey = geminiKey;
+        if (string.IsNullOrWhiteSpace(chatOptions.Provider) || chatOptions.Provider.Equals("none", StringComparison.OrdinalIgnoreCase))
+            chatOptions.Provider = "gemini";
+    }
+}
+
+// Gemini convenience: map provider "gemini" to the OpenAI-compatible endpoint.
+if (chatOptions.Provider.Equals("gemini", StringComparison.OrdinalIgnoreCase))
+{
+    if (string.IsNullOrWhiteSpace(chatOptions.BaseUrl))
+        chatOptions.BaseUrl = "https://generativelanguage.googleapis.com/v1beta/openai";
+    if (string.IsNullOrWhiteSpace(chatOptions.Model))
+        chatOptions.Model = "gemini-3.5-flash-lite";
+}
+
 // KnowledgeService is needed on both paths (it is what grounds the answers), and it
 // depends on the scoped DbContext, so it must always be registered as scoped.
 builder.Services.AddScoped<KnowledgeService>();
@@ -158,6 +178,7 @@ else
     Type? chatProvider = chatOptions.Provider.ToLowerInvariant() switch
     {
         "openai-compatible" => typeof(OpenAiCompatibleProvider),
+        "gemini" => typeof(OpenAiCompatibleProvider),
         "anthropic" => typeof(AnthropicProvider),
         _ => null
     };

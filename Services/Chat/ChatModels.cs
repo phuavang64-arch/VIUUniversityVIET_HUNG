@@ -42,7 +42,7 @@ namespace VIUUniversity.Services.Chat
     {
         public const string SectionName = "Chat";
 
-        /// <summary>openai | anthropic | none</summary>
+        /// <summary>openai | anthropic | openai-compatible | gemini | none</summary>
         public string Provider { get; set; } = "none";
 
         /// <summary>
@@ -86,6 +86,22 @@ namespace VIUUniversity.Services.Chat
                 if (Provider.Equals("openai", StringComparison.OrdinalIgnoreCase))
                 {
                     return !string.IsNullOrWhiteSpace(Environment.GetEnvironmentVariable("OPENAI_API_KEY"))
+                        || !string.IsNullOrWhiteSpace(ApiKey);
+                }
+
+                if (Provider.Equals("gemini", StringComparison.OrdinalIgnoreCase))
+                {
+                    return !string.IsNullOrWhiteSpace(Environment.GetEnvironmentVariable("GEMINI_API_KEY"))
+                        || !string.IsNullOrWhiteSpace(Environment.GetEnvironmentVariable("GOOGLE_API_KEY"))
+                        || !string.IsNullOrWhiteSpace(ApiKey);
+                }
+
+                // openai-compatible and others: allow env-based keys too.
+                if (Provider.Equals("openai-compatible", StringComparison.OrdinalIgnoreCase))
+                {
+                    return !string.IsNullOrWhiteSpace(Environment.GetEnvironmentVariable("OPENAI_API_KEY"))
+                        || !string.IsNullOrWhiteSpace(Environment.GetEnvironmentVariable("GEMINI_API_KEY"))
+                        || !string.IsNullOrWhiteSpace(Environment.GetEnvironmentVariable("GOOGLE_API_KEY"))
                         || !string.IsNullOrWhiteSpace(ApiKey);
                 }
 

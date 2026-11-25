@@ -3,72 +3,104 @@
 @{
     ViewData["Title"] = "Chỉnh sửa tin tức";
 }
-
 <div class="admin-panel" style="max-width:900px;">
-    <div class="d-flex justify-content-between align-items-center mb-4">
+    <div class="d-flex justify-content-between align-items-center mb-4 gap-3 flex-wrap">
         <div>
-            <h5 class="fw-bold mb-1" style="color:var(--viu-navy);">Chỉnh sửa tin tức</h5>
+            <h5 class="fw-bold mb-1" style="color:var(--viu-navy);">
+                Cập nhật bài tin tức
+            </h5>
             @if (Model.IsPublished)
             {
-                <a href="/tin-tuc/@Model.Slug" target="_blank" class="small">Xem bài trên website <i class="fa-solid fa-arrow-up-right-from-square"></i></a>
+                <a href="/tin-tuc/@Model.Slug" target="_blank" class="small">
+                    Xem bài trên website <i class="fa-solid fa-arrow-up-right-from-square"></i>
+                </a>
             }
         </div>
-        <a asp-action="Index" class="btn btn-outline-secondary btn-sm">Quay lại</a>
+        <a asp-action="Index" class="btn-viu btn-viu-ghost btn-viu-sm">
+            <i class="fa-solid fa-arrow-left me-1"></i>Danh sách
+        </a>
     </div>
 
-    <form asp-action="Edit" asp-route-id="@Model.Id" method="post" enctype="multipart/form-data">
+    <form method="post" enctype="multipart/form-data" asp-action="Edit" asp-route-id="@Model.Id">
+        @Html.AntiForgeryToken()
+
         <input type="hidden" asp-for="Id" />
         <input type="hidden" asp-for="CreatedAt" />
         <input type="hidden" asp-for="AuthorId" />
         <input type="hidden" asp-for="ViewCount" />
         <input type="hidden" asp-for="PublishedAt" />
+
         <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
 
         <div class="row g-3">
             <div class="col-md-8">
                 <div class="mb-3">
-                    <label class="form-label fw-semibold">Tiêu đề</label>
-                    <input asp-for="Title" class="form-control form-control-lg" required />
+                    <label class="form-label fw-semibold">
+                        Tiêu đề <span class="text-danger">*</span>
+                    </label>
+                    <input asp-for="Title" class="form-control" required />
+                    <span asp-validation-for="Title" class="text-danger small"></span>
                 </div>
+
                 <div class="mb-3">
-                    <label class="form-label fw-semibold">Đường dẫn (slug)</label>
+                    <label class="form-label fw-semibold">
+                        Đường dẫn (slug) <span class="text-muted small">- để trống sẽ tự sinh</span>
+                    </label>
                     <input asp-for="Slug" class="form-control" />
                 </div>
+
                 <div class="mb-3">
                     <label class="form-label fw-semibold">Tóm tắt</label>
                     <textarea asp-for="Summary" class="form-control" rows="2"></textarea>
                 </div>
+
                 <div class="mb-3">
-                    <label class="form-label fw-semibold">Nội dung</label>
+                    <label class="form-label fw-semibold">
+                        Nội dung bài viết <span class="text-danger">*</span>
+                    </label>
                     <textarea asp-for="Content" class="form-control" rows="12" required></textarea>
+                    <span asp-validation-for="Content" class="text-danger small"></span>
                 </div>
             </div>
+
             <div class="col-md-4">
                 <div class="mb-3">
                     <label class="form-label fw-semibold">Chuyên mục</label>
-                    <select asp-for="CategoryId" class="form-select" asp-items="@(new SelectList(ViewBag.Categories, "Id", "Name", Model.CategoryId))"></select>
+                    <select asp-for="CategoryId" class="form-select"
+                            asp-items="@(new SelectList(ViewBag.Categories, "Id", "Name", Model.CategoryId))">
+                        <option value="">-- Chọn chuyên mục --</option>
+                    </select>
                 </div>
+
                 @if (!string.IsNullOrEmpty(Model.Thumbnail))
                 {
                     <div class="mb-2">
                         <img src="@Model.Thumbnail" class="thumbnail-preview" alt="Ảnh hiện tại" />
                     </div>
                 }
+
                 <div class="mb-3">
                     <label class="form-label fw-semibold">Đổi ảnh đại diện</label>
-                    <input type="file" name="thumbnailFile" accept="image/*" class="form-control" id="thumbnailFileInput" />
+                    <input type="file" name="thumbnailFile" accept="image/*" class="form-control"
+                           id="thumbnailFileInput" />
                     <img id="thumbnailPreview" class="thumbnail-preview mt-2 d-none" alt="Xem trước" />
                 </div>
+
                 <div class="mb-3">
                     <label class="form-label fw-semibold">URL ảnh</label>
                     <input asp-for="Thumbnail" class="form-control" />
                 </div>
-                <div class="form-check form-switch mb-4">
-                    <input asp-for="IsPublished" class="form-check-input" />
+
+                <div class="form-check form-switch mb-4 p-3 rounded-3" style="background:var(--viu-navy-soft);">
+                    <input asp-for="IsPublished" class="form-check-input" role="switch" />
                     <label asp-for="IsPublished" class="form-check-label fw-semibold">Đã đăng / Xuất bản</label>
+                    <div class="form-text">Bỏ chọn nếu muốn lưu nháp.</div>
                 </div>
-                <button type="submit" class="btn btn-viu-primary w-100 mb-2"><i class="fa-solid fa-check me-2"></i>Cập nhật</button>
-                <a asp-action="Index" class="btn btn-outline-secondary w-100">Hủy</a>
+
+                <button type="submit" class="btn-viu btn-viu-primary w-100 mb-2">
+                    <i class="fa-solid fa-check me-2"></i>Cập nhật
+                </button>
+                <a asp-action="Index" class="btn-viu btn-viu-ghost w-100">Hủy</a>
             </div>
         </div>
     </form>
@@ -76,12 +108,12 @@
 
 @section Scripts {
 <script>
-document.getElementById('thumbnailFileInput')?.addEventListener('change', function (e) {
-    const file = e.target.files?.[0];
-    const preview = document.getElementById('thumbnailPreview');
-    if (!file || !preview) return;
-    preview.src = URL.createObjectURL(file);
-    preview.classList.remove('d-none');
-});
+    document.getElementById('thumbnailFileInput')?.addEventListener('change', function (e) {
+        const file = e.target.files?.[0];
+        const preview = document.getElementById('thumbnailPreview');
+        if (!file || !preview) return;
+        preview.src = URL.createObjectURL(file);
+        preview.classList.remove('d-none');
+    });
 </script>
 }

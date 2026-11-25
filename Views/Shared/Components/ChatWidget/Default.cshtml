@@ -19,10 +19,10 @@
             <i class="fa-solid fa-robot"></i>
         </span>
         <span>
-            <span class="viu-chat__title" id="viuChatTitle">Trợ lý Việt – Hung</span>
+            <span class="viu-chat__title" id="viuChatTitle">Trợ lý AI Việt – Hung</span>
             <span class="viu-chat__status" id="viuChatStatus"
                   data-state="@(Model.IsConfigured ? "online" : "offline")">
-                @(Model.IsConfigured ? "Đang kết nối" : "Tra cứu dữ liệu trường")
+                @(Model.IsConfigured ? "AI Trực tuyến" : "Tra cứu dữ liệu trường")
             </span>
         </span>
         <button class="viu-chat__close" id="viuChatClose" type="button" aria-label="Đóng trợ lý">
@@ -35,10 +35,10 @@
     <div class="viu-chat__chips" id="viuChatChips"></div>
 
     <form class="viu-chat__foot" id="viuChatForm">
-        <label class="visually-hidden" for="viuChatInput">Nhập câu hỏi của bạn</label>
+        <label class="visually-hidden" for="viuChatInput">Nhập câu hỏi hoặc trò chuyện cùng AI</label>
         <input class="viu-chat__input" id="viuChatInput" type="text" autocomplete="off"
-               maxlength="300" placeholder="Nhập câu hỏi của bạn..." />
-        <button class="viu-chat__send" id="viuChatSend" type="submit" aria-label="Gửi câu hỏi">
+               maxlength="2000" placeholder="Hỏi bất kỳ điều gì hoặc trò chuyện cùng AI..." />
+        <button class="viu-chat__send" id="viuChatSend" type="submit" aria-label="Gửi tin nhắn">
             <i class="fa-solid fa-paper-plane" aria-hidden="true"></i>
         </button>
     </form>

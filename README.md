@@ -1,6 +1,6 @@
 # Cổng thông tin điện tử VIU (Trường Đại học Công nghiệp Việt - Hung)
 
-Hệ thống ASP.NET Core MVC + Entity Framework Core + SQLite + ASP.NET Core Identity.
+Hệ thống ASP.NET Core MVC + Entity Framework Core + MySQL + ASP.NET Core Identity.
 
 ---
 
@@ -11,8 +11,8 @@ Hệ thống ASP.NET Core MVC + Entity Framework Core + SQLite + ASP.NET Core Id
 | .NET SDK | **10.0 trở lên** | Kiểm tra: `dotnet --version` |
 | EF Core CLI | 8.0.31 | `dotnet tool install --global dotnet-ef --version 8.0.31` |
 
-Không cần cài SQL Server. Mặc định ứng dụng dùng **SQLite** với file `VIUUniversity.db`
-đặt cạnh project.
+Cần cài **MySQL** (8.0 trở lên) và tạo database `VIUUniversityDB` (utf8mb4). Chuỗi kết nối
+mặc định trỏ tới `localhost:3306` với tài khoản `root`.
 
 > Lưu ý: dự án nhắm `net10.0` nhưng dùng thư viện EF Core 8.0.31 (bản patch mới nhất của
 > nhánh 8). Nâng lên .NET 8.x sẽ không chạy được vì `TargetFramework` là `net10.0`.
@@ -39,17 +39,16 @@ dotnet user-secrets set "SeedAdmin:FullName" "Quản trị hệ thống"
 - Chính sách mật khẩu: tối thiểu 10 ký tự, cần chữ hoa, chữ thường, số và ký tự đặc biệt.
 - Khoá tài khoản sau 5 lần sai trong 10 phút.
 
-### 2.2. Đổi cơ sở dữ liệu (tuỳ chọn)
+### 2.2. Cấu hình MySQL
 
 Trong `appsettings.json`, `ConnectionStrings:DefaultConnection`:
 
 ```json
-"Data Source=VIUUniversity.db"     // SQLite (mặc định)
-"Server=localhost,1433;Database=VIUUniversityDB;User Id=sa;Password=...;TrustServerCertificate=True"   // SQL Server
+"Server=localhost;Port=3306;Database=VIUUniversityDB;Uid=root;Pwd=;"
 ```
 
-Ứng dụng tự chọn provider dựa trên chuỗi kết nối (có `Data Source=` / đuôi `.db` → SQLite,
-ngược lại → SQL Server).
+Đổi `Uid`/`Pwd`/`Server`/`Database` cho phù hợp với máy chủ MySQL của bạn. Ứng dụng dùng
+provider **Pomelo.EntityFrameworkCore.MySql**.
 
 ---
 
@@ -103,8 +102,7 @@ migration mới từ đó trở đi — **không mất dữ liệu**.
 ### Xoá sạch và seed lại từ đầu
 
 ```bash
-rm VIUUniversity.db        # macOS/Linux
-# hoặc: dotnet ef database drop --force
+dotnet ef database drop --force
 dotnet run
 ```
 
@@ -452,6 +450,12 @@ dotnet user-secrets set "Chat:Model" "gpt-4o-mini"
 dotnet user-secrets set "Chat:Provider" "openai-compatible"
 dotnet user-secrets set "Chat:ApiKey" "<key của bạn>"
 dotnet user-secrets set "Chat:BaseUrl" "https://api.openai.com/v1"
+
+# ===== Hoặc Gemini (qua endpoint tương thích OpenAI) =====
+dotnet user-secrets set "Chat:Provider" "gemini"
+dotnet user-secrets set "Chat:ApiKey" "<key của bạn>"
+dotnet user-secrets set "Chat:BaseUrl" "https://generativelanguage.googleapis.com/v1beta/openai"
+dotnet user-secrets set "Chat:Model" "gemini-3.5-flash-lite"
 
 # ===== Hoặc Anthropic =====
 dotnet user-secrets set "Chat:Provider" "anthropic"

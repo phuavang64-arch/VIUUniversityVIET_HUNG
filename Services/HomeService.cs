@@ -36,66 +36,58 @@ namespace VIUUniversity.Services
 
         public async Task<HomeViewModel> BuildHomeViewModelAsync()
         {
-            var bannersTask = _db.Banners.AsNoTracking()
+            // DbContext is not thread-safe, so these reads are awaited one at a time.
+            // (Running them concurrently on the same context used to throw
+            // "A second operation was started..." with the MySQL provider.)
+            var banners = await _db.Banners.AsNoTracking()
                 .Where(b => b.IsActive && !b.IsDeleted)
                 .OrderBy(b => b.DisplayOrder).ToListAsync();
 
-            var majorsTask = _db.Majors.AsNoTracking()
+            var majors = await _db.Majors.AsNoTracking()
                 .Where(m => m.IsActive && !m.IsDeleted)
                 .OrderByDescending(m => m.CreatedAt).Take(8).ToListAsync();
 
-            var partnersTask = _db.Partners.AsNoTracking()
+            var partners = await _db.Partners.AsNoTracking()
                 .Where(p => p.IsActive && !p.IsDeleted)
                 .OrderBy(p => p.DisplayOrder).ToListAsync();
 
-            var campusesTask = _db.Campuses.AsNoTracking()
+            var campuses = await _db.Campuses.AsNoTracking()
                 .Where(c => c.IsActive && !c.IsDeleted)
                 .OrderBy(c => c.DisplayOrder).ToListAsync();
 
-            var galleryTask = _db.GalleryImages.AsNoTracking()
+            var gallery = await _db.GalleryImages.AsNoTracking()
                 .Where(g => g.IsActive && !g.IsDeleted)
                 .OrderBy(g => g.DisplayOrder).Take(12).ToListAsync();
 
-            var newsTask = _newsService.GetLatestAsync(6);
-            var announcementsTask = _announcementService.GetLatestAsync(6);
-            var eventsTask = _eventService.GetUpcomingAsync(4);
-            var departmentsTask = _academicService.GetDepartmentsWithMajorsAsync();
-            var methodsTask = _db.AdmissionMethods.AsNoTracking()
+            var news = await _newsService.GetLatestAsync(6);
+            var announcements = await _announcementService.GetLatestAsync(6);
+            var events = await _eventService.GetUpcomingAsync(4);
+            var departments = await _academicService.GetDepartmentsWithMajorsAsync();
+            var methods = await _db.AdmissionMethods.AsNoTracking()
                 .Where(m => !m.IsDeleted && m.IsActive)
                 .OrderBy(m => m.DisplayOrder)
                 .ToListAsync();
 
-            var majorCountTask = _db.Majors.CountAsync(m => m.IsActive && !m.IsDeleted);
-            var deptCountTask = _db.Departments.CountAsync(d => d.IsActive && !d.IsDeleted);
-            var lecturerCountTask = _db.Lecturers.CountAsync(l => l.IsActive && !l.IsDeleted);
-
-            // These are independent reads on separate connections from the pool, so running
-            // them together instead of one-after-another is what actually shortens the
-            // page load. Awaiting each line in sequence was the previous behaviour.
-            await Task.WhenAll(
-                bannersTask, majorsTask, partnersTask, campusesTask, galleryTask,
-                newsTask, announcementsTask, eventsTask, departmentsTask, methodsTask,
-                majorCountTask, deptCountTask, lecturerCountTask);
+            var majorCount = await _db.Majors.CountAsync(m => m.IsActive && !m.IsDeleted);
+            var deptCount = await _db.Departments.CountAsync(d => d.IsActive && !d.IsDeleted);
+            var lecturerCount = await _db.Lecturers.CountAsync(l => l.IsActive && !l.IsDeleted);
 
             var vm = new HomeViewModel
             {
-                Banners = await bannersTask,
-                FeaturedMajors = await majorsTask,
-                Partners = await partnersTask,
-                Campuses = await campusesTask,
-                GalleryImages = await galleryTask,
-                LatestNews = await newsTask,
-                LatestAnnouncements = await announcementsTask,
-                UpcomingEvents = await eventsTask,
-                Departments = await departmentsTask,
-                AdmissionMethods = await methodsTask,
-                TotalMajors = await majorCountTask,
-                TotalDepartments = await deptCountTask,
-                TotalLecturers = await lecturerCountTask,
+                Banners = banners,
+                FeaturedMajors = majors,
+                Partners = partners,
+                Campuses = campuses,
+                GalleryImages = gallery,
+                LatestNews = news,
+                LatestAnnouncements = announcements,
+                UpcomingEvents = events,
+                Departments = departments,
+                AdmissionMethods = methods,
+                TotalMajors = majorCount,
+                TotalDepartments = deptCount,
+                TotalLecturers = lecturerCount,
 
-                // Student records are introduced with the Student Portal phase. Until then
-                // this reads the editable setting rather than being hardcoded to 0, which
-                // was silently publishing a wrong number on the homepage.
                 TotalStudents = ParseCount(await _settings.GetAsync("stats.studentTotal", "0"))
             };
 

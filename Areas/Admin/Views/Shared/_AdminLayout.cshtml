@@ -61,6 +61,10 @@
                asp-area="Admin" asp-controller="Events" asp-action="Index">
                 <i class="fa-regular fa-calendar-days" aria-hidden="true"></i> Sự kiện
             </a>
+            <a class="admin-nav__link @(IsActive("Lecturers") ? "active" : "")"
+               asp-area="Admin" asp-controller="Lecturers" asp-action="Index">
+                <i class="fa-solid fa-chalkboard-user" aria-hidden="true"></i> Giảng viên
+            </a>
             <a class="admin-nav__link @(IsActive("Banners") ? "active" : "")"
                asp-area="Admin" asp-controller="Banners" asp-action="Index">
                 <i class="fa-solid fa-image" aria-hidden="true"></i> Banner trang chủ

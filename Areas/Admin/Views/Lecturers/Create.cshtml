@@ -1,0 +1,108 @@
+@model VIUUniversity.Models.Lecturer
+@{
+    var departments = ViewBag.Departments as List<VIUUniversity.Models.Department> ?? new();
+    var isEdit = Model.Id > 0;
+}
+<div class="admin-panel" style="max-width:900px;">
+    <div class="d-flex justify-content-between align-items-center mb-4 gap-3 flex-wrap">
+        <div>
+            <h5 class="fw-bold mb-1" style="color:var(--viu-navy);">
+                @(isEdit ? "Cập nhật" : "Thêm mới") giảng viên
+            </h5>
+            <p class="text-muted small mb-0">
+                Thông tin giảng viên sẽ hiển thị tại trang <a href="/dao-tao/giang-vien" target="_blank">/dao-tao/giang-vien</a>.
+            </p>
+        </div>
+        <a asp-action="Index" class="btn btn-outline-secondary btn-sm">
+            <i class="fa-solid fa-arrow-left me-1"></i>Danh sách
+        </a>
+    </div>
+
+    <form method="post" enctype="multipart/form-data"
+          asp-action="@(isEdit ? "Edit" : "Create")" asp-route-id="@(isEdit ? Model.Id : null)">
+        @Html.AntiForgeryToken()
+
+        <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+
+        <div class="row g-3">
+            <div class="col-md-8">
+                <div class="mb-3">
+                    <label class="form-label fw-semibold">
+                        Họ và tên <span class="text-danger">*</span>
+                    </label>
+                    <input asp-for="FullName" class="form-control form-control-lg" required
+                           placeholder="Ví dụ: PGS.TS. Nguyễn Văn Hùng" />
+                    <span asp-validation-for="FullName" class="text-danger small"></span>
+                </div>
+
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold" for="AcademicTitle">Học vị</label>
+                        <input asp-for="AcademicTitle" class="form-control" id="AcademicTitle"
+                               placeholder="Ví dụ: PGS.TS., ThS., TS." />
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold" for="DepartmentId">
+                            Khoa <span class="text-danger">*</span>
+                        </label>
+                        <select asp-for="DepartmentId" class="form-select" id="DepartmentId" required
+                                asp-items="@(new SelectList(departments, "Id", "Name", Model.DepartmentId))">
+                            <option value="">-- Chọn khoa --</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="row g-3 mt-1">
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold" for="Email">Email</label>
+                        <input asp-for="Email" type="email" class="form-control" id="Email"
+                               placeholder="email@viu.edu.vn" />
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold" for="Phone">Điện thoại</label>
+                        <input asp-for="Phone" class="form-control" id="Phone" />
+                    </div>
+                </div>
+
+                <div class="mb-3 mt-3">
+                    <label class="form-label fw-semibold" for="Biography">Tiểu sử / Giới thiệu</label>
+                    <textarea asp-for="Biography" class="form-control" rows="5" id="Biography"
+                              placeholder="Giới thiệu ngắn về giảng viên, lĩnh vực nghiên cứu, kinh nghiệm..."></textarea>
+                    <div class="form-text">Hỗ trợ HTML cơ bản: &lt;p&gt;, &lt;strong&gt;, &lt;ul&gt;...</div>
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="mb-3">
+                    <label class="form-label fw-semibold" for="avatarFile">Ảnh đại diện (upload)</label>
+                    <input type="file" name="avatarFile" accept="image/*" class="form-control"
+                           id="avatarFileInput" />
+                    <div class="form-text">JPG, PNG, WEBP, GIF — tối đa 5 MB.</div>
+                    <img id="avatarPreview" class="thumbnail-preview mt-2 d-none" alt="Xem trước" />
+                    @if (!string.IsNullOrWhiteSpace(Model.Avatar))
+                    {
+                        <img src="@Model.Avatar" alt="Ảnh hiện tại" class="thumbnail-preview mt-2" />
+                    }
+                </div>
+
+                <button type="submit" class="btn btn-viu-primary w-100 mb-2">
+                    <i class="fa-solid fa-paper-plane me-2"></i>
+                    @(isEdit ? "Lưu thay đổi" : "Thêm giảng viên")
+                </button>
+                <a asp-action="Index" class="btn btn-outline-secondary w-100">Hủy</a>
+            </div>
+        </div>
+    </form>
+</div>
+
+@section Scripts {
+<script>
+    document.getElementById('avatarFileInput')?.addEventListener('change', function (e) {
+        var file = e.target.files && e.target.files[0];
+        var preview = document.getElementById('avatarPreview');
+        if (!file || !preview) return;
+        preview.src = URL.createObjectURL(file);
+        preview.classList.remove('d-none');
+    });
+</script>
+}

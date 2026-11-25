@@ -60,9 +60,7 @@ namespace VIUUniversity.Data
             try
             {
                 var command = connection.CreateCommand();
-                command.CommandText = db.Database.IsSqlite()
-                    ? "SELECT count(*) FROM sqlite_master WHERE type='table' AND name=@t;"
-                    : "SELECT count(*) FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = @t;";
+                command.CommandText = "SELECT count(*) FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = @t;";
 
                 var param = command.CreateParameter();
                 param.ParameterName = "@t";
@@ -89,21 +87,14 @@ namespace VIUUniversity.Data
             if (baseline == null)
                 return;
 
-            var isSqlite = db.Database.IsSqlite();
             var providerVersion = System.Environment.Version.ToString();
 
-            var createHistory = isSqlite
-                ? @"CREATE TABLE IF NOT EXISTS ""__EFMigrationsHistory"" (
-                        ""MigrationId"" TEXT NOT NULL CONSTRAINT ""PK___EFMigrationsHistory"" PRIMARY KEY,
-                        ""ProductVersion"" TEXT NOT NULL);"
-                : @"IF OBJECT_ID(N'[dbo].[__EFMigrationsHistory]', N'U') IS NULL
-                    CREATE TABLE [dbo].[__EFMigrationsHistory] (
-                        [MigrationId] nvarchar(150) NOT NULL CONSTRAINT [PK___EFMigrationsHistory] PRIMARY KEY,
-                        [ProductVersion] nvarchar(32) NOT NULL);";
+            var createHistory = @"CREATE TABLE IF NOT EXISTS `__EFMigrationsHistory` (
+                        `MigrationId` varchar(150) NOT NULL,
+                        `ProductVersion` varchar(32) NOT NULL,
+                        CONSTRAINT `PK___EFMigrationsHistory` PRIMARY KEY (`MigrationId`));";
 
-            var insertHistory = isSqlite
-                ? @"INSERT OR REPLACE INTO ""__EFMigrationsHistory"" (""MigrationId"", ""ProductVersion"") VALUES ({0}, {1});"
-                : @"INSERT INTO [dbo].[__EFMigrationsHistory] ([MigrationId], [ProductVersion]) VALUES ({0}, {1});";
+            var insertHistory = @"INSERT INTO `__EFMigrationsHistory` (`MigrationId`, `ProductVersion`) VALUES ({0}, {1});";
 
             await db.Database.ExecuteSqlRawAsync(createHistory);
             await db.Database.ExecuteSqlRawAsync(insertHistory, baseline, providerVersion);
